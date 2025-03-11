@@ -787,11 +787,11 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1596058495}
         m_TargetAssemblyTypeName: RobbyManager, Assembly-CSharp
-        m_MethodName: GameSettingPannelSetFalse
-        m_Mode: 1
+        m_MethodName: settingPanelFalse
+        m_Mode: 2
         m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_ObjectArgument: {fileID: 1974190160}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.GameObject, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
@@ -3253,7 +3253,7 @@ MonoBehaviour:
       - m_Target: {fileID: 1596058496}
         m_TargetAssemblyTypeName: PhotonConnector, Assembly-CSharp
         m_MethodName: JoinRoom
-        m_Mode: 1
+        m_Mode: 5
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -5397,7 +5397,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1213575458}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1596058495}
+        m_TargetAssemblyTypeName: RobbyManager, Assembly-CSharp
+        m_MethodName: settingPanelTrue
+        m_Mode: 2
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1213575458
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5641,11 +5653,11 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1596058495}
         m_TargetAssemblyTypeName: RobbyManager, Assembly-CSharp
-        m_MethodName: GameSettingPannelSetTrue
-        m_Mode: 1
+        m_MethodName: settingPanelTrue
+        m_Mode: 2
         m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_ObjectArgument: {fileID: 1462348912}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.GameObject, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
@@ -5771,7 +5783,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1266878079}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1596058495}
+        m_TargetAssemblyTypeName: RobbyManager, Assembly-CSharp
+        m_MethodName: settingPanelTrue
+        m_Mode: 2
+        m_Arguments:
+          m_ObjectArgument: {fileID: 1974190160}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1266878079
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7402,11 +7426,11 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1596058495}
         m_TargetAssemblyTypeName: RobbyManager, Assembly-CSharp
-        m_MethodName: GameSettingPannelSetFalse
-        m_Mode: 1
+        m_MethodName: settingPanelFalse
+        m_Mode: 2
         m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_ObjectArgument: {fileID: 1462348912}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.GameObject, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
@@ -7495,8 +7519,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 951a1789ad7b1dd46b81178c885e48a4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gameStartPannel: {fileID: 1093455506}
-  gameSettingPannel: {fileID: 1462348912}
   dropdown: {fileID: 1641105534}
 --- !u!114 &1596058496
 MonoBehaviour:
@@ -8578,11 +8600,11 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1596058495}
         m_TargetAssemblyTypeName: RobbyManager, Assembly-CSharp
-        m_MethodName: GameStartPannelSetFalse
-        m_Mode: 1
+        m_MethodName: settingPanelFalse
+        m_Mode: 2
         m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_ObjectArgument: {fileID: 1093455506}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.GameObject, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
@@ -8711,23 +8733,11 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1596058495}
         m_TargetAssemblyTypeName: RobbyManager, Assembly-CSharp
-        m_MethodName: GameStartPannelSetTrue
-        m_Mode: 1
+        m_MethodName: settingPanelTrue
+        m_Mode: 2
         m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-      - m_Target: {fileID: 1596058496}
-        m_TargetAssemblyTypeName: PhotonConnector, Assembly-CSharp
-        m_MethodName: ConnectToPhoton
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_ObjectArgument: {fileID: 1093455506}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.GameObject, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
@@ -8901,7 +8911,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1974190161
 RectTransform:
   m_ObjectHideFlags: 0
@@ -9181,7 +9191,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1596058496}
         m_TargetAssemblyTypeName: PhotonConnector, Assembly-CSharp
-        m_MethodName: QuickMatch
+        m_MethodName: StartQuickMatch
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

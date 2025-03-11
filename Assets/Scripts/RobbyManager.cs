@@ -6,29 +6,19 @@ using TMPro;
 
 public class RobbyManager : MonoBehaviour
 {
-    public GameObject gameStartPannel;
-    public GameObject gameSettingPannel;
     public TMP_Dropdown dropdown;
     private int selectedModeIndex; // 선택된 화면 모드 저장 변수
 
+    public void settingPanelTrue(GameObject gameObject)
+    {
+        gameObject.SetActive(true);
+    }
 
-    public void GameStartPannelSetTrue()
+   public void settingPanelFalse(GameObject gameObject)
     {
-        gameStartPannel.SetActive(true);
+        gameObject.SetActive(false);
     }
-    public void GameStartPannelSetFalse()
-    {
-        gameStartPannel.SetActive(false);
-    }
-    
-    public void GameSettingPannelSetTrue()
-    {
-        gameSettingPannel.SetActive(true);
-    }
-    public void GameSettingPannelSetFalse()
-    {
-        gameSettingPannel.SetActive(false);
-    }
+
     void Start()
     {
         // 드롭다운 값이 변경될 때만 변수 저장 (즉시 적용 X)

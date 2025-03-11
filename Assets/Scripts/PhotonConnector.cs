@@ -75,7 +75,16 @@ public class PhotonConnector : MonoBehaviourPunCallbacks
             roomEntries[room.Name] = entry;
         }
     }
+    public void StartQuickMatch()
+    {
+        PhotonNetwork.JoinRandomRoom(); // 무작위 방 참가 시도
+    }
 
+    public override void OnJoinRandomFailed(short returnCode, string message)
+    {
+        Debug.Log("빈 방이 없어서 새로운 방을 만듭니다.");
+        CreateRoom();
+    }
     public void CreateRoom()
     {
         if (!PhotonNetwork.IsConnected)
@@ -93,6 +102,7 @@ public class PhotonConnector : MonoBehaviourPunCallbacks
 
     public void JoinRoom(string roomName)
     {
+        roomName =  roomNameInput.text;
         if (!PhotonNetwork.IsConnected)
         {
             Debug.LogWarning("Photon에 연결되지 않았습니다!");
