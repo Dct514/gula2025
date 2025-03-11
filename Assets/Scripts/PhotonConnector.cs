@@ -46,35 +46,55 @@ public class PhotonConnector : MonoBehaviourPunCallbacks
         Debug.Log("방 목록 업데이트!");
         UpdateRoomListUI(roomList);
     }
-    private void UpdateRoomListUI(List<RoomInfo> roomList)
+   private void UpdateRoomListUI(List<RoomInfo> roomList)
+{
+    // 기존 방 목록 삭제
+    foreach (var entry in roomEntries.Values)
     {
-        // 기존 방 목록 삭제
-        foreach (var entry in roomEntries.Values)
-        {
-            Destroy(entry);
-        }
-        roomEntries.Clear();
-
-        // 방이 없으면 "방이 없습니다" 텍스트 표시
-        if (roomList.Count == 0)
-        {
-            noRoomsText.gameObject.SetActive(true);
-            return;
-        }
-        noRoomsText.gameObject.SetActive(false);
-
-        // 방 목록 UI 생성
-        foreach (RoomInfo room in roomList)
-        {
-            if (room.RemovedFromList) continue;
-
-            GameObject entry = Instantiate(roomEntryPrefab, roomListContainer);
-            entry.transform.Find("RoomNameText").GetComponent<TMP_Text>().text = $"{room.Name} ({room.PlayerCount}/{room.MaxPlayers})";
-            entry.transform.Find("JoinButton").GetComponent<Button>().onClick.AddListener(() => JoinRoom(room.Name));
-
-            roomEntries[room.Name] = entry;
-        }
+        Destroy(entry);
     }
+    roomEntries.Clear();
+
+    // 방이 없으면 "방이 없습니다" 텍스트 표시
+    if (roomList.Count == 0)
+    {
+        noRoomsText.gameObject.SetActive(true);
+        return;
+    }
+    noRoomsText.gameObject.SetActive(false);
+
+    float spacing = 10f; // 아이템 간 간격
+    float itemHeight = 50f; // 방 항목 UI 높이 (프리팹 크기)
+
+    // 방 목록 UI 생성
+    for (int i = 0; i < roomList.Count; i++)
+    {
+        RoomInfo room = roomList[i];
+        if (room.RemovedFromList) continue;
+
+        GameObject entry = Instantiate(roomEntryPrefab, roomListContainer);
+        RectTransform entryTransform = entry.GetComponent<RectTransform>();
+
+        // 방 UI 위치 설정 (점점 아래로 배치)
+        entryTransform.anchoredPosition = new Vector2(0, -i * (itemHeight + spacing));
+
+        // UI 요소 업데이트
+        entry.transform.Find("RoomNameText").GetComponent<TMP_Text>().text = $"{room.Name} ({room.PlayerCount}/{room.MaxPlayers})";
+        entry.transform.Find("JoinButton").GetComponent<Button>().onClick.AddListener(() => JoinRoom(room.Name));
+
+        roomEntries[room.Name] = entry;
+    }
+
+    // 컨테이너 크기 조절 (스크롤 뷰 대응)
+    AdjustRoomListSize(roomList.Count, itemHeight, spacing);
+}
+
+// 방 목록 크기 자동 조절 (스크롤 뷰를 고려한 크기 조정)
+private void AdjustRoomListSize(int roomCount, float itemHeight, float spacing)
+{
+    RectTransform contentRect = roomListContainer.GetComponent<RectTransform>();
+    contentRect.sizeDelta = new Vector2(contentRect.sizeDelta.x, roomCount * (itemHeight + spacing));
+}
     public void StartQuickMatch()
     {
         PhotonNetwork.JoinRandomRoom(); // 무작위 방 참가 시도

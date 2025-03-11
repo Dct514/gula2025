@@ -46,19 +46,23 @@ public class GameManager : MonoBehaviourPunCallbacks
 
     private void Start()
     {
-       photonView.RPC("SettingPlayerTurn", RpcTarget.MasterClient);
+        if(PhotonNetwork.IsMasterClient) // 마스터 클라이언트만 실행
+        {
+            SettingPlayerTurn();
+        }
        
     }
-
-[PunRPC]
-    public void SettingPlayerTurn() // 선플레이어 랜덤픽
+    public void SettingPlayerTurn() // 선플레이어 랜덤픽 + 동기화
     {
+        Debug.Log("settingplayerTurn 시작");
         currentPlayerIndex = Random.Range(1, PhotonNetwork.CurrentRoom.PlayerCount+1);
         photonView.RPC("SyncPlayerTurn", RpcTarget.Others,currentPlayerIndex);
     }
-[PunRPC]
+    
+    [PunRPC]
     public void SyncPlayerTurn(int mcurrentPlayerIndex)
     {
+        Debug.Log("SyncPlayerTurn 시작");
         currentPlayerIndex = mcurrentPlayerIndex;
         if(PhotonNetwork.LocalPlayer.ActorNumber==mcurrentPlayerIndex)
         {

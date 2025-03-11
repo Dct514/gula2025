@@ -1467,7 +1467,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dfeb09f5215a1f549a9c6261dd7098b2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cardPoint: 0
+  cardPoint: 1
   clicked: 0
 --- !u!1 &606822201
 GameObject:
