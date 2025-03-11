@@ -11,10 +11,11 @@ public class FoodCard : MonoBehaviour, IPointerClickHandler
       Bread = 1,
       Soup = 2,
       Fish = 3,
-      Steak = 50,
-      Turkey = 70,
-      Cake = 100,
+      Steak = 5,
+      Turkey = 7,
+      Cake = 10,
       deny = 0
+      // 주석
    }
 
    public CardPoint cardPoint;
