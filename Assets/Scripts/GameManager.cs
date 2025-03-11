@@ -84,47 +84,50 @@ public class GameManager : MonoBehaviourPunCallbacks
     {
     switch (value)
     {
-        case 1: value=1; return 1;
-        case 2: value=2; return 2;
-        case 3: value=3; return 3;
-        case 5: value=4; return 4;
-        case 7: value=5; return 5;
-        case 10: value=6; return 6;
-        default: return 0;
+        case 1: return 0;
+        case 2: return 1;
+        case 3: return 2;
+        case 5: return 3;
+        case 7: return 4;
+        case 10: return 5;
+        default: return 6;
     }
     }
 
     public void ClickSubmit() // main
     {
+        Debug.Log("clicked!");
         switch (currentTurn)
         {
-        case 1: currentTurn=0; // 선 플레이어가 첫 카드를 제출해야 하는 턴
+        case 0: // 선 플레이어가 첫 카드를 제출해야 하는 턴
+         Debug.Log("current0");
             if(currentPlayerIndex == PhotonNetwork.LocalPlayer.ActorNumber)
             {
                 myscore = (int)selectedFoodCard;
+                Debug.Log($"{myscore}");
                 photonView.RPC("SetCardValue", RpcTarget.All,(int)selectedFoodCard, 1);
-                // 카드의 점수를 저장, 테이블에 동기화
+                currentTurn++;
             }
             else 
             {
-            Debug.Log("차례가 아닙니다.");
+            gamestatustxt.text = "차례가 아닙니다.";
             } 
             break;
             
-        case 2: currentTurn=1; // 선 플레이어에 맞춰 식사 카드를 제출하는 턴
+        case 1: currentTurn=1; // 선 플레이어에 맞춰 식사 카드를 제출하는 턴
             
             break;
 
-        case 3: currentTurn=2; // 선 플레이어가 식사할 카드를 고르는 턴
+        case 2: currentTurn=2; // 선 플레이어가 식사할 카드를 고르는 턴
             submit2panel.SetActive(true);
             break;
 
-        case 4: currentTurn=3; // 선 플레이어와 선택된 플레이어가 식사/강탈을 고르는 턴 
+        case 3: currentTurn=3; // 선 플레이어와 선택된 플레이어가 식사/강탈을 고르는 턴 
             submit2panel.SetActive(false);
             break;
 
         default:  // 위 조건에 해당하지 않는 경우
-            // 비워 놓기
+        // 비워 놓기 
             break;
         }
             
