@@ -62,7 +62,7 @@ public class GameManager : MonoBehaviourPunCallbacks
     [PunRPC]
     public void SyncPlayerTurn(int mcurrentPlayerIndex)
     {
-        Debug.Log("SyncPlayerTurn 시작");
+        Debug.Log("SyncPlayerTurn 실행");
         currentPlayerIndex = mcurrentPlayerIndex;
         if(PhotonNetwork.LocalPlayer.ActorNumber==mcurrentPlayerIndex)
         {
@@ -70,14 +70,23 @@ public class GameManager : MonoBehaviourPunCallbacks
         }
         else 
         {
+            if(currentTurn==1){gamestatustxt.text = "식사하실 분은 카드를 내세요.";}
+
             gamestatustxt.text = $"{mcurrentPlayerIndex}번 플레이어 차례입니다.";
         }
     }
-    
+    [PunRPC]
+    public void TurnPlus()
+    {
+        currentTurn++;
+    }
+
+
     [PunRPC]
     public void SetCardValue(int value, int playernum)
     {
-    spriteRenderer[playernum-1].sprite = cardSprites[GetSpriteIndex(value)];
+        spriteRenderer[playernum-1].sprite = cardSprites[GetSpriteIndex(value)];
+        Debug.Log("SetCardValue 실행");
     }
 
     private int GetSpriteIndex(int value)
@@ -100,13 +109,12 @@ public class GameManager : MonoBehaviourPunCallbacks
         switch (currentTurn)
         {
         case 0: // 선 플레이어가 첫 카드를 제출해야 하는 턴
-         Debug.Log("current0");
             if(currentPlayerIndex == PhotonNetwork.LocalPlayer.ActorNumber)
             {
                 myscore = (int)selectedFoodCard;
-                Debug.Log($"{myscore}");
                 photonView.RPC("SetCardValue", RpcTarget.All,(int)selectedFoodCard, 1);
-                currentTurn++;
+                photonView.RPC("TurnPlus", RpcTarget.All);
+                Debug.Log("current0");
             }
             else 
             {
@@ -115,14 +123,19 @@ public class GameManager : MonoBehaviourPunCallbacks
             break;
             
         case 1: currentTurn=1; // 선 플레이어에 맞춰 식사 카드를 제출하는 턴
-            
+            photonView.RPC("SetCardValue", RpcTarget.All,(int)selectedFoodCard, PhotonNetwork.LocalPlayer.ActorNumber);
+            // (추가해야할 것) 모든 플레이어가 식사 카드를 내거나 패스를 눌렀다면, 5초가 지났다면
+            photonView.RPC("TurnPlus", RpcTarget.All);
+
             break;
 
         case 2: currentTurn=2; // 선 플레이어가 식사할 카드를 고르는 턴
+            
             submit2panel.SetActive(true);
             break;
 
         case 3: currentTurn=3; // 선 플레이어와 선택된 플레이어가 식사/강탈을 고르는 턴 
+            
             submit2panel.SetActive(false);
             break;
 
@@ -150,16 +163,7 @@ public class GameManager : MonoBehaviourPunCallbacks
     public override void OnPlayerLeftRoom(Player otherPlayer)
     {
         Debug.Log($"플레이어 {otherPlayer.NickName} (ID: {otherPlayer.ActorNumber})가 방을 떠났습니다.");
-        
-        // 방에 남아 있는 플레이어 수 확인
         Debug.Log($"현재 방에 남은 플레이어 수: {PhotonNetwork.CurrentRoom.PlayerCount}");
-
-        // 방장이 나갔을 경우 새로운 방장 지정
-        if (PhotonNetwork.IsMasterClient)
-        {
-            Debug.Log("새로운 방장이 되었습니다!");
-            // 추가적인 방장 설정 로직 (예: 게임 관리)
-        }
         GameOver();
     }
 
@@ -168,7 +172,7 @@ public class GameManager : MonoBehaviourPunCallbacks
     resultPannel.SetActive(true);
    }
 
-   void gotolobby()
+   void gotolobby() // 게임오버 패널에서 지정
    {
     PhotonNetwork.LeaveRoom();
    }
