@@ -13,14 +13,15 @@ public class GameManager : MonoBehaviourPunCallbacks
     public static GameManager Instance;
     public TMP_Text gamestatustxt;
     public GameObject submit2panel;
+    public GameObject resultPannel;
     public TextMeshProUGUI[] playerListText;
+    int pickedplayerIndex; // 선 플레이어가 고른카드의 플레이어 번호
     int currentPlayerIndex; // 선 플레이어 관리용 변수
     public int currentTurn=0; // 턴 관리
-    int myscore; 
-    GameObject resultPannel;
+    int myscore; // 내 점수가 일정 이상이면 게임 종료
     public FoodCard.CardPoint selectedFoodCard;
-    public SpriteRenderer[] spriteRenderer; // 스프라이트 렌더러
-    public Sprite[] cardSprites; // 카드 스프라이트 배열 (1~6점의 카드 이미지 저장)
+    public Sprite[] cardSprites; // 카드 스프라이트
+    public Image[] cardImages; // 카드 스프라이트 표시될 곳
 
     private List<FoodCard.CardPoint> playerHand = new List<FoodCard.CardPoint> 
     {
@@ -56,9 +57,15 @@ public class GameManager : MonoBehaviourPunCallbacks
     {
         Debug.Log("settingplayerTurn 시작");
         currentPlayerIndex = Random.Range(1, PhotonNetwork.CurrentRoom.PlayerCount+1);
-        photonView.RPC("SyncPlayerTurn", RpcTarget.Others,currentPlayerIndex);
+        photonView.RPC("SyncPlayerTurn", RpcTarget.All,currentPlayerIndex);
     }
     
+    [PunRPC]
+    private void SyncGamestatustxtUpdate(string txt)
+    {
+        gamestatustxt.text = txt;
+    }
+
     [PunRPC]
     public void SyncPlayerTurn(int mcurrentPlayerIndex)
     {
@@ -75,6 +82,7 @@ public class GameManager : MonoBehaviourPunCallbacks
             gamestatustxt.text = $"{mcurrentPlayerIndex}번 플레이어 차례입니다.";
         }
     }
+
     [PunRPC]
     public void TurnPlus()
     {
@@ -85,8 +93,9 @@ public class GameManager : MonoBehaviourPunCallbacks
     [PunRPC]
     public void SetCardValue(int value, int playernum)
     {
-        spriteRenderer[playernum-1].sprite = cardSprites[GetSpriteIndex(value)];
-        Debug.Log("SetCardValue 실행");
+        cardImages[playernum-1].sprite = cardSprites[GetSpriteIndex(value)];
+        Debug.Log("setCardValue");
+
     }
 
     private int GetSpriteIndex(int value)
@@ -127,11 +136,19 @@ public class GameManager : MonoBehaviourPunCallbacks
             // (추가해야할 것) 모든 플레이어가 식사 카드를 내거나 패스를 눌렀다면, 5초가 지났다면
             photonView.RPC("TurnPlus", RpcTarget.All);
 
+            if(currentPlayerIndex == PhotonNetwork.LocalPlayer.ActorNumber)
+            {
+                gamestatustxt.text = "식사할 카드를 누르세요.";
+            }
+
             break;
 
         case 2: currentTurn=2; // 선 플레이어가 식사할 카드를 고르는 턴
-            
-            submit2panel.SetActive(true);
+            if(currentPlayerIndex != PhotonNetwork.LocalPlayer.ActorNumber) 
+            {
+                gamestatustxt.text = "선 플레이어가 식사할 상대를 고르고 있습니다.";
+            }
+
             break;
 
         case 3: currentTurn=3; // 선 플레이어와 선택된 플레이어가 식사/강탈을 고르는 턴 
@@ -143,16 +160,19 @@ public class GameManager : MonoBehaviourPunCallbacks
         // 비워 놓기 
             break;
         }
-            
-        
     }
-
-    public void table()
-    {
-
-    }
-
     
+    public void TableCardClick(int playernum) // case 2에서 선 플레이어가 식사할 카드를 고를 때 호출
+    {
+        if(currentTurn==2 && currentPlayerIndex == PhotonNetwork.LocalPlayer.ActorNumber)
+        {
+            pickedplayerIndex = playernum;
+            submit2panel.SetActive(true);
+            photonView.RPC("TurnPlus", RpcTarget.All);
+        }
+        else return;
+    }
+
    void RoundEnd()
    {
     if(myscore >= 50){
