@@ -36,7 +36,7 @@ public class LobbyManager : MonoBehaviour
 
     public void ApplyScreenMode()
     {
-        if (selectedModeIndex == 0) // "창 모드"
+        if (selectedModeIndex == 0) //  "창 모드"
         {
             Screen.fullScreenMode = FullScreenMode.Windowed;
             Screen.SetResolution(1280, 720, false);
