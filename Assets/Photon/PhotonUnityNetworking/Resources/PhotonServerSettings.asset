@@ -45,6 +45,9 @@ MonoBehaviour:
   - SetCardValue
   - TurnPlus
   - SyncGamestatustxtUpdate
+  - SyncpickedplayerIndex
+  - SyncChoice
+  - GetScore
   DisableAutoOpenWizard: 1
   ShowSettings: 0
   DevRegionSetOnce: 1

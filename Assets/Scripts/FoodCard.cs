@@ -23,7 +23,6 @@ public class FoodCard : MonoBehaviour, IPointerClickHandler
 
    public void OnPointerClick(PointerEventData eventData)
    {
-      GameManager.Instance.selectedFoodCard = cardPoint;
-      Debug.Log($"{GameManager.Instance.selectedFoodCard} - {(int)GameManager.Instance.selectedFoodCard}");
+      GameManager.Instance.pickedCardsave(cardPoint);
    }
 }
