@@ -78,7 +78,7 @@ public class GameManager : MonoBehaviourPunCallbacks
 
     public void pickedCardsaveRPC(FoodCard.CardPoint pickedCard)
     {
-        selectedFoodCard[PhotonNetwork.LocalPlayer.ActorNumber] = pickedCard;
+        selectedFoodCard[PhotonNetwork.LocalPlayer.ActorNumber-1] = pickedCard;
         Debug.Log("pickedCardsaveRPC");
     }
 
@@ -99,11 +99,13 @@ public class GameManager : MonoBehaviourPunCallbacks
         }
         else 
         {
-            if(currentTurn==1){gamestatustxt.text = "식사하실 분은 카드를 내세요.";}
+            if (currentTurn == 1)
+            {
 
-            gamestatustxt.text = $"{mcurrentPlayerIndex}번 플레이어 차례입니다.";
+                gamestatustxt.text = $"{mcurrentPlayerIndex}번 플레이어 차례입니다.";
+            }
+            }
         }
-    }
 
 
     [PunRPC]
@@ -134,7 +136,7 @@ public class GameManager : MonoBehaviourPunCallbacks
         switch (currentTurn)
         {
         case 0: // 선 플레이어가 첫 카드를 제출해야 하는 턴
-            if(currentPlayerIndex == PhotonNetwork.LocalPlayer.ActorNumber && selectedFoodCard[PhotonNetwork.LocalPlayer.ActorNumber] != 0)
+            if(currentPlayerIndex == PhotonNetwork.LocalPlayer.ActorNumber)
             {
                 pushFoodCard = true;
                 photonView.RPC("SetCardValue", RpcTarget.All,(int)selectedFoodCard[PhotonNetwork.LocalPlayer.ActorNumber], 1);
