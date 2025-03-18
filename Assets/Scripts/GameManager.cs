@@ -76,9 +76,10 @@ public class GameManager : MonoBehaviourPunCallbacks
         Debug.Log("pickedCardsave");
     }
 
+[PunRPC]
     public void pickedCardsaveRPC(FoodCard.CardPoint pickedCard)
     {
-        selectedFoodCard[PhotonNetwork.LocalPlayer.ActorNumber-1] = pickedCard;
+        selectedFoodCard[PhotonNetwork.LocalPlayer.ActorNumber] = pickedCard;
         Debug.Log("pickedCardsaveRPC");
     }
 
@@ -99,7 +100,7 @@ public class GameManager : MonoBehaviourPunCallbacks
         }
         else 
         {
-            if (currentTurn == 1)
+            if (currentTurn == 0)
             {
 
                 gamestatustxt.text = $"{mcurrentPlayerIndex}번 플레이어 차례입니다.";
@@ -111,7 +112,8 @@ public class GameManager : MonoBehaviourPunCallbacks
     [PunRPC]
     public void SetCardValue(int value, int playernum)
     {
-        cardImages[playernum-1].sprite = cardSprites[GetSpriteIndex(value)];
+        
+        cardImages[playernum].sprite = cardSprites[GetSpriteIndex(value)];
         Debug.Log("setCardValue");
 
     }
@@ -139,13 +141,14 @@ public class GameManager : MonoBehaviourPunCallbacks
             if(currentPlayerIndex == PhotonNetwork.LocalPlayer.ActorNumber)
             {
                 pushFoodCard = true;
-                photonView.RPC("SetCardValue", RpcTarget.All,(int)selectedFoodCard[PhotonNetwork.LocalPlayer.ActorNumber], 1);
+                photonView.RPC("SetCardValue", RpcTarget.All,(int)selectedFoodCard[PhotonNetwork.LocalPlayer.ActorNumber], 0);
                 photonView.RPC("TurnPlus", RpcTarget.All);
+                photonView.RPC("SyncGamestatustxtUpdate", RpcTarget.All, "식사할 카드를 내세요.");
                 Debug.Log("current0");
             }
             else 
             {
-            gamestatustxt.text = "차례가 아닙니다.";
+                gamestatustxt.text = "차례가 아닙니다.";
             } 
             break;
             
@@ -164,7 +167,7 @@ public class GameManager : MonoBehaviourPunCallbacks
         case 2: // 선 플레이어가 식사할 카드를 고르는 턴
             
             
-            if(currentPlayerIndex != PhotonNetwork.LocalPlayer.ActorNumber) 
+            if(currentPlayerIndex != PhotonNetwork.LocalPlayer.ActorNumber)
             {
                 gamestatustxt.text = "선 플레이어가 식사할 상대를 고르고 있습니다.";
             }
