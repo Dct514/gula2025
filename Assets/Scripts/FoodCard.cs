@@ -17,10 +17,7 @@ public class FoodCard : MonoBehaviour, IPointerClickHandler
       deny = 0
       // 주석
    }
-
    public CardPoint cardPoint;
-   public bool clicked = false;
-
     public void OnPointerClick(PointerEventData eventData)
     {
         GameManager.Instance.pickedCardsave(cardPoint);
