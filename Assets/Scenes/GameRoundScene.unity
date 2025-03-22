@@ -132,7 +132,6 @@ GameObject:
   m_Component:
   - component: {fileID: 67492618}
   - component: {fileID: 67492622}
-  - component: {fileID: 67492619}
   - component: {fileID: 67492624}
   - component: {fileID: 67492621}
   - component: {fileID: 67492625}
@@ -162,51 +161,6 @@ RectTransform:
   m_AnchoredPosition: {x: -304.99997, y: 119.809784}
   m_SizeDelta: {x: 70.869995, y: 106.330956}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!61 &67492619
-BoxCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 67492617}
-  m_Enabled: 1
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_ForceSendLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ForceReceiveLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ContactCaptureLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_CallbackLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_IsTrigger: 0
-  m_UsedByEffector: 0
-  m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0}
-  m_SpriteTilingProperty:
-    border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0, y: 0}
-    oldSize: {x: 0, y: 0}
-    newSize: {x: 0, y: 0}
-    adaptiveTilingThreshold: 0
-    drawMode: 0
-    adaptiveTiling: 0
-  m_AutoTiling: 0
-  serializedVersion: 2
-  m_Size: {x: 1, y: 1}
-  m_EdgeRadius: 0
 --- !u!114 &67492621
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -604,7 +558,7 @@ GameObject:
   - component: {fileID: 138220324}
   - component: {fileID: 138220323}
   m_Layer: 5
-  m_Name: Text (TMP)
+  m_Name: timertxt
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1730,9 +1684,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   gamestatustxt: {fileID: 921067843}
-  submitbuttontxt: {fileID: 96844728}
-  timer: {fileID: 0}
-  submitbuttontxt2: {fileID: 1058645088}
+  submitbuttontxt: {fileID: 1058645088}
+  timer: {fileID: 138220323}
+  submitbuttontxt2: {fileID: 96844728}
+  gameovertxt: {fileID: 1146306023}
+  scoretxt: []
   resultPannel: {fileID: 1497233016}
   playerListText:
   - {fileID: 0}
@@ -1742,7 +1698,8 @@ MonoBehaviour:
   currentTurn: 0
   currentTurn2: 1
   pushFoodCard: 0
-  selectedFoodCard: 07000000010000000100000001000000
+  score: 000000000000000000000000000000000000000000000000
+  selectedFoodCard: 00000000000000000000000000000000
   cardSprites:
   - {fileID: 21300000, guid: ef5cf035d5d6fda46a98f75d952c0213, type: 3}
   - {fileID: 21300000, guid: c00bfa98c5e92f54884d3757bb851504, type: 3}
@@ -1788,6 +1745,10 @@ MonoBehaviour:
   - {fileID: 1489025365}
   - {fileID: 1976891406}
   - {fileID: 1557527058}
+  score:
+  - {fileID: 2086335552956726693}
+  - {fileID: 1862954140}
+  - {fileID: 1557527059}
 --- !u!114 &839969402
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2218,7 +2179,7 @@ MonoBehaviour:
     m_SelectedTrigger: Selected
     m_DisabledTrigger: Disabled
   m_Interactable: 1
-  m_TargetGraphic: {fileID: 67492621}
+  m_TargetGraphic: {fileID: 978672448}
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
@@ -2427,8 +2388,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: "\uACB0\uACFC"
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: f8da6f6c7e62230448bf82f1c401ad3b, type: 2}
+  m_sharedMaterial: {fileID: 3520119044898704437, guid: f8da6f6c7e62230448bf82f1c401ad3b, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -2605,6 +2566,7 @@ GameObject:
   - component: {fileID: 1497233017}
   - component: {fileID: 1497233019}
   - component: {fileID: 1497233018}
+  - component: {fileID: 1497233020}
   m_Layer: 5
   m_Name: Panel(result)
   m_TagString: Untagged
@@ -2671,6 +2633,62 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1497233016}
   m_CullTransparentMesh: 1
+--- !u!114 &1497233020
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1497233016}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Navigation:
+    m_Mode: 3
+    m_WrapAround: 0
+    m_SelectOnUp: {fileID: 0}
+    m_SelectOnDown: {fileID: 0}
+    m_SelectOnLeft: {fileID: 0}
+    m_SelectOnRight: {fileID: 0}
+  m_Transition: 1
+  m_Colors:
+    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
+    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
+    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+    m_ColorMultiplier: 1
+    m_FadeDuration: 0.1
+  m_SpriteState:
+    m_HighlightedSprite: {fileID: 0}
+    m_PressedSprite: {fileID: 0}
+    m_SelectedSprite: {fileID: 0}
+    m_DisabledSprite: {fileID: 0}
+  m_AnimationTriggers:
+    m_NormalTrigger: Normal
+    m_HighlightedTrigger: Highlighted
+    m_PressedTrigger: Pressed
+    m_SelectedTrigger: Selected
+    m_DisabledTrigger: Disabled
+  m_Interactable: 1
+  m_TargetGraphic: {fileID: 1497233018}
+  m_OnClick:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 839969399}
+        m_TargetAssemblyTypeName: GameManager, Assembly-CSharp
+        m_MethodName: Gotolobby
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &1500101720
 GameObject:
   m_ObjectHideFlags: 0
@@ -2965,6 +2983,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1557527059 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6389655856888531086, guid: 86b82a54be9e57343961360964f334ab, type: 3}
+  m_PrefabInstance: {fileID: 1557527056}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1599420803
 GameObject:
   m_ObjectHideFlags: 0
@@ -3150,7 +3179,7 @@ MonoBehaviour:
     m_SelectedTrigger: Selected
     m_DisabledTrigger: Disabled
   m_Interactable: 1
-  m_TargetGraphic: {fileID: 67492621}
+  m_TargetGraphic: {fileID: 1599420807}
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
@@ -3176,7 +3205,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1622178334}
   - component: {fileID: 1622178338}
-  - component: {fileID: 1622178335}
   - component: {fileID: 1622178340}
   - component: {fileID: 1622178341}
   m_Layer: 0
@@ -3205,51 +3233,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 381.19058}
   m_SizeDelta: {x: 70.869995, y: 106.33093}
   m_Pivot: {x: 0.5, y: 0.49999994}
---- !u!61 &1622178335
-BoxCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1622178333}
-  m_Enabled: 1
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_ForceSendLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ForceReceiveLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ContactCaptureLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_CallbackLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_IsTrigger: 0
-  m_UsedByEffector: 0
-  m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0}
-  m_SpriteTilingProperty:
-    border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 70.87, y: 106.330956}
-    newSize: {x: 70.87, y: 106.330956}
-    adaptiveTilingThreshold: 0.5
-    drawMode: 0
-    adaptiveTiling: 0
-  m_AutoTiling: 0
-  serializedVersion: 2
-  m_Size: {x: 1, y: 1}
-  m_EdgeRadius: 0
 --- !u!222 &1622178338
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -3541,7 +3524,7 @@ MonoBehaviour:
     m_SelectedTrigger: Selected
     m_DisabledTrigger: Disabled
   m_Interactable: 1
-  m_TargetGraphic: {fileID: 67492621}
+  m_TargetGraphic: {fileID: 1744519959}
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
@@ -3719,6 +3702,17 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 4713309780422128145, guid: 86b82a54be9e57343961360964f334ab, type: 3}
   m_PrefabInstance: {fileID: 1862954138}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1862954140 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6389655856888531086, guid: 86b82a54be9e57343961360964f334ab, type: 3}
+  m_PrefabInstance: {fileID: 1862954138}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1892639482
 GameObject:
   m_ObjectHideFlags: 0
@@ -4130,6 +4124,17 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 86b82a54be9e57343961360964f334ab, type: 3}
+--- !u!114 &2086335552956726693 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6389655856888531086, guid: 86b82a54be9e57343961360964f334ab, type: 3}
+  m_PrefabInstance: {fileID: 2086335552956726692}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!224 &8361387056469940550 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 4713309780422128145, guid: 86b82a54be9e57343961360964f334ab, type: 3}
