@@ -302,7 +302,7 @@ public class GameManager : MonoBehaviourPunCallbacks
    {
         Debug.Log($"RoundEnd : {score[PhotonNetwork.LocalPlayer.ActorNumber]}");
 
-        if(score[PhotonNetwork.LocalPlayer.ActorNumber]>10) // 점수 나중에 수정하기로~
+        if(score[PhotonNetwork.LocalPlayer.ActorNumber]>10) // 점수 나중에 수정하기로~ 실행 겹치지 않게
         {
             photonView.RPC("GameOver", RpcTarget.All);
         }
@@ -323,6 +323,8 @@ public class GameManager : MonoBehaviourPunCallbacks
         currentTurn2 = 1;
         plchoice = -1;
         plchoice2 = -1;
+        PlayerListUI playerListUI = FindObjectOfType<PlayerListUI>();
+        playerListUI.UpdatePlayerList();
 
         for(int i = 0; i < PhotonNetwork.CurrentRoom.PlayerCount+1; i++)
         {
@@ -345,8 +347,9 @@ public class GameManager : MonoBehaviourPunCallbacks
         Debug.Log($"현재 방에 남은 플레이어 수: {PhotonNetwork.CurrentRoom.PlayerCount}");
         GameOver();
     }
-
-   void GameOver()
+    
+[PunRPC]
+   public void GameOver()
    {
     resultPannel.SetActive(true);
     gameovertxt.text = $"{PhotonNetwork.CurrentRoom.GetPlayer(1).NickName} : {score[0]}\n{PhotonNetwork.CurrentRoom.GetPlayer(2).NickName} : {score[1]}\n{PhotonNetwork.CurrentRoom.GetPlayer(3).NickName} : {score[2]}\n{PhotonNetwork.CurrentRoom.GetPlayer(4).NickName} : {score[3]}\n";

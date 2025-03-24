@@ -9,7 +9,7 @@ using UnityEngine.UI;
 public class PlayerListUI : MonoBehaviourPunCallbacks
 {
     public TMP_Text[] playerSlots; // 왼쪽부터 오른쪽으로 닉네임을 표시할 Text 배열
-    public TMP_Text[] score;
+    public TMP_Text[] scoretxt;
 
     private void Start()
     {
@@ -26,34 +26,43 @@ public class PlayerListUI : MonoBehaviourPunCallbacks
         UpdatePlayerList();
     }
 
-private void UpdatePlayerList()
+public void UpdatePlayerList()
 {
+    Debug.Log("UpdatePlayerList");
     if (!PhotonNetwork.InRoom)
         return;
-    
+
     List<Player> sortedPlayers = PhotonNetwork.PlayerList
         .Where(p => p.ActorNumber != PhotonNetwork.LocalPlayer.ActorNumber) // 자신 제외
         .OrderBy(p => p.ActorNumber) // ActorNumber가 낮은 순으로 정렬
         .ToList();
-    
+
     for (int i = 0; i < playerSlots.Length; i++)
     {
         if (i < sortedPlayers.Count)
         {
             playerSlots[i].text = sortedPlayers[i].NickName;
-            score[i].text = "점수 :" +GetPlayerScore(i).ToString(); // 점수 업데이트
+            scoretxt[i].text = $"점수 : {GetPlayerScore(sortedPlayers[i])}"; // GameManager에서 점수 가져오기
         }
         else
         {
             playerSlots[i].text = "-"; // 빈 자리 표시
-            score[i].text = "-"; // 빈 자리 점수 표시
+            scoretxt[i].text = "-"; // 빈 자리 점수 표시
         }
     }
 }
 
-private int GetPlayerScore(int index)
+// GameManager의 score 배열에서 점수 가져오기
+private int GetPlayerScore(Player player)
 {
-    // GameManager의 Score 배열에서 점수를 가져오는 로직
-    return GameManager.Instance.score[index];
+    int actorNumber = player.ActorNumber;
+
+    // GameManager의 인스턴스에서 score 배열을 가져옴 (배열 크기 검사 추가)
+    if (GameManager.Instance != null && actorNumber >= 0 && actorNumber < GameManager.Instance.score.Length)
+    {
+        return GameManager.Instance.score[actorNumber]; 
+    }
+    return 0; // 기본값
 }
+
 }

@@ -1662,7 +1662,7 @@ GameObject:
   m_Component:
   - component: {fileID: 839969400}
   - component: {fileID: 839969399}
-  - component: {fileID: 839969401}
+  - component: {fileID: 839969403}
   - component: {fileID: 839969402}
   m_Layer: 0
   m_Name: GameManager
@@ -1729,26 +1729,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &839969401
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 839969398}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7f78b17b67e21094fa1de342dd55b6da, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  playerSlots:
-  - {fileID: 1489025365}
-  - {fileID: 1976891406}
-  - {fileID: 1557527058}
-  score:
-  - {fileID: 2086335552956726693}
-  - {fileID: 1862954140}
-  - {fileID: 1557527059}
 --- !u!114 &839969402
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1771,6 +1751,26 @@ MonoBehaviour:
   sceneViewId: 1
   InstantiationId: 0
   isRuntimeInstantiated: 0
+--- !u!114 &839969403
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 839969398}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7f78b17b67e21094fa1de342dd55b6da, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerSlots:
+  - {fileID: 1489025365}
+  - {fileID: 1976891406}
+  - {fileID: 1557527058}
+  scoretxt:
+  - {fileID: 2086335552956726693}
+  - {fileID: 1862954140}
+  - {fileID: 1557527059}
 --- !u!1 &861015541
 GameObject:
   m_ObjectHideFlags: 0
