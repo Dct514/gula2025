@@ -7,6 +7,7 @@ using Photon.Pun.Demo.Cockpit;
 using Photon.Realtime;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.SocialPlatforms.Impl;
 using UnityEngine.UI;
 
@@ -46,6 +47,7 @@ public class GameManager : MonoBehaviourPunCallbacks
     FoodCard.CardPoint.Turkey,
     FoodCard.CardPoint.Cake
     };
+
     private void Awake()
     {
         // 싱글턴 패턴 설정
@@ -94,7 +96,7 @@ public class GameManager : MonoBehaviourPunCallbacks
         switch (currentTurn)
         {
             case 0: // 선 플레이어가 첫 카드를 제출해야 하는 턴
-                if (currentPlayerIndex == PhotonNetwork.LocalPlayer.ActorNumber)
+                if (currentPlayerIndex == PhotonNetwork.LocalPlayer.ActorNumber && pushFoodCard == false && playerHand.Contains(selectedFoodCard[PhotonNetwork.LocalPlayer.ActorNumber - 1]) )
                 {
                     pushFoodCard = true;
                     photonView.RPC("SetCardValue", RpcTarget.All, (int)selectedFoodCard[PhotonNetwork.LocalPlayer.ActorNumber - 1], 0);
@@ -219,12 +221,8 @@ public class GameManager : MonoBehaviourPunCallbacks
         {
             submitbuttontxt.text = "식사";
             submitbuttontxt2.text = "강탈";
-            gamestatustxt.text = "협상의 시간입니다.";
         }
-        else
-        {
-            gamestatustxt.text = "협상을 기다립니다.";
-        }
+
         Debug.Log($"SyncDinnerTimeTxt = {pickedPlayerIndex}");
     }
 
@@ -290,17 +288,17 @@ public class GameManager : MonoBehaviourPunCallbacks
     public void TurnPlus()
     {
         ++currentTurn;
-        if (currentTurn = 1)
+        if (currentTurn == 1)
         {
             gamestatustxt.text = "선 플레이어와 식사할 분은 카드를 제출하세요.";
         }
-        else if (currentTurn = 2) 
+        else if (currentTurn == 2) 
         {
             gamestatustxt.text = "선 플레이어가 같이 식사할 플레이어를 고릅니다.";
         }
-        else if (currentTurn = 3)
+        else if (currentTurn == 3)
         {
-            gamestatystxt.text = $"선 플레이어와 {pickedPlayerIndex}번 플레이어가 협상합니다.";
+            gamestatustxt.text = $"선 플레이어와 {pickedPlayerIndex}번 플레이어가 협상합니다.";
         }
     }
     [PunRPC]
@@ -336,7 +334,7 @@ public class GameManager : MonoBehaviourPunCallbacks
         plchoice2 = -1;
         PlayerListUI playerListUI = FindObjectOfType<PlayerListUI>();
         playerListUI.UpdatePlayerList();
-        CountMyFoodCard();
+        CountMyFoodCard(selectedFoodCard[PhotonNetwork.LocalPlayer.ActorNumber - 1]);
 
         for (int i = 0; i < PhotonNetwork.CurrentRoom.PlayerCount + 1; i++)
         {
@@ -370,7 +368,7 @@ public class GameManager : MonoBehaviourPunCallbacks
     public void Gotolobby() // 게임오버 패널에서 지정
     {
         PhotonNetwork.LeaveRoom();
-        // todo : 메인 화면으로 돌아가기
+        SceneManager.LoadScene("Robby");
     }
     public void pickedCardsave(FoodCard.CardPoint pickedCard)
     {
@@ -420,12 +418,13 @@ public class GameManager : MonoBehaviourPunCallbacks
         gamestatustxt.text = txt;
     }
 
-    public void CountMyFoodCard(FoodCard.CardPoint cardPoint) // selectedFoodCard[actnum-1] 가져옴
+    public void CountMyFoodCard(FoodCard.CardPoint cardPoint) // selectedFoodCard[actnum-1] 가져옴 - 내 사용한 음식카드 표시(흑백)
     {
-        playerHand.RemoveAt(cardPoint);
-        myImages[(int)cardPoint].color = new ConsoleColor(1, 1, 1, 0.5f);
-
-
+        if (PhotonNetwork.LocalPlayer.ActorNumber == currentPlayerIndex)
+        {
+            playerHand.Remove(cardPoint);
+            myImages[GetSpriteIndex((int)cardPoint)].color = new Color(1f, 1f, 1f, 0.5f);
+        }
     }
 
     [PunRPC]

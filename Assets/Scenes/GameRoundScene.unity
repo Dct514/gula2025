@@ -1776,6 +1776,14 @@ MonoBehaviour:
   - {fileID: 978672448}
   - {fileID: 1744519959}
   - {fileID: 1599420807}
+  myImages:
+  - {fileID: 535536466}
+  - {fileID: 129353633}
+  - {fileID: 480570369}
+  - {fileID: 606822203}
+  - {fileID: 282442846}
+  - {fileID: 861015543}
+  playerHand: 01000000020000000300000005000000070000000a000000
 --- !u!4 &839969400
 Transform:
   m_ObjectHideFlags: 0
