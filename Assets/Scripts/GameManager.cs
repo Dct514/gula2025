@@ -406,4 +406,14 @@ public class GameManager : MonoBehaviourPunCallbacks
     {
         gamestatustxt.text = txt;
     }
+
+    public void DeselectAllCards()
+    {
+        CardOutlineController[] allCards = FindObjectsOfType<CardOutlineController>();
+        foreach (var card in allCards)
+        {
+            card.DeselectCard();
+        }
+    }
+
 }
