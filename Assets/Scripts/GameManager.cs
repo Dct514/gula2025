@@ -356,10 +356,15 @@ public class GameManager : MonoBehaviourPunCallbacks
    }
 
    public void Gotolobby() // 게임오버 패널에서 지정
-   {
-    PhotonNetwork.LeaveRoom();
-   }
-       public void pickedCardsave(FoodCard.CardPoint pickedCard)
+    {
+        if (PhotonNetwork.IsMasterClient)
+        {
+            PhotonNetwork.LoadLevel("Robby");
+        }
+        PhotonNetwork.LeaveRoom();
+    }
+
+    public void pickedCardsave(FoodCard.CardPoint pickedCard)
     {   
         if (pushFoodCard==false)
         {
