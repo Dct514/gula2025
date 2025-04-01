@@ -373,6 +373,7 @@ public class GameManager : MonoBehaviourPunCallbacks
     public void pickedCardsave(FoodCard.CardPoint pickedCard)
     {
         if (pushFoodCard == false)
+
         {
             photonView.RPC("PickedCardsaveRPC", RpcTarget.All, pickedCard, PhotonNetwork.LocalPlayer.ActorNumber); // 불안하니 all으로
         }
@@ -417,7 +418,6 @@ public class GameManager : MonoBehaviourPunCallbacks
     {
         gamestatustxt.text = txt;
     }
-
     public void CountMyFoodCard(FoodCard.CardPoint cardPoint) // selectedFoodCard[actnum-1] 가져옴 - 내 사용한 음식카드 표시(흑백)
     {
         if (PhotonNetwork.LocalPlayer.ActorNumber == currentPlayerIndex)
@@ -431,6 +431,15 @@ public class GameManager : MonoBehaviourPunCallbacks
     public void SyncCountFoodCard()
     {
         // 정렬 후 
+    }
+
+    public void DeselectAllCards()
+    {
+        CardOutlineController[] allCards = FindObjectsOfType<CardOutlineController>();
+        foreach (var card in allCards)
+        {
+            card.DeselectCard();
+        }
     }
 
 }

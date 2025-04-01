@@ -5,9 +5,22 @@ using UnityEngine;
 public class TableCard : MonoBehaviour
 {
     public int playernum;
-    public void TableCardClick2()
+    private CardOutlineController outlineController;
+
+    void Awake()
     {
-        GameManager.Instance.TableCardClick(playernum);
+        outlineController = GetComponent<CardOutlineController>();
     }
 
+    public void TableCardClick2()
+    {
+        GameManager.Instance.DeselectAllCards();
+
+        if (outlineController != null)
+        {
+            outlineController.SelectCard();
+        }
+
+        GameManager.Instance.TableCardClick(playernum);
+    }
 }
