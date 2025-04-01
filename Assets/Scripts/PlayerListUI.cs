@@ -42,7 +42,7 @@ public void UpdatePlayerList()
         if (i < sortedPlayers.Count)
         {
             playerSlots[i].text = sortedPlayers[i].NickName;
-            scoretxt[i].text = $"점수 : {GetPlayerScore(sortedPlayers[i])}"; // GameManager에서 점수 가져오기
+            scoretxt[i].text = $"{GetPlayerScore(sortedPlayers[i])}"; // GameManager에서 점수 가져오기
         }
         else
         {
