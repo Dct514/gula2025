@@ -210,7 +210,7 @@ public class GameManager : MonoBehaviourPunCallbacks
             }
             photonView.RPC("Syncscore", RpcTarget.All, score[0], score[1], score[2], score[3], score[4], score[5]);
             photonView.RPC("SyncGamestatustxtUpdate", RpcTarget.All, "턴 종료");
-            RoundEnd();
+            photonView.RPC("RoundEnd", RpcTarget.All);
         }
 
     }
@@ -305,6 +305,7 @@ public class GameManager : MonoBehaviourPunCallbacks
         ++currentTurn2;
     }
 
+    [PunRPC]
     public void RoundEnd()
     {
         Debug.Log($"RoundEnd : 내 점수는 {score[PhotonNetwork.LocalPlayer.ActorNumber-1]}");
@@ -316,7 +317,7 @@ public class GameManager : MonoBehaviourPunCallbacks
 
         else
         {
-            photonView.RPC("ResetRound", RpcTarget.All);
+            ResetRound();
         }
     }
 
