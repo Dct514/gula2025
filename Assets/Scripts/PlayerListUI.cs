@@ -37,18 +37,11 @@ public void UpdatePlayerList()
         .OrderBy(p => p.ActorNumber) // ActorNumber가 낮은 순으로 정렬
         .ToList();
 
-    for (int i = 0; i < playerSlots.Length; i++)
+    for (int i = 0; i < sortedPlayers.Count; i++)
     {
-        if (i < sortedPlayers.Count)
-        {
+
             playerSlots[i].text = sortedPlayers[i].NickName;
-            scoretxt[i].text = $"{GetPlayerScore(sortedPlayers[i])}"; // GameManager에서 점수 가져오기
-        }
-        else
-        {
-            playerSlots[i].text = "-"; // 빈 자리 표시
-            scoretxt[i].text = "-"; // 빈 자리 점수 표시
-        }
+
     }
 }
 

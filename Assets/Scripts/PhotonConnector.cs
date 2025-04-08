@@ -9,6 +9,7 @@ public class PhotonConnector : MonoBehaviourPunCallbacks
 {
     [Header("UI Elements")]
     public TMP_Text statusText;
+    public TMP_Text statusText2;
     public TMP_InputField nicknameInput;
     public TMP_Text nicknameDisplay;
     public TMP_InputField roomNameInput;
@@ -31,6 +32,7 @@ public class PhotonConnector : MonoBehaviourPunCallbacks
     public override void OnConnectedToMaster()
     {
         statusText.text = "서버 연결 완료!";
+        statusText2.text = "서버 연결 완료!";
         Debug.Log("Photon: 서버 연결 성공!");
         PhotonNetwork.JoinLobby(); // 로비 입장
     }
@@ -135,11 +137,14 @@ private void AdjustRoomListSize(int roomCount, float itemHeight, float spacing)
     {
         Debug.Log($"방 참가 성공: {PhotonNetwork.CurrentRoom.Name}");
         statusText.text = $"방 참가 완료: {PhotonNetwork.CurrentRoom.Name}";
+        statusText2.text = $"[{PhotonNetwork.CurrentRoom.Name}]번 방 입장\n {PhotonNetwork.CurrentRoom.PlayerCount}/4";
+
 
     }
 
     public override void OnPlayerEnteredRoom(Player newPlayer)
     {
+        OnJoinedRoom(); // 방에 들어온 플레이어가 있을 때마다 호출
     Debug.Log($"새로운 플레이어가 방에 들어왔습니다: {newPlayer.NickName}");
 
     // 방에 4명이 모두 들어왔을 때, 씬 변경 시작

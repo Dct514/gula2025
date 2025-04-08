@@ -28,7 +28,7 @@ public class GameManager : MonoBehaviourPunCallbacks
     public int currentTurn = 0; // 턴 관리
     public int currentTurn2 = 1;
     float t = 5.0f;
-
+    int totalPlayers = 4;
     public bool pushFoodCard = false;
     int plchoice = -1;
     int plchoice2 = -1;
@@ -48,7 +48,8 @@ public class GameManager : MonoBehaviourPunCallbacks
         FoodCard.CardPoint.Cake
     };
 
-    public List<HandCard> handCards = new List<HandCard>(3); // 각 플레이어의 카드들
+    public List<HandCard> handCards = new List<HandCard>(); // 각 플레이어의 카드들
+    public List<int> others = new List<int>(); // 나를 제외한 플레이어 번호들 - 위치
 
     private void Awake()
     {
@@ -71,6 +72,7 @@ public class GameManager : MonoBehaviourPunCallbacks
             photonView.RPC("SyncPlayerTurn", RpcTarget.All, currentPlayerIndex);
         }
 
+        ShowPlayerPositions();
     }
 
 
@@ -148,7 +150,7 @@ public class GameManager : MonoBehaviourPunCallbacks
                 Debug.Log("current3");
                 if (PhotonNetwork.LocalPlayer.ActorNumber == pickedPlayerIndex || PhotonNetwork.LocalPlayer.ActorNumber == currentPlayerIndex)
                     photonView.RPC("SyncChoice", RpcTarget.MasterClient, 0, PhotonNetwork.LocalPlayer.ActorNumber); //매개변수로 0은 식사, 1은 강탈입니다.
-                                                                                                                    // 추가할 것 - 클릭 후 식사 강탈 버튼 막기
+                    currentTurn++;                                                       // 추가할 것 - 클릭 후 식사 강탈 버튼 막기
                 break;
 
             default:  // 위 조건에 해당하지 않는 경우
@@ -161,7 +163,7 @@ public class GameManager : MonoBehaviourPunCallbacks
         if (currentTurn == 3 && (PhotonNetwork.LocalPlayer.ActorNumber == pickedPlayerIndex || PhotonNetwork.LocalPlayer.ActorNumber == currentPlayerIndex))
         {
             photonView.RPC("SyncChoice", RpcTarget.MasterClient, 1, PhotonNetwork.LocalPlayer.ActorNumber);
-            // 추가할 것 - 클릭 후 식사 강탈 버튼 막기
+            currentTurn++;  // 추가할 것 - 클릭 후 식사 강탈 버튼 막기
         }
         else
         {
@@ -197,8 +199,9 @@ public class GameManager : MonoBehaviourPunCallbacks
             switch ((plchoice, plchoice2))
             {
                 case (0, 0):
-                    score[currentPlayerIndex - 1] += (int)selectedFoodCard[currentPlayerIndex - 1] + (int)selectedFoodCard[pickedPlayerIndex - 1];
-                    score[pickedPlayerIndex - 1] += (int)selectedFoodCard[currentPlayerIndex - 1] + (int)selectedFoodCard[pickedPlayerIndex - 1];
+                    int scoreToAdd = Math.Abs((int)selectedFoodCard[currentPlayerIndex - 1] + (int)selectedFoodCard[pickedPlayerIndex - 1]);
+                    score[currentPlayerIndex - 1] += scoreToAdd;
+                    score[pickedPlayerIndex - 1] += scoreToAdd;
                     break;
                 case (1, 0):
                     score[currentPlayerIndex - 1] += Math.Abs(selectedFoodCard[currentPlayerIndex - 1] - selectedFoodCard[pickedPlayerIndex - 1]); break;
@@ -329,10 +332,18 @@ public class GameManager : MonoBehaviourPunCallbacks
         PlayerListUI playerListUI = FindObjectOfType<PlayerListUI>();
         playerListUI.UpdatePlayerList();
         CountMyFoodCard(selectedFoodCard[PhotonNetwork.LocalPlayer.ActorNumber - 1]);
+        CountOtherFoodCard();
 
         for (int i = 0; i < PhotonNetwork.CurrentRoom.PlayerCount + 1; i++)
         {
             SetCardValue(6, i);
+        }
+
+        for (int i = 0; i < others.Count; i++)
+        {
+            scoretxt[i].text = $"{score[others[i]-1]}"; // 점수 배열에 플레이어 번호 저장
+           
+            Debug.Log($"축하합니다");
         }
 
         pickedPlayerIndex = -1;
@@ -368,7 +379,7 @@ public class GameManager : MonoBehaviourPunCallbacks
 
     public void Gotolobby() // 게임오버 패널에서 지정
     {
-        SceneManager.LoadScene("Robby");
+        SceneManager.LoadScene("Lobby");
         PhotonNetwork.LeaveRoom();
     }
 
@@ -441,16 +452,25 @@ public class GameManager : MonoBehaviourPunCallbacks
         }
         Debug.Log($"CountMyFoodCard : {cardPoint}");
     }
-
-    [PunRPC]
-    public void SyncCountFoodCard()                             
-    {
-        // 정렬 후 
-    }
-
     public void CountOtherFoodCard() // selectedFoodCard[actnum-1] 가져옴 - 다른 플레이어의 음식카드 표시(흑백)
     {
-       handCards[1].cards[2].gameObject.SetActive(false);
+        if(PhotonNetwork.LocalPlayer.ActorNumber == currentPlayerIndex)
+        {
+            int starterIndex = others.IndexOf(pickedPlayerIndex);
+            handCards[starterIndex].cards[GetSpriteIndex((int)selectedFoodCard[pickedPlayerIndex - 1])].gameObject.SetActive(false);
+        }
+        else if (PhotonNetwork.LocalPlayer.ActorNumber == pickedPlayerIndex)
+        {
+            int starterIndex = others.IndexOf(currentPlayerIndex);
+            handCards[starterIndex].cards[GetSpriteIndex((int)selectedFoodCard[currentPlayerIndex - 1])].gameObject.SetActive(false);
+        }
+        else if (PhotonNetwork.LocalPlayer.ActorNumber != currentPlayerIndex && PhotonNetwork.LocalPlayer.ActorNumber != pickedPlayerIndex)
+        {
+            int starterIndex = others.IndexOf(currentPlayerIndex);
+            handCards[starterIndex].cards[GetSpriteIndex((int)selectedFoodCard[currentPlayerIndex - 1])].gameObject.SetActive(false);
+            starterIndex = others.IndexOf(pickedPlayerIndex);
+            handCards[starterIndex].cards[GetSpriteIndex((int)selectedFoodCard[pickedPlayerIndex - 1])].gameObject.SetActive(false);
+        }
     }
 
     public void DeselectAllCards()
@@ -460,6 +480,32 @@ public class GameManager : MonoBehaviourPunCallbacks
         {
             card.DeselectCard();
         }
+    }
+
+
+
+    public void ShowPlayerPositions()
+    {
+        // 1. 전체 플레이어 수
+        totalPlayers = PhotonNetwork.CurrentRoom.PlayerCount;
+
+        // 2. 나를 제외하고 번호순 정렬
+        
+        for (int i = 1; i <= totalPlayers; i++)
+        {
+            if (i != PhotonNetwork.LocalPlayer.ActorNumber)
+            {
+                others.Add(i);
+            }
+            /*
+            2 3 4
+            1 3 4
+            1 2 4
+            1 2 3
+            */
+        }
+
+
     }
 
 
