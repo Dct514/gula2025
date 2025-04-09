@@ -119,12 +119,20 @@ public class GameManager : MonoBehaviourPunCallbacks
                 Debug.Log("current1");
                 if (PhotonNetwork.LocalPlayer.ActorNumber != currentPlayerIndex && pushFoodCard == false)
                 {
+                    if(selectedFoodCard[PhotonNetwork.LocalPlayer.ActorNumber - 1] == selectedFoodCard[currentPlayerIndex - 1])
+                    {
+                        gamestatustxt.text = "같은 카드를 제출할 수 없습니다.";
+                        return;
+                    }
+                    else
+                    {
                     photonView.RPC("SetCardValue", RpcTarget.All, (int)selectedFoodCard[PhotonNetwork.LocalPlayer.ActorNumber - 1], PhotonNetwork.LocalPlayer.ActorNumber);
                     photonView.RPC("TurnPlus2", RpcTarget.All);
                     pushFoodCard = true;
-                    if (currentTurn2 >= PhotonNetwork.CurrentRoom.PlayerCount) // 모든 플레이어가 제출했다면, 다음 턴으로
-                    {
-                        photonView.RPC("TurnPlus", RpcTarget.All);
+                        if (currentTurn2 >= PhotonNetwork.CurrentRoom.PlayerCount) // 모든 플레이어가 제출했다면, 다음 턴으로
+                        {
+                            photonView.RPC("TurnPlus", RpcTarget.All);
+                        }                
                     }
                 }
                 break;
@@ -167,12 +175,13 @@ public class GameManager : MonoBehaviourPunCallbacks
         }
         else
         {
-            if (pushFoodCard == false && currentTurn == 1)
+            if (PhotonNetwork.LocalPlayer.ActorNumber != currentPlayerIndex && pushFoodCard == false && currentTurn==1)
             {
                 selectedFoodCard[PhotonNetwork.LocalPlayer.ActorNumber] = FoodCard.CardPoint.deny;
+                photonView.RPC("SetCardValue", RpcTarget.All, (int)selectedFoodCard[PhotonNetwork.LocalPlayer.ActorNumber - 1], PhotonNetwork.LocalPlayer.ActorNumber);
                 photonView.RPC("TurnPlus2", RpcTarget.All);
                 pushFoodCard = true;
-                if (currentTurn2 >= PhotonNetwork.CurrentRoom.PlayerCount) // 모든 플레이어가 제출했다면, 다음 턴으로
+            if (currentTurn2 >= PhotonNetwork.CurrentRoom.PlayerCount) // 모든 플레이어가 제출했다면, 다음 턴으로
                 {
                     photonView.RPC("TurnPlus", RpcTarget.All);
                 }
@@ -208,6 +217,7 @@ public class GameManager : MonoBehaviourPunCallbacks
                 case (0, 1):
                     score[pickedPlayerIndex - 1] += Math.Abs(selectedFoodCard[currentPlayerIndex - 1] - selectedFoodCard[pickedPlayerIndex - 1]); break;
                 case (1, 1):
+                    Debug.Log("쓰레기통");
                     break; // 쓰레기통? 추가할 것
                 default:; break;
             }
@@ -336,7 +346,7 @@ public class GameManager : MonoBehaviourPunCallbacks
 
         for (int i = 0; i < PhotonNetwork.CurrentRoom.PlayerCount + 1; i++)
         {
-            SetCardValue(6, i);
+            SetCardValue(0, i);
         }
 
         for (int i = 0; i < others.Count; i++)
@@ -352,6 +362,8 @@ public class GameManager : MonoBehaviourPunCallbacks
         plchoice = -1;
         plchoice2 = -1;
         pushFoodCard = false;
+        submitbuttontxt.text = "제출";
+        submitbuttontxt2.text = "제출 포기";
 
         if (PhotonNetwork.IsMasterClient)
         {
@@ -418,7 +430,7 @@ public class GameManager : MonoBehaviourPunCallbacks
             case 5: return 3;
             case 7: return 4;
             case 10: return 5;
-            default: return 6;
+            default: return 7;
         }
     }
 
@@ -482,8 +494,6 @@ public class GameManager : MonoBehaviourPunCallbacks
         }
     }
 
-
-
     public void ShowPlayerPositions()
     {
         // 1. 전체 플레이어 수
@@ -504,8 +514,6 @@ public class GameManager : MonoBehaviourPunCallbacks
             1 2 3
             */
         }
-
-
     }
 
 

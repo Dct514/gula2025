@@ -116,7 +116,7 @@ private void AdjustRoomListSize(int roomCount, float itemHeight, float spacing)
         }
 
         string roomName = roomNameInput.text;
-        if (string.IsNullOrEmpty(roomName)) roomName = "Room_" + Random.Range(1000, 9999);
+        if (string.IsNullOrEmpty(roomName)) roomName = $"{Random.Range(1000, 9999)}"; // 방 이름이 비어있으면 랜덤으로 생성
 
         RoomOptions roomOptions = new RoomOptions { MaxPlayers = MaxPlayers, IsVisible = true, IsOpen = true };
         PhotonNetwork.CreateRoom(roomName, roomOptions, TypedLobby.Default);

@@ -2040,11 +2040,12 @@ MonoBehaviour:
   score: 000000000000000000000000000000000000000000000000
   selectedFoodCard: 00000000000000000000000000000000
   cardSprites:
-  - {fileID: 21300000, guid: ef5cf035d5d6fda46a98f75d952c0213, type: 3}
-  - {fileID: 21300000, guid: c00bfa98c5e92f54884d3757bb851504, type: 3}
-  - {fileID: 21300000, guid: 2ca06a878ef16e343ad3516df6ffa4c8, type: 3}
-  - {fileID: 21300000, guid: 4481b6f9928c59b449efaea646eceb47, type: 3}
-  - {fileID: 21300000, guid: 503386c7539ee044b9d5ec85094c9a53, type: 3}
+  - {fileID: 21300000, guid: a589a5af1312ac54088bfc2830876fbc, type: 3}
+  - {fileID: 21300000, guid: 77ea44dc420ba6d4985c52423b58b2a0, type: 3}
+  - {fileID: 21300000, guid: 1f5443b8f482d6e43a26aa7bc117439f, type: 3}
+  - {fileID: 21300000, guid: eb1d0cade7918d44f89d726b6eb11d6d, type: 3}
+  - {fileID: 21300000, guid: a574a63278ce02d48890cbd4589d2570, type: 3}
+  - {fileID: 21300000, guid: e18997a06c867db4b89a114305227186, type: 3}
   - {fileID: 21300000, guid: f16af1d5a26894b49bd226295baf5097, type: 3}
   - {fileID: 0}
   cardImages:
@@ -3422,7 +3423,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1500101723}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 839969399}
+        m_TargetAssemblyTypeName: GameManager, Assembly-CSharp
+        m_MethodName: DenyButtonClick
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1500101723
 MonoBehaviour:
   m_ObjectHideFlags: 0
