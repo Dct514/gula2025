@@ -11,4 +11,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/GameRoundScene.unity
     guid: 2cda990e2423bbf4892e6590ba056729
+  - enabled: 1
+    path: Assets/Scenes/PracticeMode.unity
+    guid: 3ddba76ec6d555b48ac74396f9a48d4c
   m_configObjects: {}

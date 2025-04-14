@@ -5134,8 +5134,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1618164334}
   m_HandleRect: {fileID: 1618164333}
   m_Direction: 2
-  m_Value: 1
-  m_Size: 0.84016407
+  m_Value: 0.99999934
+  m_Size: 0.8401639
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -6376,10 +6376,10 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1596058496}
-        m_TargetAssemblyTypeName: PhotonConnector, Assembly-CSharp
-        m_MethodName: JoinRoom
-        m_Mode: 5
+      - m_Target: {fileID: 1596058498}
+        m_TargetAssemblyTypeName: PM_LobbyManager, Assembly-CSharp
+        m_MethodName: StartGame
+        m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -14330,6 +14330,7 @@ GameObject:
   - component: {fileID: 1596058494}
   - component: {fileID: 1596058496}
   - component: {fileID: 1596058497}
+  - component: {fileID: 1596058498}
   m_Layer: 0
   m_Name: LobbyManager
   m_TagString: Untagged
@@ -14385,6 +14386,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   dropdown: {fileID: 80253399}
+--- !u!114 &1596058498
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1596058493}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e4800b5d2ff675e43b5fb9cdfdc08179, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1602106033
 GameObject:
   m_ObjectHideFlags: 0
@@ -14626,7 +14639,7 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 1912230816}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0.15983583}
+  m_AnchorMin: {x: 0, y: 0.15983611}
   m_AnchorMax: {x: 1, y: 0.9999999}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 20, y: 20}
