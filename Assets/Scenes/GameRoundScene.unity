@@ -2061,6 +2061,7 @@ MonoBehaviour:
   - {fileID: 606822203}
   - {fileID: 282442846}
   - {fileID: 861015543}
+  myGrade: 1
   playerHand: 01000000020000000300000005000000070000000a000000
   handCards:
   - {fileID: 1607874966}

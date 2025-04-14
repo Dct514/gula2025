@@ -37,6 +37,8 @@ public class GameManager : MonoBehaviourPunCallbacks
     public Sprite[] cardSprites; // 카드 스프라이트
     public Image[] cardImages; // 카드 스프라이트 표시될 곳
     public Image[] myImages; // 내 카드 스프라이트
+    
+    public int myGrade = 1; // 현재 카드 값
 
     public List<FoodCard.CardPoint> playerHand = new List<FoodCard.CardPoint>
     {
@@ -276,6 +278,12 @@ public class GameManager : MonoBehaviourPunCallbacks
 
     }
 
+    [PunRPC]
+    public void Syncscore2(int actnum, int myscore)
+    {
+        score[actnum - 1] = myscore;
+    }
+
     public void TableCardClick(int playernum) // case 2에서 선 플레이어가 식사할 카드를 고를 때 호출
     {
 
@@ -323,10 +331,27 @@ public class GameManager : MonoBehaviourPunCallbacks
     {
         Debug.Log($"RoundEnd : 내 점수는 {score[PhotonNetwork.LocalPlayer.ActorNumber-1]}");
 
-        if (score[PhotonNetwork.LocalPlayer.ActorNumber-1] >= 18) // 점수 나중에 수정하기로~ 실행 겹치지 않게
-        {
-            photonView.RPC("GameOver", RpcTarget.All);
-        }
+            if (score[PhotonNetwork.LocalPlayer.ActorNumber-1] >= 18) // 점수 나중에 수정하기로~ 실행 겹치지 않게
+            {
+                score[PhotonNetwork.LocalPlayer.ActorNumber-1] = 0;
+                myGrade++;
+                photonView.RPC("Syncscore2", RpcTarget.All, PhotonNetwork.LocalPlayer.ActorNumber, score[PhotonNetwork.LocalPlayer.ActorNumber - 1]);
+            }
+
+            if (score[PhotonNetwork.LocalPlayer.ActorNumber-1] >= 24 && myGrade == 2)
+            {
+                score[PhotonNetwork.LocalPlayer.ActorNumber-1] = 0;
+                myGrade++;
+                photonView.RPC("Syncscore2", RpcTarget.All, PhotonNetwork.LocalPlayer.ActorNumber, score[PhotonNetwork.LocalPlayer.ActorNumber - 1]);
+            }
+
+            if (score[PhotonNetwork.LocalPlayer.ActorNumber-1] >= 45 && myGrade == 3)
+            {
+                myGrade++;
+                photonView.RPC("Syncscore2", RpcTarget.All, PhotonNetwork.LocalPlayer.ActorNumber, score[PhotonNetwork.LocalPlayer.ActorNumber - 1]);
+                photonView.RPC("GameOver", RpcTarget.All);
+            }
+        
 
         else
         {
@@ -364,6 +389,15 @@ public class GameManager : MonoBehaviourPunCallbacks
         pushFoodCard = false;
         submitbuttontxt.text = "제출";
         submitbuttontxt2.text = "제출 포기";
+
+        if (playerHand.Count == 0){
+            playerHand.Add(FoodCard.CardPoint.Bread);
+            playerHand.Add(FoodCard.CardPoint.Soup);
+            playerHand.Add(FoodCard.CardPoint.Fish);
+            playerHand.Add(FoodCard.CardPoint.Steak);
+            playerHand.Add(FoodCard.CardPoint.Turkey);
+            playerHand.Add(FoodCard.CardPoint.Cake);
+        }
 
         if (PhotonNetwork.IsMasterClient)
         {
@@ -444,7 +478,10 @@ public class GameManager : MonoBehaviourPunCallbacks
         if (PhotonNetwork.LocalPlayer.ActorNumber == currentPlayerIndex || PhotonNetwork.LocalPlayer.ActorNumber == pickedPlayerIndex)
         {
             // 카드가 선택되면 해당 카드를 playerHand에서 제거
-            playerHand.Remove(cardPoint);
+            if (cardPoint != FoodCard.CardPoint.deny && playerHand.Contains(cardPoint))
+            {
+                playerHand.Remove(cardPoint);
+            }
             // myImages[GetSpriteIndex((int)cardPoint)].color = new Color(1f, 1f, 1f, 1f);
         }
 
@@ -479,9 +516,9 @@ public class GameManager : MonoBehaviourPunCallbacks
         else if (PhotonNetwork.LocalPlayer.ActorNumber != currentPlayerIndex && PhotonNetwork.LocalPlayer.ActorNumber != pickedPlayerIndex)
         {
             int starterIndex = others.IndexOf(currentPlayerIndex);
+            int starterIndex2 = others.IndexOf(pickedPlayerIndex);
             handCards[starterIndex].cards[GetSpriteIndex((int)selectedFoodCard[currentPlayerIndex - 1])].gameObject.SetActive(false);
-            starterIndex = others.IndexOf(pickedPlayerIndex);
-            handCards[starterIndex].cards[GetSpriteIndex((int)selectedFoodCard[pickedPlayerIndex - 1])].gameObject.SetActive(false);
+            handCards[starterIndex2].cards[GetSpriteIndex((int)selectedFoodCard[pickedPlayerIndex - 1])].gameObject.SetActive(false);
         }
     }
 
