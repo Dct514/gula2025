@@ -7,7 +7,8 @@ using TMPro;
 public class LobbyManager : MonoBehaviour
 {
     public TMP_Dropdown dropdown;
-    private int selectedModeIndex; // ¼±ÅÃµÈ È­¸é ¸ğµå ÀúÀå º¯¼ö
+    public AudioSource bgmSource; // BGM AudioSource
+    private int selectedModeIndex; // ï¿½ï¿½ï¿½Ãµï¿½ È­ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 
     public void settingPanelTrue(GameObject gameObject)
     {
@@ -21,33 +22,49 @@ public class LobbyManager : MonoBehaviour
 
     void Start()
     {
-        // µå·Ó´Ù¿î °ªÀÌ º¯°æµÉ ¶§¸¸ º¯¼ö ÀúÀå (Áï½Ã Àû¿ë X)
+        // ï¿½ï¿½Ó´Ù¿ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ (ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ X)
         dropdown.onValueChanged.AddListener(delegate { selectedModeIndex = dropdown.value; });
 
-        // ÇöÀç È­¸é ¸ğµå¿¡ ¸Â°Ô ±âº» ¼±ÅÃ°ª ¼³Á¤
+        // ï¿½ï¿½ï¿½ï¿½ È­ï¿½ï¿½ ï¿½ï¿½å¿¡ ï¿½Â°ï¿½ ï¿½âº» ï¿½ï¿½ï¿½Ã°ï¿½ ï¿½ï¿½ï¿½ï¿½
         if (Screen.fullScreenMode == FullScreenMode.Windowed)
-            dropdown.value = 0; // Ã¢ ¸ğµå
+            dropdown.value = 0; // Ã¢ ï¿½ï¿½ï¿½
         else
-            dropdown.value = 1; // ÀüÃ¼ È­¸é
+            dropdown.value = 1; // ï¿½ï¿½Ã¼ È­ï¿½ï¿½
 
-        // ¼±ÅÃµÈ °ªµµ ÇöÀç °ªÀ¸·Î ÃÊ±âÈ­
+        // ï¿½ï¿½ï¿½Ãµï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ê±ï¿½È­
         selectedModeIndex = dropdown.value;
     }
 
     public void ApplyScreenMode()
     {
-        if (selectedModeIndex == 0) //  "Ã¢ ¸ğµå"
+        if (selectedModeIndex == 0) //  "Ã¢ ï¿½ï¿½ï¿½"
         {
             Screen.fullScreenMode = FullScreenMode.Windowed;
             Screen.SetResolution(1280, 720, false);
         }
-        else if (selectedModeIndex == 1) // "ÀüÃ¼ È­¸é"
+        else if (selectedModeIndex == 1) // "ï¿½ï¿½Ã¼ È­ï¿½ï¿½"
         {
             Screen.fullScreenMode = FullScreenMode.FullScreenWindow;
         }
 
-        Debug.Log("Àû¿ëµÈ È­¸é ¸ğµå: " + Screen.fullScreenMode);
+        Debug.Log("ï¿½ï¿½ï¿½ï¿½ï¿½ È­ï¿½ï¿½ ï¿½ï¿½ï¿½: " + Screen.fullScreenMode);
     }
+
+  public void ToggleBGM(bool isOn)
+    {
+        if (bgmSource == null) return;
+
+        if (isOn)
+        {
+            if (!bgmSource.isPlaying)
+                bgmSource.Play();
+        }
+        else
+        {
+            bgmSource.Pause(); // ë˜ëŠ” Stop()
+        }
+    }
+
 
     public void GameQuit()
     {

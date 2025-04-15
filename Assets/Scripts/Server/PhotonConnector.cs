@@ -18,6 +18,7 @@ public class PhotonConnector : MonoBehaviourPunCallbacks
     public Transform roomListContainer; // 방 목록을 담을 부모 객체
     public GameObject roomEntryPrefab; // 방 항목 UI 프리팹
     public TMP_Text noRoomsText; // "방이 없습니다" 텍스트
+    public TMP_Text myName;
     
     private Dictionary<string, GameObject> roomEntries = new Dictionary<string, GameObject>();
     
@@ -27,6 +28,7 @@ public class PhotonConnector : MonoBehaviourPunCallbacks
     {
         PhotonNetwork.AutomaticallySyncScene = true;
         PhotonNetwork.ConnectUsingSettings(); // 포톤 서버 접속
+        myName.text = PhotonNetwork.NickName;
     }
 
     public override void OnConnectedToMaster()
@@ -180,6 +182,7 @@ private void AdjustRoomListSize(int roomCount, float itemHeight, float spacing)
         {
             Debug.LogWarning("닉네임을 입력하세요!");
         }
+        myName.text = PhotonNetwork.NickName;
     }
 
 }

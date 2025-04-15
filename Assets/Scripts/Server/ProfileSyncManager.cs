@@ -49,12 +49,10 @@ public class ProfileSyncManager : MonoBehaviourPunCallbacks
 
     public void ApplyAllProfileBorders()
     {
-        Debug.Log("== [ProfileSyncManager] ApplyAllProfileBorders 시작 ==");
         foreach (Player player in PhotonNetwork.PlayerList)
         {
             ApplyProfileBorderToPanel(player);
         }
-        Debug.Log("== [ProfileSyncManager] ApplyAllProfileBorders 끝 ==");
     }
 
     public void ApplyProfileBorderToPanel(Player player)
@@ -75,11 +73,10 @@ public class ProfileSyncManager : MonoBehaviourPunCallbacks
         var borderSet = borderSpriteSets[borderIndex];
 
         // 🔹 UI 타겟 결정
+        int playerIndex = System.Array.IndexOf(PhotonNetwork.PlayerList, player);
         GameObject targetPanel = (PhotonNetwork.LocalPlayer == player)
-            ? myPlayerPanel
-            :  (actorNum - 1 < playerPanels.Length ? playerPanels[actorNum - 1] : null);
-
-        if (targetPanel == null) return;
+        ? myPlayerPanel
+        : (playerIndex < playerPanels.Length ? playerPanels[playerIndex] : null);
 
         // 🔹 적용
         var bg = targetPanel.transform.Find("img_ProfileBackground")?.GetComponent<Image>();
