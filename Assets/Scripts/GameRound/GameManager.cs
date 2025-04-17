@@ -21,6 +21,9 @@ public class GameManager : MonoBehaviourPunCallbacks
     public TMP_Text submitbuttontxt2;
     public TMP_Text gameovertxt;
     public TMP_Text[] scoretxt;
+    public TMP_Text[] goldtxt;
+    public TMP_Text[] silvertxt;
+
     public GameObject resultPannel;
     public TextMeshProUGUI[] playerListText;
     int pickedPlayerIndex = -1; // 선 플레이어가 고른카드의 플레이어 번호
@@ -37,8 +40,8 @@ public class GameManager : MonoBehaviourPunCallbacks
     public Sprite[] cardSprites; // 카드 스프라이트
     public Image[] cardImages; // 카드 스프라이트 표시될 곳
     public Image[] myImages; // 내 카드 스프라이트
-    
     public int myGrade = 1; // 현재 카드 값
+    Dictionary<(int, int), int> turnCount = new Dictionary<(int, int), int>();
 
     public List<FoodCard.CardPoint> playerHand = new List<FoodCard.CardPoint>
     {
@@ -148,10 +151,17 @@ public class GameManager : MonoBehaviourPunCallbacks
                 }
                 else if (pickedPlayerIndex != -1 && PhotonNetwork.LocalPlayer.ActorNumber == currentPlayerIndex) // 선플이면
                 {
-                    photonView.RPC("SyncpickedPlayerIndex", RpcTarget.All, pickedPlayerIndex);
-                    photonView.RPC("TurnPlus", RpcTarget.All);
-                    photonView.RPC("SyncDinnerTimeTxt", RpcTarget.All);
+                    if(RegisterTurn(currentPlayerIndex, pickedPlayerIndex))
+                    {
+                        photonView.RPC("SyncpickedPlayerIndex", RpcTarget.All, pickedPlayerIndex);
+                        photonView.RPC("TurnPlus", RpcTarget.All);
+                        photonView.RPC("SyncDinnerTimeTxt", RpcTarget.All);
                     //todo : 카드 돌려주기...
+                    }
+                    else
+                    {
+                        gamestatustxt.text = "같은 플레이어와는 두 번까지만 턴을 진행할 수 있습니다.";
+                    }
                 }
 
                 break;
@@ -213,13 +223,35 @@ public class GameManager : MonoBehaviourPunCallbacks
                     int scoreToAdd = Math.Abs((int)selectedFoodCard[currentPlayerIndex - 1] + (int)selectedFoodCard[pickedPlayerIndex - 1]);
                     score[currentPlayerIndex - 1] += scoreToAdd;
                     score[pickedPlayerIndex - 1] += scoreToAdd;
+
+
+                    var a = goldtxt[others.IndexOf(currentPlayerIndex)];
+                    var b = int.Parse(a.text);
+                    b++;
+                    a.text = b.ToString();
+
+                    a = goldtxt[others.IndexOf(pickedPlayerIndex)];
+                    b = int.Parse(a.text);
+                    b++;
+                    a.text = b.ToString();
+
                     break;
                 case (1, 0):
-                    score[currentPlayerIndex - 1] += Math.Abs(selectedFoodCard[currentPlayerIndex - 1] - selectedFoodCard[pickedPlayerIndex - 1]); break;
+                    score[currentPlayerIndex - 1] += Math.Abs(selectedFoodCard[currentPlayerIndex - 1] - selectedFoodCard[pickedPlayerIndex - 1]); 
+                    a = silvertxt[others.IndexOf(currentPlayerIndex)];
+                    b = int.Parse(a.text);
+                    b++;
+                    a.text = b.ToString(); break;
+
                 case (0, 1):
-                    score[pickedPlayerIndex - 1] += Math.Abs(selectedFoodCard[currentPlayerIndex - 1] - selectedFoodCard[pickedPlayerIndex - 1]); break;
+                    a = silvertxt[others.IndexOf(pickedPlayerIndex)];
+                    b = int.Parse(a.text);
+                    b++;
+                    a.text = b.ToString(); break;
                 case (1, 1):
                     Debug.Log("쓰레기통");
+                    
+
                     break; // 쓰레기통? 추가할 것
                 default:; break;
             }
@@ -353,10 +385,8 @@ public class GameManager : MonoBehaviourPunCallbacks
             }
         
 
-        else
-        {
-            ResetRound();
-        }
+        ResetRound();
+
     }
 
     [PunRPC]
@@ -381,6 +411,7 @@ public class GameManager : MonoBehaviourPunCallbacks
             Debug.Log($"축하합니다");
         }
 
+        UpdatePlayerTurn(currentPlayerIndex, pickedPlayerIndex); // 턴 카운트 업데이트
         pickedPlayerIndex = -1;
         currentTurn = 0;
         currentTurn2 = 1;
@@ -389,6 +420,7 @@ public class GameManager : MonoBehaviourPunCallbacks
         pushFoodCard = false;
         submitbuttontxt.text = "제출";
         submitbuttontxt2.text = "제출 포기";
+
 
         if (playerHand.Count == 0){
             playerHand.Add(FoodCard.CardPoint.Bread);
@@ -399,6 +431,11 @@ public class GameManager : MonoBehaviourPunCallbacks
             playerHand.Add(FoodCard.CardPoint.Cake);
         }
 
+        // 만약 상대와 내가 카드가 동일한 카드만 남아서 더 제출할 수 없다면,
+
+        // 라운드 종료 조건 - 1. 모든 상대와 두 번씩 식사를 한 경우 2. 식사를 한 번 또는 0번 한 상대 중에 상대의 카드와 내 카드가 같은 것만 남은 경우 
+         
+
         if (PhotonNetwork.IsMasterClient)
         {
             ++currentPlayerIndex;
@@ -407,6 +444,8 @@ public class GameManager : MonoBehaviourPunCallbacks
         }
         Debug.Log($"ResetRoundEnd {PhotonNetwork.CurrentRoom.GetPlayer(1).NickName} : {score[0]}\n{PhotonNetwork.CurrentRoom.GetPlayer(2).NickName} : {score[1]}\n{PhotonNetwork.CurrentRoom.GetPlayer(3).NickName} : {score[2]}\n{PhotonNetwork.CurrentRoom.GetPlayer(4).NickName} : {score[3]}");
        
+
+
     }
 
     public override void OnPlayerLeftRoom(Player otherPlayer)
@@ -464,7 +503,8 @@ public class GameManager : MonoBehaviourPunCallbacks
             case 5: return 3;
             case 7: return 4;
             case 10: return 5;
-            default: return 7;
+            case 0 : return 6;
+            default: return 6;
         }
     }
 
@@ -550,6 +590,55 @@ public class GameManager : MonoBehaviourPunCallbacks
             1 2 4
             1 2 3
             */
+        }
+    }
+
+        bool RegisterTurn(int playerA, int playerB) // 같은 플레이어와는 2번까지만 턴을 진행할 수 있음
+    {
+        // 항상 작은 번호 먼저로 정렬
+        var key = (Math.Min(playerA, playerB), Math.Max(playerA, playerB));
+
+        // 현재 횟수 확인
+        if (!turnCount.ContainsKey(key))
+        {
+
+            Debug.Log($"처음으로 {key} 간에 턴이 진행되었습니다.");
+            return true; // 첫 번째 턴 진행
+        }
+        else if (turnCount[key] < 2)
+        {
+
+            Debug.Log($"두 번째 턴 진행됨. 총 횟수: {turnCount[key]}");
+            return true; // 첫 번째 턴 진행
+        }
+        else
+        {
+            Debug.Log($"더 이상 {key} 간에 턴을 진행할 수 없습니다.");
+            return false; // 더 이상 진행할 수 없음
+        }
+    }
+
+
+        void UpdatePlayerTurn(int playerA, int playerB)
+        {
+        // 항상 작은 번호 먼저로 정렬
+        var key = (Math.Min(playerA, playerB), Math.Max(playerA, playerB));
+
+        // 현재 횟수 확인
+        if (!turnCount.ContainsKey(key))
+        {
+            turnCount[key] = 1;
+            Debug.Log($"처음으로 {key} 간에 턴이 진행되었습니다.");
+
+        }
+        else if (turnCount[key] < 2)
+        {
+            turnCount[key]++;
+            Debug.Log($"두 번째 턴 진행됨. 총 횟수: {turnCount[key]}");
+        }
+        else
+        {
+
         }
     }
 
