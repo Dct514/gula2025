@@ -189,7 +189,7 @@ public class GameManager : MonoBehaviourPunCallbacks
         {
             if (PhotonNetwork.LocalPlayer.ActorNumber != currentPlayerIndex && pushFoodCard == false && currentTurn==1)
             {
-                selectedFoodCard[PhotonNetwork.LocalPlayer.ActorNumber] = FoodCard.CardPoint.deny;
+                selectedFoodCard[PhotonNetwork.LocalPlayer.ActorNumber-1] = FoodCard.CardPoint.deny;
                 photonView.RPC("SetCardValue", RpcTarget.All, (int)selectedFoodCard[PhotonNetwork.LocalPlayer.ActorNumber - 1], PhotonNetwork.LocalPlayer.ActorNumber);
                 photonView.RPC("TurnPlus2", RpcTarget.All);
                 pushFoodCard = true;
@@ -639,6 +639,15 @@ public class GameManager : MonoBehaviourPunCallbacks
         else
         {
 
+        }
+    }
+
+    void UpdateGold()
+    {
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            PhotonNetwork.LeaveRoom();
+            SceneManager.LoadScene("Lobby");
         }
     }
 
