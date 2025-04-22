@@ -41,6 +41,9 @@ public class GameManager : MonoBehaviourPunCallbacks
     public Image[] cardImages; // 카드 스프라이트 표시될 곳
     public Image[] myImages; // 내 카드 스프라이트
     public int myGrade = 1; // 현재 카드 값
+    public Button feastButton;
+    public Button stealButton;
+
     Dictionary<(int, int), int> turnCount = new Dictionary<(int, int), int>();
 
     public List<FoodCard.CardPoint> playerHand = new List<FoodCard.CardPoint>
@@ -166,18 +169,30 @@ public class GameManager : MonoBehaviourPunCallbacks
 
                 break;
 
-            case 3: // 선 플레이어와 선택된 플레이어가 식사/강탈을 고르는 턴 
-                Debug.Log("current3");
-                if (PhotonNetwork.LocalPlayer.ActorNumber == pickedPlayerIndex || PhotonNetwork.LocalPlayer.ActorNumber == currentPlayerIndex)
-                    photonView.RPC("SyncChoice", RpcTarget.MasterClient, 0, PhotonNetwork.LocalPlayer.ActorNumber); //매개변수로 0은 식사, 1은 강탈입니다.
-                    currentTurn++;                                                       // 추가할 것 - 클릭 후 식사 강탈 버튼 막기
-                break;
-
-            default:  // 위 조건에 해당하지 않는 경우
-                      // 비워 놓기 
-                break;
         }
     }
+
+    public void OnClickFeastOrSteal(int choice) // choice: 0 = 식사, 1 = 강탈
+    {
+        if (PhotonNetwork.LocalPlayer.ActorNumber == pickedPlayerIndex || PhotonNetwork.LocalPlayer.ActorNumber == currentPlayerIndex)
+        {
+            photonView.RPC("SyncChoice", RpcTarget.MasterClient, choice, PhotonNetwork.LocalPlayer.ActorNumber);
+
+            // 버튼 중복 클릭 방지용 예시
+            //feastButton.interactable = false;
+            //stealButton.interactable = false;
+
+            Debug.Log($"선택 완료: {(choice == 0 ? "식사" : "강탈")} by Player {PhotonNetwork.LocalPlayer.ActorNumber}");
+        }
+        else
+        {
+            gamestatustxt.text = "당신은 이번 턴의 대상이 아닙니다.";
+        }
+    }
+
+
+
+
     public void DenyButtonClick()
     {
         if (currentTurn == 3 && (PhotonNetwork.LocalPlayer.ActorNumber == pickedPlayerIndex || PhotonNetwork.LocalPlayer.ActorNumber == currentPlayerIndex))
