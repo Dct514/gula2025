@@ -51,12 +51,9 @@ public class RefactoryGM : MonoBehaviourPunCallbacks
         
         if (PhotonNetwork.IsMasterClient)
         {
-            if (Turn["currentPlayerIndex"] == null) Turn["currentPlayerIndex"] = 1;
-            if ((int)Turn["currentPlayerIndex"] == 0) Turn["currentPlayerIndex"] = UnityEngine.Random.Range(1, PhotonNetwork.CurrentRoom.PlayerCount + 1);
-            else {
                 if ((int)Turn["currentPlayerIndex"] >= PhotonNetwork.CurrentRoom.MaxPlayers) Turn["currentPlayerIndex"] = 1;
                 else Turn["currentPlayerIndex"] = (int)Turn["currentPlayerIndex"] + 1;
-            }
+
             
             Turn["currentTurn"] = 0;
             Turn["pickedPlayerIndex"] = 0;
@@ -100,6 +97,8 @@ public class RefactoryGM : MonoBehaviourPunCallbacks
         player["grade"] = 0;
         player["score"] = 0;
         PhotonNetwork.LocalPlayer.SetCustomProperties(player);
+        Turn["currentPlayerIndex"] = UnityEngine.Random.Range(0, PhotonNetwork.CurrentRoom.PlayerCount);
+        photonView.RPC("SetGameStatusText", RpcTarget.All, $"{(int)Turn["currentPlayerIndex"]+1}번 플레이어의 차례입니다.");
     }
     public void SetCustomProperty(Photon.Realtime.Player player, string key, int value)
     {
@@ -138,7 +137,7 @@ Debug.Log($"Remote player selectedFoodCard: {PhotonNetwork.CurrentRoom.Players[(
                 {
                     gamestatustxt.text = "차례가 아닙니다.";
                 }
-                SetGameStatusText("선플레이어와 식사할 사람은 카드를 제출하세요.");
+                photonView.RPC("SetGameStatusText", RpcTarget.All, "선 플레이어와 식사할 사람은 카드를 제출하세요.");
 
                 break;
                 
@@ -148,7 +147,7 @@ Debug.Log($"Remote player selectedFoodCard: {PhotonNetwork.CurrentRoom.Players[(
            
                 if (!BlockPlayerTurn((int)Turn["currentPlayerIndex"], PhotonNetwork.LocalPlayer.ActorNumber) && 
                 playerData.Submited == false && 
-                player["selectedFoodCard"] != null && (int)player["selectedFoodCard"] == 0 &&
+                (int)player["selectedFoodCard"] != 0 &&
                 (int)Turn["currentPlayerIndex"] != PhotonNetwork.LocalPlayer.ActorNumber && 
                 PhotonNetwork.CurrentRoom.Players[(int)Turn["currentPlayerIndex"]].CustomProperties["selectedFoodCard"] != null)
                 {
@@ -162,9 +161,10 @@ Debug.Log($"Remote player selectedFoodCard: {PhotonNetwork.CurrentRoom.Players[(
                     {
                         Turn["currentTurn"] = 2;
                         PhotonNetwork.CurrentRoom.SetCustomProperties(Turn);
+                        photonView.RPC("SetGameStatusText", RpcTarget.All, "선 플레이어가 같이 식사할 사람을 고르고 있습니다.");
                     }
                 }
-                else if (player["selectedFoodCard"] == null)
+                else if ((int)player["selectedFoodCard"] == 0)
                 {
                     gamestatustxt.text = "카드를 선택해주세요.";
                 }
@@ -184,7 +184,7 @@ Debug.Log($"Remote player selectedFoodCard: {PhotonNetwork.CurrentRoom.Players[(
                 {
                     gamestatustxt.text = "이 플레이어와 2번 식사를 완료했습니다.";
                 }
-                gamestatustxt.text = "선플레이어는 같이 식사할 사람을 고르세요.";
+
 
                 Debug.Log($"현재 턴 : {Turn["currentTurn"]}");
                 break;
@@ -416,10 +416,16 @@ Debug.Log($"Remote player selectedFoodCard: {PhotonNetwork.CurrentRoom.Players[(
         Debug.Log($"다른 플레이어들: {string.Join(", ", others)}");
     }
 
+
+
     public void CountOtherFoodCard()
     {
         int currentPlayerNum = (int)Turn["currentPlayerIndex"];
         int pickedPlayerNum = (int)Turn["pickedPlayerIndex"];
+
+        Debug.Log($"선플 픽 : {PhotonNetwork.CurrentRoom.Players[currentPlayerNum].CustomProperties["selectedFoodCard"]}");
+        Debug.Log($"후플 픽 : {PhotonNetwork.CurrentRoom.Players[pickedPlayerNum].CustomProperties["selectedFoodCard"]}"); 
+
         if(PhotonNetwork.LocalPlayer.ActorNumber == currentPlayerNum)
         {
             int starterIndex = others.IndexOf(pickedPlayerNum);
