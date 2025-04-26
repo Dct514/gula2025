@@ -2096,6 +2096,7 @@ GameObject:
   - component: {fileID: 608318220}
   - component: {fileID: 608318219}
   - component: {fileID: 608318222}
+  - component: {fileID: 608318223}
   m_Layer: 0
   m_Name: NewGameManager
   m_TagString: Untagged
@@ -2166,6 +2167,7 @@ MonoBehaviour:
   - {fileID: 1607874966}
   - {fileID: 1647995571}
   - {fileID: 1826791393}
+  handCards: []
 --- !u!4 &608318221
 Transform:
   m_ObjectHideFlags: 0
@@ -2201,6 +2203,57 @@ MonoBehaviour:
   otherNameTagImages: []
   borderSprites: []
   nameTagSprites: []
+  myPlayerNameText: {fileID: 1954429344}
+  myProfileImage: {fileID: 1775648310}
+  myNameTagImage: {fileID: 869955024}
+  otherPlayerNameTexts:
+  - {fileID: 326266050111502645}
+  - {fileID: 326266048298560976}
+  - {fileID: 326266050086235064}
+  otherProfileImages:
+  - {fileID: 5277545472025045097}
+  - {fileID: 5277545472900693132}
+  - {fileID: 5277545471999785700}
+  otherNameTagImages:
+  - {fileID: 5134898936509015728}
+  - {fileID: 5134898934561894997}
+  - {fileID: 5134898936550798397}
+  borderSprites:
+  - {fileID: 1130926697, guid: 83cbcd9e37eb3e84085754036e9ec14e, type: 3}
+  - {fileID: -1718181044, guid: 83cbcd9e37eb3e84085754036e9ec14e, type: 3}
+  - {fileID: -1287096778, guid: 83cbcd9e37eb3e84085754036e9ec14e, type: 3}
+  - {fileID: -348767516, guid: 83cbcd9e37eb3e84085754036e9ec14e, type: 3}
+  nameTagSprites:
+  - {fileID: 21300000, guid: 693f8fe1fb234dd448b5cc1ae7cb2927, type: 3}
+  - {fileID: 21300000, guid: 53ae46870b9fcd647ae5d68acfd64685, type: 3}
+  - {fileID: 21300000, guid: 5b18b8ee11d338a49b177d24024ea5d1, type: 3}
+  - {fileID: 21300000, guid: 61ab4276f259d064dbdb7a5b8b1998f7, type: 3}
+--- !u!114 &608318223
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 608318218}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8b7904bb1aff30940bb427dfc28cc76a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  borderSpriteSets:
+  - backgroundSprite: {fileID: 1130926697, guid: 83cbcd9e37eb3e84085754036e9ec14e, type: 3}
+    nameTagSprite: {fileID: 21300000, guid: 693f8fe1fb234dd448b5cc1ae7cb2927, type: 3}
+  - backgroundSprite: {fileID: -1718181044, guid: 83cbcd9e37eb3e84085754036e9ec14e, type: 3}
+    nameTagSprite: {fileID: 21300000, guid: 53ae46870b9fcd647ae5d68acfd64685, type: 3}
+  - backgroundSprite: {fileID: -1287096778, guid: 83cbcd9e37eb3e84085754036e9ec14e, type: 3}
+    nameTagSprite: {fileID: 21300000, guid: 5b18b8ee11d338a49b177d24024ea5d1, type: 3}
+  - backgroundSprite: {fileID: -348767516, guid: 83cbcd9e37eb3e84085754036e9ec14e, type: 3}
+    nameTagSprite: {fileID: 21300000, guid: 61ab4276f259d064dbdb7a5b8b1998f7, type: 3}
+  playerPanels:
+  - {fileID: 5015333467091758633}
+  - {fileID: 5015333466889304780}
+  - {fileID: 5015333467133803684}
+  myPlayerPanel: {fileID: 2136066737}
 --- !u!1 &636015081
 GameObject:
   m_ObjectHideFlags: 0
@@ -2500,6 +2553,10 @@ PrefabInstance:
     - target: {fileID: 132536, guid: 67117722a812a2e46ab8cb8eafbf5f5e, type: 3}
       propertyPath: m_Name
       value: IngameDebugConsole
+      objectReference: {fileID: 0}
+    - target: {fileID: 132536, guid: 67117722a812a2e46ab8cb8eafbf5f5e, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 22426080, guid: 67117722a812a2e46ab8cb8eafbf5f5e, type: 3}
       propertyPath: m_AnchorMax.x
@@ -4203,37 +4260,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cardPoint: -1
---- !u!1 &1037041725
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1037041726}
-  m_Layer: 0
-  m_Name: 123
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1037041726
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1037041725}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 465.76648, y: 267.2714, z: -2.5742745}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1054705958
 GameObject:
   m_ObjectHideFlags: 0

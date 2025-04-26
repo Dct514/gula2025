@@ -1,4 +1,4 @@
-// 📄 최종 수정: 테두리 + 이름배경 스프라이트 모두 동기화 (PlayerListUI)
+
 
 using System.Collections.Generic;
 using System.Linq;
