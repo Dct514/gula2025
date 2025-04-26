@@ -62,6 +62,11 @@ MonoBehaviour:
   - SyncCountFoodCard
   - RoundEnd
   - Syncscore2
+  - SetGameStatusText
+  - RoundResetCheck
+  - UpdatePlayerTurn
+  - CalculateScore
+  - UpdateVariable
   DisableAutoOpenWizard: 1
   ShowSettings: 0
   DevRegionSetOnce: 1

@@ -4834,8 +4834,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 4.2732, y: -162}
-  m_SizeDelta: {x: 275.3465, y: 72.222}
+  m_AnchoredPosition: {x: 1.2999954, y: -156.40186}
+  m_SizeDelta: {x: 197.6924, y: 51.8537}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &471799164
 MonoBehaviour:
@@ -5761,8 +5761,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 190.57, y: -92}
-  m_SizeDelta: {x: 200, y: 50}
+  m_AnchoredPosition: {x: 190.57, y: -164.6}
+  m_SizeDelta: {x: 379.96, y: 94.9896}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &590457569
 MonoBehaviour:
@@ -5784,7 +5784,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: G  U  L  A
+  m_text: G U L A
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -5811,8 +5811,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 36
-  m_fontSizeBase: 36
+  m_fontSize: 56
+  m_fontSizeBase: 56
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -6169,7 +6169,7 @@ MonoBehaviour:
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
-          m_BoolArgument: 0
+          m_BoolArgument: 1
         m_CallState: 2
   m_IsOn: 0
 --- !u!1 &644362044
@@ -8491,7 +8491,7 @@ MonoBehaviour:
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
-          m_BoolArgument: 1
+          m_BoolArgument: 0
         m_CallState: 2
   m_IsOn: 1
 --- !u!1 &833361550
@@ -9146,7 +9146,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 338702334}
   m_HandleRect: {fileID: 338702333}
   m_Direction: 2
-  m_Value: 1
+  m_Value: 0
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -10148,7 +10148,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 190.57436, y: 213.75952}
+  m_AnchoredPosition: {x: 190.57, y: 213.75952}
   m_SizeDelta: {x: 381.1487, y: 427.51904}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &995171238
@@ -12131,8 +12131,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 4.2732, y: 1.9}
-  m_SizeDelta: {x: 275.3465, y: 72.222}
+  m_AnchoredPosition: {x: 1.2999954, y: -40.08961}
+  m_SizeDelta: {x: 197.6924, y: 51.8537}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1213575457
 MonoBehaviour:
@@ -12519,8 +12519,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 4.2732, y: -82.8}
-  m_SizeDelta: {x: 275.3465, y: 72.222}
+  m_AnchoredPosition: {x: 1.2999954, y: -99.53809}
+  m_SizeDelta: {x: 197.6924, y: 51.8537}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1266878078
 MonoBehaviour:
@@ -16598,7 +16598,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "\uCF1C\uAE30"
+  m_Text: "\uB044\uAE30"
 --- !u!222 &1826065861
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -17042,8 +17042,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 4.2732, y: 86.2}
-  m_SizeDelta: {x: 275.3465, y: 72.222}
+  m_AnchoredPosition: {x: 1.3, y: 21.8}
+  m_SizeDelta: {x: 197.6924, y: 51.8537}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1865000330
 MonoBehaviour:
@@ -19316,7 +19316,7 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 8300000, guid: 4829734ad7d2fb84787683dd9aceb3ce, type: 3}
-  m_PlayOnAwake: 1
+  m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
   Loop: 0
@@ -19641,7 +19641,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "\uB044\uAE30"
+  m_Text: "\uCF1C\uAE30"
 --- !u!222 &2134627604
 CanvasRenderer:
   m_ObjectHideFlags: 0

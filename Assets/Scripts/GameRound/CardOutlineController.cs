@@ -11,21 +11,16 @@ public class CardOutlineController : MonoBehaviour
 
     void Awake()
     {
-        // µð¹ö±× ·Î±× Ãß°¡: Awake()°¡ È£ÃâµÇ´ÂÁö È®ÀÎ
-        Debug.Log("CardOutlineController Awake ½ÇÇà");
-
         cardImage = GetComponent<Image>();
         if (cardImage == null)
         {
-            Debug.LogError("Image ÄÄÆ÷³ÍÆ®¸¦ Ã£À» ¼ö ¾ø½À´Ï´Ù!");
+            Debug.LogError("Image ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ Ã£ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½!");
             return;
         }
 
-        // ¸ÓÆ¼¸®¾ó ÀÎ½ºÅÏ½ºÈ­ ¹× ÇÒ´ç
         outlineMat = Instantiate(cardImage.material);
         cardImage.material = outlineMat;
 
-        // ÃÊ±â »óÅÂ ¼³Á¤ (¾Æ¿ô¶óÀÎ ²û)
         outlineMat.SetFloat("_OutlineThickness", deselectedThickness);
     }
 
@@ -34,7 +29,7 @@ public class CardOutlineController : MonoBehaviour
         if (outlineMat != null)
         {
             outlineMat.SetFloat("_OutlineThickness", selectedThickness);
-            Debug.Log("SelectCard È£ÃâµÊ, _OutlineThickness: " + selectedThickness);
+
         }
     }
 
@@ -43,7 +38,7 @@ public class CardOutlineController : MonoBehaviour
         if (outlineMat != null)
         {
             outlineMat.SetFloat("_OutlineThickness", deselectedThickness);
-            Debug.Log("DeselectCard È£ÃâµÊ, _OutlineThickness: " + deselectedThickness);
+
         }
     }
 }

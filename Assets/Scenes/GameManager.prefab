@@ -1,0 +1,174 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &5248725668500159230
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2542330262507473339}
+  - component: {fileID: 1665367709548667340}
+  - component: {fileID: 6807457714880827100}
+  - component: {fileID: 1549534393810394543}
+  - component: {fileID: 6891988362785581024}
+  m_Layer: 0
+  m_Name: GameManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!4 &2542330262507473339
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5248725668500159230}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 421.32748, y: 341.4035, z: -3.9028788}
+  m_LocalScale: {x: 3, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1665367709548667340
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5248725668500159230}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c595c46f9d5b0e34f82daa320db517ef, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gamestatustxt: {fileID: 0}
+  submitbuttontxt: {fileID: 0}
+  timer: {fileID: 0}
+  submitbuttontxt2: {fileID: 0}
+  gameovertxt: {fileID: 0}
+  scoretxt:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  goldtxt:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  silvertxt:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  resultPannel: {fileID: 0}
+  playerListText:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  currentTurn: 0
+  currentTurn2: 1
+  pushFoodCard: 0
+  score: 000000000000000000000000000000000000000000000000
+  selectedFoodCard: 00000000000000000000000000000000
+  cardSprites:
+  - {fileID: 21300000, guid: a589a5af1312ac54088bfc2830876fbc, type: 3}
+  - {fileID: 21300000, guid: 77ea44dc420ba6d4985c52423b58b2a0, type: 3}
+  - {fileID: 21300000, guid: 1f5443b8f482d6e43a26aa7bc117439f, type: 3}
+  - {fileID: 21300000, guid: eb1d0cade7918d44f89d726b6eb11d6d, type: 3}
+  - {fileID: 21300000, guid: a574a63278ce02d48890cbd4589d2570, type: 3}
+  - {fileID: 21300000, guid: e18997a06c867db4b89a114305227186, type: 3}
+  - {fileID: 21300000, guid: f16af1d5a26894b49bd226295baf5097, type: 3}
+  - {fileID: 0}
+  cardImages:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  myImages:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  myGrade: 1
+  feastButton: {fileID: 0}
+  stealButton: {fileID: 0}
+  playerHand: 01000000020000000300000005000000070000000a000000
+  handCards:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  others: 
+--- !u!114 &6807457714880827100
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5248725668500159230}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7f78b17b67e21094fa1de342dd55b6da, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerSlots:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  scoretxt: []
+--- !u!114 &1549534393810394543
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5248725668500159230}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa584fbee541324448dd18d8409c7a41, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ObservedComponentsFoldoutOpen: 1
+  Group: 0
+  prefixField: -1
+  Synchronization: 3
+  OwnershipTransfer: 0
+  observableSearch: 2
+  ObservedComponents: []
+  sceneViewId: 0
+  InstantiationId: 0
+  isRuntimeInstantiated: 0
+--- !u!114 &6891988362785581024
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5248725668500159230}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8b7904bb1aff30940bb427dfc28cc76a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  borderSpriteSets:
+  - backgroundSprite: {fileID: 1130926697, guid: 83cbcd9e37eb3e84085754036e9ec14e, type: 3}
+    nameTagSprite: {fileID: 21300000, guid: 693f8fe1fb234dd448b5cc1ae7cb2927, type: 3}
+  - backgroundSprite: {fileID: -1718181044, guid: 83cbcd9e37eb3e84085754036e9ec14e, type: 3}
+    nameTagSprite: {fileID: 21300000, guid: 53ae46870b9fcd647ae5d68acfd64685, type: 3}
+  - backgroundSprite: {fileID: -1287096778, guid: 83cbcd9e37eb3e84085754036e9ec14e, type: 3}
+    nameTagSprite: {fileID: 21300000, guid: 5b18b8ee11d338a49b177d24024ea5d1, type: 3}
+  - backgroundSprite: {fileID: -348767516, guid: 83cbcd9e37eb3e84085754036e9ec14e, type: 3}
+    nameTagSprite: {fileID: 21300000, guid: 61ab4276f259d064dbdb7a5b8b1998f7, type: 3}
+  playerPanels:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  myPlayerPanel: {fileID: 0}
