@@ -148,7 +148,7 @@ Debug.Log($"Remote player selectedFoodCard: {PhotonNetwork.CurrentRoom.Players[(
            
                 if (!BlockPlayerTurn((int)Turn["currentPlayerIndex"], PhotonNetwork.LocalPlayer.ActorNumber) && 
                 playerData.Submited == false && 
-                player["selectedFoodCard"] != null && 
+                player["selectedFoodCard"] != null && (int)player["selectedFoodCard"] == 0 &&
                 (int)Turn["currentPlayerIndex"] != PhotonNetwork.LocalPlayer.ActorNumber && 
                 PhotonNetwork.CurrentRoom.Players[(int)Turn["currentPlayerIndex"]].CustomProperties["selectedFoodCard"] != null)
                 {

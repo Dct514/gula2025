@@ -5510,9 +5510,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: GameManager, Assembly-CSharp
-        m_MethodName: DenyButtonClick
+      - m_Target: {fileID: 608318220}
+        m_TargetAssemblyTypeName: RefactoryGM, Assembly-CSharp
+        m_MethodName: Denybutton
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
