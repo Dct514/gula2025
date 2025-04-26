@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿// ProfileSyncManager.cs (ActorNumber 기준으로 패널 고정 적용)
+
+using UnityEngine;
 using UnityEngine.UI;
 using Photon.Pun;
 using Photon.Realtime;
@@ -30,9 +32,7 @@ public class ProfileSyncManager : MonoBehaviourPunCallbacks
         if (PhotonNetwork.IsMasterClient)
         {
             AssignBorderIndicesToPlayers();
-            //photonView.RPC("AssignBorderIndicesToPlayers", RpcTarget.All);
         }
-        ApplyAllProfileBorders();
     }
 
     private void AssignBorderIndicesToPlayers()
@@ -40,64 +40,63 @@ public class ProfileSyncManager : MonoBehaviourPunCallbacks
         int index = 0;
         foreach (Player player in PhotonNetwork.PlayerList)
         {
+            int borderIndex = index % borderSpriteSets.Length;
+
+            // CustomProperties에 저장 (기록용)
             Hashtable props = new Hashtable();
-            props[BORDER_KEY] = index % borderSpriteSets.Length;
+            props[BORDER_KEY] = borderIndex;
             player.SetCustomProperties(props);
+
+            // RPC로 모든 플레이어에게 적용 명령
+            photonView.RPC("ApplyProfileBorder", RpcTarget.All, borderIndex, player.ActorNumber);
             index++;
         }
     }
 
-    public void ApplyAllProfileBorders()
+    [PunRPC]
+    public void ApplyProfileBorder(int borderIndex, int actorNumber)
     {
-        foreach (Player player in PhotonNetwork.PlayerList)
+        if (borderIndex < 0 || borderIndex >= borderSpriteSets.Length)
         {
-            ApplyProfileBorderToPanel(player);
+            Debug.LogWarning($"[오류] 잘못된 borderIndex: {borderIndex}");
+            return;
         }
-    }
 
-    public void ApplyProfileBorderToPanel(Player player)
-    {
-        int actorNum = player.ActorNumber;
-        int borderIndex = 0;
+        BorderSpriteSet borderSet = borderSpriteSets[borderIndex];
 
-        if (player.CustomProperties.ContainsKey(BORDER_KEY))
+        GameObject targetPanel;
+
+        if (PhotonNetwork.LocalPlayer.ActorNumber == actorNumber)
         {
-            borderIndex = (int)player.CustomProperties[BORDER_KEY];
+            targetPanel = myPlayerPanel;
         }
         else
         {
-            Debug.LogWarning($"[경고] {player.NickName}의 borderIndex 없음. 기본값 사용");
+            int panelIndex = actorNumber - 1;
+            targetPanel = (panelIndex >= 0 && panelIndex < playerPanels.Length) ? playerPanels[panelIndex] : null;
         }
 
-        if (borderIndex < 0 || borderIndex >= borderSpriteSets.Length) return;
-        var borderSet = borderSpriteSets[borderIndex];
+        if (targetPanel == null)
+        {
+            Debug.LogWarning($"[오류] actorNumber {actorNumber}에 해당하는 targetPanel을 찾을 수 없습니다.");
+            return;
+        }
 
-        // 🔹 UI 타겟 결정
-        int playerIndex = System.Array.IndexOf(PhotonNetwork.PlayerList, player);
-        GameObject targetPanel = (PhotonNetwork.LocalPlayer == player)
-        ? myPlayerPanel
-        : (playerIndex < playerPanels.Length ? playerPanels[playerIndex] : null);
-
-        // 🔹 적용
+        // 🔹 스프라이트 적용
         var bg = targetPanel.transform.Find("img_ProfileBackground")?.GetComponent<Image>();
         if (bg != null) bg.sprite = borderSet.backgroundSprite;
 
         var nameTag = targetPanel.transform.Find("img_ProfileName")?.GetComponent<Image>();
         if (nameTag != null) nameTag.sprite = borderSet.nameTagSprite;
 
-        Debug.Log($"[적용] {player.NickName} UI 적용됨 (borderIndex {borderIndex})");
-    }
-
-    public override void OnPlayerPropertiesUpdate(Player targetPlayer, Hashtable changedProps)
-    {
-        if (changedProps.ContainsKey(BORDER_KEY))
-        {
-            ApplyProfileBorderToPanel(targetPlayer);
-        }
+        Debug.Log($"[완료] {actorNumber}번 플레이어 - borderIndex {borderIndex} 적용 완료");
     }
 
     public override void OnPlayerEnteredRoom(Player newPlayer)
     {
-        ApplyAllProfileBorders();
+        if (PhotonNetwork.IsMasterClient)
+        {
+            AssignBorderIndicesToPlayers();
+        }
     }
 }
