@@ -2174,10 +2174,6 @@ MonoBehaviour:
   - {fileID: 1607874966}
   - {fileID: 1647995571}
   - {fileID: 1826791393}
-<<<<<<< HEAD
-=======
-  playerHand: 01000000020000000300000005000000070000000a000000
->>>>>>> a99ff191257318120a8fb3c719c6fcff73b5f8cc
 --- !u!4 &608318221
 Transform:
   m_ObjectHideFlags: 0
@@ -2205,7 +2201,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7f78b17b67e21094fa1de342dd55b6da, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-<<<<<<< HEAD
   myPlayerNameText: {fileID: 1954429344}
   myProfileImage: {fileID: 1775648310}
   myNameTagImage: {fileID: 869955024}
@@ -2231,16 +2226,6 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 53ae46870b9fcd647ae5d68acfd64685, type: 3}
   - {fileID: 21300000, guid: 5b18b8ee11d338a49b177d24024ea5d1, type: 3}
   - {fileID: 21300000, guid: 61ab4276f259d064dbdb7a5b8b1998f7, type: 3}
-=======
-  myPlayerNameText: {fileID: 0}
-  myProfileImage: {fileID: 0}
-  myNameTagImage: {fileID: 0}
-  otherPlayerNameTexts: []
-  otherProfileImages: []
-  otherNameTagImages: []
-  borderSprites: []
-  nameTagSprites: []
->>>>>>> a99ff191257318120a8fb3c719c6fcff73b5f8cc
 --- !u!114 &608318223
 MonoBehaviour:
   m_ObjectHideFlags: 0
