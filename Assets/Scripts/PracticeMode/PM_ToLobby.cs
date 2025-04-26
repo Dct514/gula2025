@@ -3,6 +3,12 @@ using UnityEngine.SceneManagement;
 
 public class PM_ToLobby : MonoBehaviour
 {
+
+    public void OnClickGoToLobby()
+    {
+        SceneManager.LoadScene("Lobby");
+    }
+
     void Update()
     {
         // ESC 키 입력을 감지합니다.
