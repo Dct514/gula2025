@@ -13,17 +13,17 @@ public class PhotonConnector : MonoBehaviourPunCallbacks
     public TMP_InputField nicknameInput;
     public TMP_Text nicknameDisplay;
     public TMP_InputField roomNameInput;
-    
+
     [Header("Lobby UI")]
     public Transform roomListContainer; // 방 목록을 담을 부모 객체
     public GameObject roomEntryPrefab; // 방 항목 UI 프리팹
     public TMP_Text noRoomsText; // "방이 없습니다" 텍스트
     public TMP_Text myName;
-    
+
     private Dictionary<string, GameObject> roomEntries = new Dictionary<string, GameObject>();
-    
+
     private const int MaxPlayers = 4; // 최대 플레이어 수
-    
+
     void Start()
     {
         PhotonNetwork.AutomaticallySyncScene = true;
@@ -50,55 +50,55 @@ public class PhotonConnector : MonoBehaviourPunCallbacks
         Debug.Log("방 목록 업데이트!");
         UpdateRoomListUI(roomList);
     }
-   private void UpdateRoomListUI(List<RoomInfo> roomList)
-{
-    // 기존 방 목록 삭제
-    foreach (var entry in roomEntries.Values)
+    private void UpdateRoomListUI(List<RoomInfo> roomList)
     {
-        Destroy(entry);
-    }
-    roomEntries.Clear();
+        // 기존 방 목록 삭제
+        foreach (var entry in roomEntries.Values)
+        {
+            Destroy(entry);
+        }
+        roomEntries.Clear();
 
-    // 방이 없으면 "방이 없습니다" 텍스트 표시
-    if (roomList.Count == 0)
+        // 방이 없으면 "방이 없습니다" 텍스트 표시
+        if (roomList.Count == 0)
+        {
+            noRoomsText.gameObject.SetActive(true);
+            return;
+        }
+        noRoomsText.gameObject.SetActive(false);
+
+        float spacing = 10f; // 아이템 간 간격
+        float itemHeight = 50f; // 방 항목 UI 높이 (프리팹 크기)
+
+        // 방 목록 UI 생성
+        for (int i = 0; i < roomList.Count; i++)
+        {
+            RoomInfo room = roomList[i];
+            if (room.RemovedFromList) continue;
+
+            GameObject entry = Instantiate(roomEntryPrefab, roomListContainer);
+            RectTransform entryTransform = entry.GetComponent<RectTransform>();
+
+            // 방 UI 위치 설정 (점점 아래로 배치)
+            entryTransform.anchoredPosition = new Vector2(0, -i * (itemHeight + spacing));
+
+            // UI 요소 업데이트
+            entry.transform.Find("RoomNameText").GetComponent<TMP_Text>().text = $"{room.Name} ({room.PlayerCount}/{room.MaxPlayers})";
+            entry.transform.Find("JoinButton").GetComponent<Button>().onClick.AddListener(() => JoinRoom(room.Name));
+
+            roomEntries[room.Name] = entry;
+        }
+
+        // 컨테이너 크기 조절 (스크롤 뷰 대응)
+        AdjustRoomListSize(roomList.Count, itemHeight, spacing);
+    }
+
+    // 방 목록 크기 자동 조절 (스크롤 뷰를 고려한 크기 조정)
+    private void AdjustRoomListSize(int roomCount, float itemHeight, float spacing)
     {
-        noRoomsText.gameObject.SetActive(true);
-        return;
+        RectTransform contentRect = roomListContainer.GetComponent<RectTransform>();
+        contentRect.sizeDelta = new Vector2(contentRect.sizeDelta.x, roomCount * (itemHeight + spacing));
     }
-    noRoomsText.gameObject.SetActive(false);
-
-    float spacing = 10f; // 아이템 간 간격
-    float itemHeight = 50f; // 방 항목 UI 높이 (프리팹 크기)
-
-    // 방 목록 UI 생성
-    for (int i = 0; i < roomList.Count; i++)
-    {
-        RoomInfo room = roomList[i];
-        if (room.RemovedFromList) continue;
-
-        GameObject entry = Instantiate(roomEntryPrefab, roomListContainer);
-        RectTransform entryTransform = entry.GetComponent<RectTransform>();
-
-        // 방 UI 위치 설정 (점점 아래로 배치)
-        entryTransform.anchoredPosition = new Vector2(0, -i * (itemHeight + spacing));
-
-        // UI 요소 업데이트
-        entry.transform.Find("RoomNameText").GetComponent<TMP_Text>().text = $"{room.Name} ({room.PlayerCount}/{room.MaxPlayers})";
-        entry.transform.Find("JoinButton").GetComponent<Button>().onClick.AddListener(() => JoinRoom(room.Name));
-
-        roomEntries[room.Name] = entry;
-    }
-
-    // 컨테이너 크기 조절 (스크롤 뷰 대응)
-    AdjustRoomListSize(roomList.Count, itemHeight, spacing);
-}
-
-// 방 목록 크기 자동 조절 (스크롤 뷰를 고려한 크기 조정)
-private void AdjustRoomListSize(int roomCount, float itemHeight, float spacing)
-{
-    RectTransform contentRect = roomListContainer.GetComponent<RectTransform>();
-    contentRect.sizeDelta = new Vector2(contentRect.sizeDelta.x, roomCount * (itemHeight + spacing));
-}
     public void StartQuickMatch()
     {
         PhotonNetwork.JoinRandomRoom(); // 무작위 방 참가 시도
@@ -126,7 +126,7 @@ private void AdjustRoomListSize(int roomCount, float itemHeight, float spacing)
 
     public void JoinRoom(string roomName)
     {
-        roomName =  roomNameInput.text;
+        roomName = roomNameInput.text;
         if (!PhotonNetwork.IsConnected)
         {
             Debug.LogWarning("Photon에 연결되지 않았습니다!");
@@ -147,16 +147,16 @@ private void AdjustRoomListSize(int roomCount, float itemHeight, float spacing)
     public override void OnPlayerEnteredRoom(Player newPlayer)
     {
         OnJoinedRoom(); // 방에 들어온 플레이어가 있을 때마다 호출
-    Debug.Log($"새로운 플레이어가 방에 들어왔습니다: {newPlayer.NickName}");
+        Debug.Log($"새로운 플레이어가 방에 들어왔습니다: {newPlayer.NickName}");
 
-    // 방에 4명이 모두 들어왔을 때, 씬 변경 시작
-    if (PhotonNetwork.CurrentRoom.PlayerCount == MaxPlayers)
-    {
-        if (PhotonNetwork.IsMasterClient)
+        // 방에 4명이 모두 들어왔을 때, 씬 변경 시작
+        if (PhotonNetwork.CurrentRoom.PlayerCount == MaxPlayers)
         {
-            PhotonNetwork.LoadLevel("GameRoundScene");
+            if (PhotonNetwork.IsMasterClient)
+            {
+                PhotonNetwork.LoadLevel("GameRoundScene");
+            }
         }
-    }
     }
 
     public override void OnJoinRoomFailed(short returnCode, string message)
@@ -165,7 +165,7 @@ private void AdjustRoomListSize(int roomCount, float itemHeight, float spacing)
         statusText.text = "방 참가 실패!";
     }
 
-     public void SetNickname()
+    public void SetNickname()
     {
         string nickname = nicknameInput.text.Trim();
 
@@ -174,7 +174,12 @@ private void AdjustRoomListSize(int roomCount, float itemHeight, float spacing)
             PhotonNetwork.NickName = nickname;
             nicknameDisplay.text = "현재 닉네임: " + nickname;
 
-            // 닉네임 저장 (다음 접속 시 유지)
+            ExitGames.Client.Photon.Hashtable props = new ExitGames.Client.Photon.Hashtable
+        {
+            { "playerName", nickname }
+        };
+            PhotonNetwork.LocalPlayer.SetCustomProperties(props);
+
             PlayerPrefs.SetString("PlayerNickname", nickname);
             PlayerPrefs.Save();
         }

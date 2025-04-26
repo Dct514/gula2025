@@ -1,3 +1,5 @@
+// 📄 최종 수정: 테두리 + 이름배경 스프라이트 모두 동기화 (PlayerListUI)
+
 using System.Collections.Generic;
 using System.Linq;
 using Photon.Pun;
@@ -5,19 +7,41 @@ using Photon.Realtime;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using ExitGames.Client.Photon;
 
 public class PlayerListUI : MonoBehaviourPunCallbacks
 {
-    public TMP_Text[] playerSlots; // 왼쪽부터 오른쪽으로 닉네임을 표시할 Text 배열
-    public TMP_Text[] scoretxt;
+    [Header("내 패널")]
+    public TMP_Text myPlayerNameText;
+    public Image myProfileImage;        // 내 테두리
+    public Image myNameTagImage;         // 내 이름 배경
 
-    private void Start()
+    [Header("남은 플레이어 패널 (순서대로)")]
+    public TMP_Text[] otherPlayerNameTexts;
+    public Image[] otherProfileImages;   // 남 테두리
+    public Image[] otherNameTagImages;   // 남 이름 배경
+
+    [Header("UI 스프라이트 세트")]
+    public Sprite[] borderSprites;       // 테두리 스프라이트들
+    public Sprite[] nameTagSprites;      // 이름 배경 스프라이트들
+
+    private List<Player> otherPlayers = new List<Player>();
+
+    void Start()
     {
+        if (PhotonNetwork.IsMasterClient)
+        {
+            AssignBorderIndicesToPlayers();
+        }
         UpdatePlayerList();
     }
 
     public override void OnPlayerEnteredRoom(Player newPlayer)
     {
+        if (PhotonNetwork.IsMasterClient)
+        {
+            AssignBorderIndicesToPlayers();
+        }
         UpdatePlayerList();
     }
 
@@ -26,36 +50,77 @@ public class PlayerListUI : MonoBehaviourPunCallbacks
         UpdatePlayerList();
     }
 
-public void UpdatePlayerList()
-{
-    Debug.Log("UpdatePlayerList");
-    if (!PhotonNetwork.InRoom)
-        return;
-
-    List<Player> sortedPlayers = PhotonNetwork.PlayerList
-        .Where(p => p.ActorNumber != PhotonNetwork.LocalPlayer.ActorNumber) // 자신 제외
-        .OrderBy(p => p.ActorNumber) // ActorNumber가 낮은 순으로 정렬
-        .ToList();
-
-    for (int i = 0; i < sortedPlayers.Count; i++)
+    private void AssignBorderIndicesToPlayers()
     {
-
-            playerSlots[i].text = sortedPlayers[i].NickName;
-
+        int index = 0;
+        foreach (Player player in PhotonNetwork.PlayerList.OrderBy(p => p.ActorNumber))
+        {
+            Hashtable props = new Hashtable();
+            props["borderIndex"] = index % borderSprites.Length;
+            player.SetCustomProperties(props);
+            index++;
+        }
     }
-}
 
-// GameManager의 score 배열에서 점수 가져오기
-private int GetPlayerScore(Player player)
-{
-    int actorNumber = player.ActorNumber;
-
-    // GameManager의 인스턴스에서 score 배열을 가져옴 (배열 크기 검사 추가)
-    if (GameManager.Instance != null && actorNumber >= 0 && actorNumber < GameManager.Instance.score.Length)
+    public void UpdatePlayerList()
     {
-        return GameManager.Instance.score[actorNumber]; 
-    }
-    return 0; // 기본값
-}
+        if (!PhotonNetwork.InRoom)
+            return;
 
+        Debug.Log("UpdatePlayerList()");
+
+        // 🔹 내 패널 업데이트
+        if (PhotonNetwork.LocalPlayer.CustomProperties.ContainsKey("playerName"))
+            myPlayerNameText.text = (string)PhotonNetwork.LocalPlayer.CustomProperties["playerName"];
+        else
+            myPlayerNameText.text = PhotonNetwork.LocalPlayer.NickName;
+
+        if (PhotonNetwork.LocalPlayer.CustomProperties.ContainsKey("borderIndex"))
+        {
+            int myIndex = (int)PhotonNetwork.LocalPlayer.CustomProperties["borderIndex"];
+            myProfileImage.sprite = borderSprites[myIndex];
+            myNameTagImage.sprite = nameTagSprites[myIndex];
+        }
+
+        // 🔹 남은 플레이어 정리
+        otherPlayers = PhotonNetwork.PlayerList
+            .Where(p => p != PhotonNetwork.LocalPlayer)
+            .OrderBy(p => p.ActorNumber)
+            .ToList();
+
+        for (int i = 0; i < otherPlayerNameTexts.Length; i++)
+        {
+            if (i < otherPlayers.Count)
+            {
+                Player player = otherPlayers[i];
+
+                if (player.CustomProperties.ContainsKey("playerName"))
+                    otherPlayerNameTexts[i].text = (string)player.CustomProperties["playerName"];
+                else
+                    otherPlayerNameTexts[i].text = player.NickName;
+
+                if (player.CustomProperties.ContainsKey("borderIndex"))
+                {
+                    int otherIndex = (int)player.CustomProperties["borderIndex"];
+                    otherProfileImages[i].sprite = borderSprites[otherIndex];
+                    otherNameTagImages[i].sprite = nameTagSprites[otherIndex];
+                }
+            }
+            else
+            {
+                otherPlayerNameTexts[i].text = "";
+                otherProfileImages[i].sprite = null;
+                otherNameTagImages[i].sprite = null;
+            }
+        }
+    }
+
+    public override void OnPlayerPropertiesUpdate(Player targetPlayer, Hashtable changedProps)
+    {
+        if (changedProps.ContainsKey("borderIndex"))
+        {
+            Debug.Log($"Player {targetPlayer.NickName} borderIndex 갱신됨. UpdatePlayerList 호출");
+            UpdatePlayerList();
+        }
+    }
 }
