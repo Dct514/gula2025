@@ -26,6 +26,7 @@ public class RefactoryGM : MonoBehaviourPunCallbacks
     public int choice = -1;
     public int choice2 = -1;
     public int[] score = new int[6] { 0, 0, 0, 0, 0, 0 };
+    public Image[] myImages;
     public List<HandCard> handCards = new List<HandCard>(); // 각 플레이어의 카드들
     public class PlayerData
     {
@@ -33,6 +34,15 @@ public class RefactoryGM : MonoBehaviourPunCallbacks
         public bool Submited { get; set; }
 
     }
+    public List<FoodCard.CardPoint> playerHand = new List<FoodCard.CardPoint>
+    {
+        FoodCard.CardPoint.Bread,
+        FoodCard.CardPoint.Soup,
+        FoodCard.CardPoint.Fish,
+        FoodCard.CardPoint.Steak,
+        FoodCard.CardPoint.Turkey,
+        FoodCard.CardPoint.Cake
+    };
     public PlayerData playerData = new PlayerData();
     void Start()
     {
@@ -206,6 +216,21 @@ Debug.Log($"Remote player selectedFoodCard: {PhotonNetwork.CurrentRoom.Players[(
         }
     }
 
+        public void Denybutton()
+        {
+            if ((int)Turn["currentTurn"] == 1 && (int)Turn["currentPlayerIndex"] != PhotonNetwork.LocalPlayer.ActorNumber && playerData.Submited == false)
+            {       
+                playerData.Submited = true;
+                Turn["foodSubmited"] = (int)Turn["foodSubmited"] + 1;
+                PhotonNetwork.CurrentRoom.SetCustomProperties(Turn);
+                player["selectedFoodCard"] = 0;
+                photonView.RPC("SetCardValue", RpcTarget.All, 0, PhotonNetwork.LocalPlayer.ActorNumber);
+            }
+
+        }
+
+
+
     [PunRPC]
     public void SetGameStatusText(string text)
     {
@@ -308,7 +333,10 @@ Debug.Log($"Remote player selectedFoodCard: {PhotonNetwork.CurrentRoom.Players[(
             return;
         }
         Debug.Log($"현재 내 점수 : {player["score"]}, 다른 플레이어 점수 : {score[0]}, {score[1]}, {score[2]}, {score[3]}, {score[4]}, {score[5]}");
-            PhotonNetwork.LocalPlayer.SetCustomProperties(player);
+        PhotonNetwork.LocalPlayer.SetCustomProperties(player);
+        CountOtherFoodCard();
+        CountMyFoodCard((FoodCard.CardPoint)PhotonNetwork.LocalPlayer.CustomProperties["selectedFoodCard"]);
+       
         Start();
     }
 
@@ -388,7 +416,7 @@ Debug.Log($"Remote player selectedFoodCard: {PhotonNetwork.CurrentRoom.Players[(
         Debug.Log($"다른 플레이어들: {string.Join(", ", others)}");
     }
 
-    public void CountOtherFoodCard() // selectedFoodCard[actnum-1] 가져옴 - 다른 플레이어의 음식카드 표시(흑백)
+    public void CountOtherFoodCard()
     {
         int currentPlayerNum = (int)Turn["currentPlayerIndex"];
         int pickedPlayerNum = (int)Turn["pickedPlayerIndex"];
@@ -408,10 +436,40 @@ Debug.Log($"Remote player selectedFoodCard: {PhotonNetwork.CurrentRoom.Players[(
             int starterIndex = others.IndexOf(currentPlayerNum);
             int starterIndex2 = others.IndexOf(pickedPlayerNum);
             handCards[starterIndex].cards[GetSpriteIndex((int)PhotonNetwork.CurrentRoom.Players[pickedPlayerNum].CustomProperties["selectedFoodCard"])].gameObject.SetActive(false);
-            handCards[starterIndex].cards[GetSpriteIndex((int)PhotonNetwork.CurrentRoom.Players[currentPlayerNum].CustomProperties["selectedFoodCard"])].gameObject.SetActive(false);
+            handCards[starterIndex2].cards[GetSpriteIndex((int)PhotonNetwork.CurrentRoom.Players[currentPlayerNum].CustomProperties["selectedFoodCard"])].gameObject.SetActive(false);
 
         }
     }
+    
+    
+        public void CountMyFoodCard(FoodCard.CardPoint cardPoint) // selectedFoodCard[actnum-1] 가져옴 - 내 사용한 음식카드 표시(흑백)
+    {
+        if (PhotonNetwork.LocalPlayer.ActorNumber == (int)Turn["currentPlayerIndex"] || PhotonNetwork.LocalPlayer.ActorNumber == (int)Turn["pickedPlayerIndex"])
+            // 카드가 선택되면 해당 카드를 playerHand에서 제거
+            if (cardPoint != FoodCard.CardPoint.deny && playerHand.Contains(cardPoint))
+            {
+                playerHand.Remove(cardPoint);
+            }
+            // myImages[GetSpriteIndex((int)cardPoint)].color = new Color(1f, 1f, 1f, 1f);
+        
+
+        foreach (Image card in myImages)
+        {
+            FoodCard.CardPoint cardType = card.GetComponent<FoodCard>().cardPoint;
+
+            // playerHand에 없는 카드라면 비활성화 (또는 삭제)
+            if (!playerHand.Contains(cardType))
+            {
+                card.gameObject.SetActive(false); // UI에서 숨김
+            }
+            else
+            {
+                card.gameObject.SetActive(true); // UI에서 표시
+            }
+        }
+        Debug.Log($"CountMyFoodCard : {cardPoint}");
+    }
+
         [PunRPC]
         public void UpdatePlayerTurn(int playerA, int playerB)
         {
