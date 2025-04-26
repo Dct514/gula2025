@@ -64,11 +64,13 @@ public class RefactoryGM : MonoBehaviourPunCallbacks
 
         for (int i = 0; i < PhotonNetwork.CurrentRoom.PlayerCount-1; i++)
         {
-            scoreTexts[i].text = $"{score[others.IndexOf(i+1)]}";
+            scoreTexts[i].text = $"{score[others[i]-1]}";
         }
         
-        photonView.RPC("SetCardValue", RpcTarget.All, 0, PhotonNetwork.LocalPlayer.ActorNumber);
-        photonView.RPC("SetCardValue", RpcTarget.All, 0, 0);
+        for (int i = 0; i < PhotonNetwork.CurrentRoom.PlayerCount + 1; i++)
+        {
+            SetCardValue(0, i);
+        }
         
         Debug.Log($"현재 턴 : {Turn["currentTurn"]}");
         Debug.Log($"현재 플레이어 : {Turn["currentPlayerIndex"]}");

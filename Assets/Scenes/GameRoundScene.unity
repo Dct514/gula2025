@@ -2161,6 +2161,11 @@ MonoBehaviour:
   others: 
   choice: -1
   choice2: -1
+  score: 000000000000000000000000000000000000000000000000
+  handCards:
+  - {fileID: 1607874966}
+  - {fileID: 1647995571}
+  - {fileID: 1826791393}
 --- !u!4 &608318221
 Transform:
   m_ObjectHideFlags: 0
@@ -2188,11 +2193,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7f78b17b67e21094fa1de342dd55b6da, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerSlots:
-  - {fileID: 326266050111502645}
-  - {fileID: 326266048298560976}
-  - {fileID: 326266050086235064}
-  scoretxt: []
+  myPlayerNameText: {fileID: 0}
+  myProfileImage: {fileID: 0}
+  myNameTagImage: {fileID: 0}
+  otherPlayerNameTexts: []
+  otherProfileImages: []
+  otherNameTagImages: []
+  borderSprites: []
+  nameTagSprites: []
 --- !u!1 &636015081
 GameObject:
   m_ObjectHideFlags: 0
@@ -6460,7 +6468,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.6037736, g: 0.29334286, b: 0.29334286, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -9744,7 +9752,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.5566038, g: 0.26517445, b: 0.26517445, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -9774,7 +9782,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.46226418, g: 0.22459063, b: 0.22459063, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -9804,7 +9812,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.5660378, g: 0.26966894, b: 0.26966894, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -10365,7 +10373,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 0}
+  m_Color: {r: 0.5943396, g: 0.32800817, b: 0.32800817, a: 0}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -12005,3 +12013,4 @@ SceneRoots:
   - {fileID: 239586566}
   - {fileID: 1996736662}
   - {fileID: 410449624}
+  - {fileID: 1037041726}
