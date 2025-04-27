@@ -30,6 +30,7 @@ public class RefactoryGM : MonoBehaviourPunCallbacks
     public List<(int,int)> currentTurnProcess = new List<(int,int)>();
     public int choice = -1;
     public int choice2 = -1;
+    public int checkFoodCard = 0; // 카드 선택 확인용
     public int[] gold = new int[6] { 0, 0, 0, 0, 0, 0 };
     public int[] silver = new int[6] { 0, 0, 0, 0, 0, 0 };
     public int[] score = new int[6] { 0, 0, 0, 0, 0, 0 };
@@ -55,7 +56,7 @@ public class RefactoryGM : MonoBehaviourPunCallbacks
         {
             if ((int)Turn["currentPlayerIndex"] >= PhotonNetwork.CurrentRoom.MaxPlayers) Turn["currentPlayerIndex"] = 1;
             else Turn["currentPlayerIndex"] = (int)Turn["currentPlayerIndex"] + 1;
-            photonView.RPC("SetGameStatusText", RpcTarget.All, $"{(int)Turn["currentPlayerIndex"]}번 플레이어의 차례입니다.");
+            photonView.RPC("SetGameStatusText", RpcTarget.All, $"{PhotonNetwork.CurrentRoom.Players[(int)Turn["currentPlayerIndex"]].NickName}님의 차례입니다.");
             
             Turn["currentTurn"] = 0;
             Turn["pickedPlayerIndex"] = 0;
@@ -93,6 +94,15 @@ public class RefactoryGM : MonoBehaviourPunCallbacks
         
         Debug.Log($"현재 턴 : {Turn["currentTurn"]}");
         Debug.Log($"현재 플레이어 : {Turn["currentPlayerIndex"]}");
+
+        // todo :
+
+
+
+        // 만약 모든 플레이어와 2번씩 식사를 마쳤거나, 더 이상 식사를 할 수 없는 상황(식사하지 않은 플레이어가 - 동일 카드만 남은 경우) - 턴 넘어가기
+        // 모든 플레이어가 카드 소모 완료한 경우 - 카드 리셋
+        // 이후 점수 로직으로 소프트 리셋
+
     }
     private void Awake()
     {
@@ -252,6 +262,10 @@ Debug.Log($"Remote player selectedFoodCard: {PhotonNetwork.CurrentRoom.Players[(
 
         }
 
+    public void Bully()
+    {
+        
+    }
 
 
     [PunRPC]
@@ -294,9 +308,9 @@ Debug.Log($"Remote player selectedFoodCard: {PhotonNetwork.CurrentRoom.Players[(
         switch (choice, choice2)
         {
             case (0,0): // 식사
-                score = (int)PhotonNetwork.CurrentRoom.Players[(int)Turn["currentPlayerIndex"]].CustomProperties["selectedFoodCard"] + (int)PhotonNetwork.CurrentRoom.Players[(int)Turn["pickedPlayerIndex"]].CustomProperties["selectedFoodCard"];
-                photonView.RPC("CalculateScore", RpcTarget.All, pickedPlayerNum, score);
-                photonView.RPC("CalculateScore", RpcTarget.All, currentPlayerNum, score);
+                // score = (int)PhotonNetwork.CurrentRoom.Players[(int)Turn["currentPlayerIndex"]].CustomProperties["selectedFoodCard"] + (int)PhotonNetwork.CurrentRoom.Players[(int)Turn["pickedPlayerIndex"]].CustomProperties["selectedFoodCard"];
+                photonView.RPC("CalculateScore", RpcTarget.All, pickedPlayerNum, (int)PhotonNetwork.CurrentRoom.Players[currentPlayerNum].CustomProperties["selectedFoodCard"]);
+                photonView.RPC("CalculateScore", RpcTarget.All, currentPlayerNum, (int)PhotonNetwork.CurrentRoom.Players[pickedPlayerNum].CustomProperties["selectedFoodCard"]);
                 photonView.RPC("UpdatePlayerTurn", RpcTarget.All, (int)Turn["pickedPlayerIndex"], (int)Turn["currentPlayerIndex"]);
                 photonView.RPC("UpdateMedal", RpcTarget.All, 0, currentPlayerNum);
                 photonView.RPC("UpdateMedal", RpcTarget.All, 0, pickedPlayerNum);
@@ -588,6 +602,39 @@ Debug.Log($"Remote player selectedFoodCard: {PhotonNetwork.CurrentRoom.Players[(
         Debug.Log($"[SYNC] Turn 동기화됨: currentTurn = {Turn["currentTurn"]}, currentPlayerIndex = {Turn["currentPlayerIndex"]}, pickedPlayerIndex = {Turn["pickedPlayerIndex"]}, foodSubmited = {Turn["foodSubmited"]}");
     }
 
+  public override void OnPlayerPropertiesUpdate(Player targetPlayer, ExitGames.Client.Photon.Hashtable changedProps)
+    {
+        if (changedProps.ContainsKey("selectedFoodCard"))
+        {
+            int selectedFoodCard = (int)changedProps["selectedFoodCard"];
+            Debug.Log($"[SYNC] {targetPlayer.NickName}의 selectedFoodCard 동기화됨: {selectedFoodCard}");
+            if (FoodSubmited() &&
+            Isbully())
+            
+            {
+                
+            }
+        }
+        {
+           
+        }
+    }
+    
+    public bool Isbully()
+    {
+        int a= 0;
+       for (int i = 1; i < PhotonNetwork.CurrentRoom.MaxPlayers+1; i++)
+        {
+           if ((int)PhotonNetwork.CurrentRoom.Players[i].CustomProperties["selectedFoodCard"] != 0)
+            {
+               a++;
+            }
+        }
+
+        if (a==0) return true;
+        else return false;
+        
+    }
     
     public void DeselectAllCards()
     {
