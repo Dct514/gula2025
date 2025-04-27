@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 public class FoodCard : MonoBehaviour, IPointerClickHandler
 {
@@ -21,18 +22,34 @@ public class FoodCard : MonoBehaviour, IPointerClickHandler
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        RefactoryGM.Instance.DeselectAllCards();
-        if (cardPoint != FoodCard.CardPoint.tablecard) 
+        Image myImage = GetComponent<Image>();
+
+        if (myImage == null)
         {
+            Debug.LogWarning("Image 컴포넌트를 찾을 수 없습니다.");
+            return;
+        }
+
+        if (RefactoryGM.Instance != null && myImage.sprite.name == RefactoryGM.Instance.backSprite.name)
+        {
+            Debug.Log("사용한(뒷면) 카드는 클릭할 수 없습니다.");
+            return;
+        }
+
+        if (RefactoryGM.Instance != null)
+        {
+            RefactoryGM.Instance.DeselectAllCards();
             RefactoryGM.Instance.FoodCardSelect(cardPoint);
         }
-        // 현재 카드의 아웃라인을 켭니다.
+        else
+        {
+            Debug.LogWarning("RefactoryGM.Instance 가 null입니다.");
+        }
+
         CardOutlineController outline = GetComponent<CardOutlineController>();
         if (outline != null)
         {
             outline.SelectCard();
         }
-        //GameManager.Instance.DeselectAllCards();
-        //GameManager.Instance.pickedCardsave(cardPoint);
     }
 }

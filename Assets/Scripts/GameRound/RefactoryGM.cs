@@ -36,6 +36,7 @@ public class RefactoryGM : MonoBehaviourPunCallbacks
     public int[] score = new int[6] { 0, 0, 0, 0, 0, 0 };
     public Image[] myImages;
     public List<HandCard> handCards = new List<HandCard>(); // 각 플레이어의 카드들
+    public Sprite backSprite;
     public class PlayerData
     {
         public int playerNumber;
@@ -501,59 +502,57 @@ Debug.Log($"Remote player selectedFoodCard: {PhotonNetwork.CurrentRoom.Players[(
         int pickedPlayerNum = (int)Turn["pickedPlayerIndex"];
 
         Debug.Log($"선플 픽 : {PhotonNetwork.CurrentRoom.Players[currentPlayerNum].CustomProperties["selectedFoodCard"]}");
-        Debug.Log($"후플 픽 : {PhotonNetwork.CurrentRoom.Players[pickedPlayerNum].CustomProperties["selectedFoodCard"]}"); 
+        Debug.Log($"후플 픽 : {PhotonNetwork.CurrentRoom.Players[pickedPlayerNum].CustomProperties["selectedFoodCard"]}");
 
-        if(PhotonNetwork.LocalPlayer.ActorNumber == currentPlayerNum)
+        if (PhotonNetwork.LocalPlayer.ActorNumber == currentPlayerNum)
         {
             int starterIndex = others.IndexOf(pickedPlayerNum);
-            handCards[starterIndex].cards[GetSpriteIndex((int)PhotonNetwork.CurrentRoom.Players[pickedPlayerNum].CustomProperties["selectedFoodCard"])].gameObject.SetActive(false);
+            SetCardToBack(handCards[starterIndex].cards[GetSpriteIndex((int)PhotonNetwork.CurrentRoom.Players[pickedPlayerNum].CustomProperties["selectedFoodCard"])]);
         }
         else if (PhotonNetwork.LocalPlayer.ActorNumber == pickedPlayerNum)
         {
             int starterIndex = others.IndexOf(currentPlayerNum);
-            handCards[starterIndex].cards[GetSpriteIndex((int)PhotonNetwork.CurrentRoom.Players[currentPlayerNum].CustomProperties["selectedFoodCard"])].gameObject.SetActive(false);
-
+            SetCardToBack(handCards[starterIndex].cards[GetSpriteIndex((int)PhotonNetwork.CurrentRoom.Players[currentPlayerNum].CustomProperties["selectedFoodCard"])]);
         }
-        else if (PhotonNetwork.LocalPlayer.ActorNumber != currentPlayerNum && PhotonNetwork.LocalPlayer.ActorNumber != pickedPlayerNum)
+        else
         {
             int starterIndex = others.IndexOf(currentPlayerNum);
             int starterIndex2 = others.IndexOf(pickedPlayerNum);
-            handCards[starterIndex2].cards[GetSpriteIndex((int)PhotonNetwork.CurrentRoom.Players[pickedPlayerNum].CustomProperties["selectedFoodCard"])].gameObject.SetActive(false);
-            handCards[starterIndex].cards[GetSpriteIndex((int)PhotonNetwork.CurrentRoom.Players[currentPlayerNum].CustomProperties["selectedFoodCard"])].gameObject.SetActive(false);
-
+            SetCardToBack(handCards[starterIndex2].cards[GetSpriteIndex((int)PhotonNetwork.CurrentRoom.Players[pickedPlayerNum].CustomProperties["selectedFoodCard"])]);
+            SetCardToBack(handCards[starterIndex].cards[GetSpriteIndex((int)PhotonNetwork.CurrentRoom.Players[currentPlayerNum].CustomProperties["selectedFoodCard"])]);
         }
     }
-    
-    
-        public void CountMyFoodCard(FoodCard.CardPoint cardPoint) // selectedFoodCard[actnum-1] 가져옴 - 내 사용한 음식카드 표시(흑백)
+
+
+    public void CountMyFoodCard(FoodCard.CardPoint cardPoint)
     {
         if (PhotonNetwork.LocalPlayer.ActorNumber == (int)Turn["currentPlayerIndex"] || PhotonNetwork.LocalPlayer.ActorNumber == (int)Turn["pickedPlayerIndex"])
-            // 카드가 선택되면 해당 카드를 playerHand에서 제거
+        {
             if (cardPoint != FoodCard.CardPoint.deny && playerHand.Contains(cardPoint))
             {
                 playerHand.Remove(cardPoint);
             }
-            // myImages[GetSpriteIndex((int)cardPoint)].color = new Color(1f, 1f, 1f, 1f);
-        
+        }
 
         foreach (Image card in myImages)
         {
             FoodCard.CardPoint cardType = card.GetComponent<FoodCard>().cardPoint;
 
-            // playerHand에 없는 카드라면 비활성화 (또는 삭제)
             if (!playerHand.Contains(cardType))
             {
-                card.gameObject.SetActive(false); // UI에서 숨김
+                SetCardToBack(card);
             }
             else
             {
-                card.gameObject.SetActive(true); // UI에서 표시
+                card.sprite = cardSprites[GetSpriteIndex((int)cardType)];
+                card.color = new Color(1f, 1f, 1f, 1f); // 원래 밝게 복구
             }
         }
         Debug.Log($"CountMyFoodCard : {cardPoint}");
     }
 
-        [PunRPC]
+
+    [PunRPC]
         public void UpdatePlayerTurn(int playerA, int playerB)
         {
         // 항상 작은 번호 먼저로 정렬
@@ -584,6 +583,20 @@ Debug.Log($"Remote player selectedFoodCard: {PhotonNetwork.CurrentRoom.Players[(
             else return false;
 
         }
+
+        private void SetCardToBack(Image card)
+        {
+             if (card != null)
+             {
+                 card.sprite = backSprite;
+                 card.color = new Color(0.6f, 0.6f, 0.6f, 0.7f);
+             }
+        }
+
+
+
+
+
 
     public override void OnRoomPropertiesUpdate(ExitGames.Client.Photon.Hashtable propertiesThatChanged)
     {
