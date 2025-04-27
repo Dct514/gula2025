@@ -23,6 +23,7 @@ public class RefactoryGM : MonoBehaviourPunCallbacks
     public TMP_Text myScoreText;
     public TMP_Text myGoldText;   
     public TMP_Text mySilverText;
+    public TMP_Text myNickNameText;
     ExitGames.Client.Photon.Hashtable player = new ExitGames.Client.Photon.Hashtable();
     ExitGames.Client.Photon.Hashtable Turn = new ExitGames.Client.Photon.Hashtable();
     public List<FoodCard> Trash = new List<FoodCard>();
@@ -116,7 +117,7 @@ public class RefactoryGM : MonoBehaviourPunCallbacks
             Destroy(gameObject);
         }
         ShowPlayerPositions();
-        
+        myNickNameText.text = PhotonNetwork.LocalPlayer.NickName;
         player["grade"] = 0;
         player["score"] = 0;
         PhotonNetwork.LocalPlayer.SetCustomProperties(player);
@@ -310,8 +311,8 @@ Debug.Log($"Remote player selectedFoodCard: {PhotonNetwork.CurrentRoom.Players[(
         {
             case (0,0): // 식사
                 // score = (int)PhotonNetwork.CurrentRoom.Players[(int)Turn["currentPlayerIndex"]].CustomProperties["selectedFoodCard"] + (int)PhotonNetwork.CurrentRoom.Players[(int)Turn["pickedPlayerIndex"]].CustomProperties["selectedFoodCard"];
-                photonView.RPC("CalculateScore", RpcTarget.All, pickedPlayerNum, (int)PhotonNetwork.CurrentRoom.Players[currentPlayerNum].CustomProperties["selectedFoodCard"]);
-                photonView.RPC("CalculateScore", RpcTarget.All, currentPlayerNum, (int)PhotonNetwork.CurrentRoom.Players[pickedPlayerNum].CustomProperties["selectedFoodCard"]);
+                photonView.RPC("CalculateScore", RpcTarget.All, pickedPlayerNum, (int)PhotonNetwork.CurrentRoom.Players[pickedPlayerNum].CustomProperties["selectedFoodCard"]);
+                photonView.RPC("CalculateScore", RpcTarget.All, currentPlayerNum, (int)PhotonNetwork.CurrentRoom.Players[currentPlayerNum].CustomProperties["selectedFoodCard"]);
                 photonView.RPC("UpdatePlayerTurn", RpcTarget.All, (int)Turn["pickedPlayerIndex"], (int)Turn["currentPlayerIndex"]);
                 photonView.RPC("UpdateMedal", RpcTarget.All, 0, currentPlayerNum);
                 photonView.RPC("UpdateMedal", RpcTarget.All, 0, pickedPlayerNum);

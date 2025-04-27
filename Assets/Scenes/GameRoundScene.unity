@@ -2457,9 +2457,10 @@ MonoBehaviour:
   - {fileID: 8784156734202445661}
   - {fileID: 8784156732924144568}
   - {fileID: 8784156734244482512}
-  myScoreText: {fileID: 352276159}
-  myGoldText: {fileID: 786270579}
-  mySilverText: {fileID: 970776232}
+  myScoreText: {fileID: 1140031300}
+  myGoldText: {fileID: 754822274}
+  mySilverText: {fileID: 345752550}
+  myNickNameText: {fileID: 1954429344}
   Trash: []
   others: 
   choice: -1
@@ -4320,7 +4321,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &944121149
 Transform:
   m_ObjectHideFlags: 0
@@ -7755,7 +7756,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &2136066738
 RectTransform:
   m_ObjectHideFlags: 0
@@ -7788,7 +7789,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: -716, y: -1033.5}
+  m_AnchoredPosition: {x: -789, y: -997.41}
   m_SizeDelta: {x: 167.811, y: 102.595}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2136066739
