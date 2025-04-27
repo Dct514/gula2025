@@ -20,6 +20,9 @@ public class RefactoryGM : MonoBehaviourPunCallbacks
     public Image[] cardImages; // 카드 스프라이트 표시될 곳
     public TMP_Text[] goldTexts; // 골드 표시될 곳
     public TMP_Text[] silverTexts; // 실버 표시될 곳
+    public TMP_Text myScoreText;
+    public TMP_Text myGoldText;   
+    public TMP_Text mySilverText;
     ExitGames.Client.Photon.Hashtable player = new ExitGames.Client.Photon.Hashtable();
     ExitGames.Client.Photon.Hashtable Turn = new ExitGames.Client.Photon.Hashtable();
     public List<FoodCard> Trash = new List<FoodCard>();
@@ -40,12 +43,7 @@ public class RefactoryGM : MonoBehaviourPunCallbacks
     }
     public List<FoodCard.CardPoint> playerHand = new List<FoodCard.CardPoint>
     {
-        FoodCard.CardPoint.Bread,
-        FoodCard.CardPoint.Soup,
-        FoodCard.CardPoint.Fish,
-        FoodCard.CardPoint.Steak,
-        FoodCard.CardPoint.Turkey,
-        FoodCard.CardPoint.Cake
+
     };
     public PlayerData playerData = new PlayerData();
     void Start()
@@ -88,6 +86,10 @@ public class RefactoryGM : MonoBehaviourPunCallbacks
             goldTexts[i].text = $"{gold[others[i]-1]}";
             silverTexts[i].text = $"{silver[others[i]-1]}";
         }
+
+        myScoreText.text = $"{score[PhotonNetwork.LocalPlayer.ActorNumber-1]}";
+        myGoldText.text = $"{gold[PhotonNetwork.LocalPlayer.ActorNumber-1]}";
+        mySilverText.text = $"{silver[PhotonNetwork.LocalPlayer.ActorNumber-1]}";
         
         Debug.Log($"현재 턴 : {Turn["currentTurn"]}");
         Debug.Log($"현재 플레이어 : {Turn["currentPlayerIndex"]}");
@@ -459,7 +461,25 @@ Debug.Log($"Remote player selectedFoodCard: {PhotonNetwork.CurrentRoom.Players[(
         Debug.Log($"다른 플레이어들: {string.Join(", ", others)}");
     }
 
+    public void WholeRoundOver()
+    {
 
+        Trash.AddRange(handCards);
+        handCards.Clear();
+        playerHand.Add(FoodCard.CardPoint.Bread);
+        playerHand.Add(FoodCard.CardPoint.Soup);
+        playerHand.Add(FoodCard.CardPoint.Fish);
+        playerHand.Add(FoodCard.CardPoint.Steak);
+        playerHand.Add(FoodCard.CardPoint.Turkey);
+        playerHand.Add(FoodCard.CardPoint.Cake);
+
+    }
+
+    [PunRPC] // 마스터 플레이어만 실행, 그 이후 Trash 동기화, Trash에서 랜덤으로 카드 뽑기, Trash 비우기
+    public void TrashScoring(int playernum, int cardnum)
+    {
+        Trash.AddRange(handCards);
+    }
 
     public void CountOtherFoodCard()
     {
