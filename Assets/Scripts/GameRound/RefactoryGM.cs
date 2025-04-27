@@ -340,9 +340,10 @@ Debug.Log($"Remote player selectedFoodCard: {PhotonNetwork.CurrentRoom.Players[(
                 break;
         }
         photonView.RPC("RoundResetCheck", RpcTarget.All);
-            // 턴 초기화
-    
-}
+        photonView.RPC("ResetAllCardBacks", RpcTarget.All);
+        // 턴 초기화
+
+    }
 [PunRPC]
     public void UpdateVariable(int value, int playernum)
     {
@@ -445,11 +446,25 @@ Debug.Log($"Remote player selectedFoodCard: {PhotonNetwork.CurrentRoom.Players[(
     [PunRPC]
     public void SetCardValue(int value, int playernum)
     {
-
-        cardImages[playernum].sprite = cardSprites[GetSpriteIndex(value)];
-
+        if (value == 0)
+        {
+            cardImages[playernum].sprite = backSprite; // 카드 뒷면 고정
+        }
+        else
+        {
+            cardImages[playernum].sprite = cardSprites[GetSpriteIndex(value)];
+        }
     }
-        private int GetSpriteIndex(int value)
+
+    public void ResetAllCardBacks()
+    {
+        for (int i = 0; i < cardImages.Length; i++)
+        {
+            cardImages[i].sprite = backSprite; // 모든 카드 뒷면으로 초기화
+        }
+    }
+
+    private int GetSpriteIndex(int value)
     {
         switch (value)
         {
