@@ -25,7 +25,7 @@ public class RefactoryGM : MonoBehaviourPunCallbacks
     public TMP_Text mySilverText;
     public TMP_Text myNickNameText;
     ExitGames.Client.Photon.Hashtable player = new ExitGames.Client.Photon.Hashtable();
-    ExitGames.Client.Photon.Hashtable Turn = new ExitGames.Client.Photon.Hashtable();
+    public ExitGames.Client.Photon.Hashtable Turn = new ExitGames.Client.Photon.Hashtable();
     public List<FoodCard> Trash = new List<FoodCard>();
     public List<int> others = new List<int>();
     public List<(int,int)> currentTurnProcess = new List<(int,int)>();
