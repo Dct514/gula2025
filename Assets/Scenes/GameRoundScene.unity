@@ -2480,7 +2480,7 @@ MonoBehaviour:
   - {fileID: 1607874966}
   - {fileID: 1647995571}
   - {fileID: 1826791393}
-  backSprite: {fileID: 21300000, guid: eb78b114ced76c54da987a1922bf7084, type: 3}
+  backSprite: {fileID: 21300000, guid: 4038ee9ffd4a95841836edfda17ecbe7, type: 3}
   playerHand: 01000000020000000300000005000000070000000a000000
 --- !u!4 &608318221
 Transform:
