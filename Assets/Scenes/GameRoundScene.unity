@@ -1446,6 +1446,9 @@ Transform:
   - {fileID: 1607874965}
   - {fileID: 1647995570}
   - {fileID: 1826791392}
+  - {fileID: 830437957}
+  - {fileID: 590926112}
+  - {fileID: 1540750193}
   m_Father: {fileID: 1996736662}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &336884166
@@ -2271,6 +2274,54 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   selectedThickness: 0.05
   deselectedThickness: 0
+--- !u!1 &590926111
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 590926112}
+  - component: {fileID: 590926113}
+  m_Layer: 0
+  m_Name: playergrade_2
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &590926112
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 590926111}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 333033395}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &590926113
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 590926111}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 668fdb7b6b552034db8299c980b55a72, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gradeImage:
+  - {fileID: 2066068614268125364}
+  - {fileID: 5491386462637338585}
+  - {fileID: 7756434477540001917}
 --- !u!1 &606822201
 GameObject:
   m_ObjectHideFlags: 0
@@ -2480,7 +2531,19 @@ MonoBehaviour:
   - {fileID: 1607874966}
   - {fileID: 1647995571}
   - {fileID: 1826791393}
+  gradeImages:
+  - {fileID: 830437958}
+  - {fileID: 590926113}
+  - {fileID: 1540750194}
   backSprite: {fileID: 21300000, guid: 4038ee9ffd4a95841836edfda17ecbe7, type: 3}
+  gradeSprite:
+  - {fileID: -1968010362, guid: 83cbcd9e37eb3e84085754036e9ec14e, type: 3}
+  - {fileID: -1136824760, guid: 83cbcd9e37eb3e84085754036e9ec14e, type: 3}
+  - {fileID: 342545351, guid: 83cbcd9e37eb3e84085754036e9ec14e, type: 3}
+  myGradeImage:
+  - {fileID: 1467848617}
+  - {fileID: 135512137}
+  - {fileID: 680413980}
   playerHand: 01000000020000000300000005000000070000000a000000
 --- !u!4 &608318221
 Transform:
@@ -3573,6 +3636,54 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &830437956
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 830437957}
+  - component: {fileID: 830437958}
+  m_Layer: 0
+  m_Name: playergrade_1
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &830437957
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 830437956}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 333033395}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &830437958
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 830437956}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 668fdb7b6b552034db8299c980b55a72, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gradeImage:
+  - {fileID: 2066068614069900369}
+  - {fileID: 5491386463374441276}
+  - {fileID: 7756434476668558488}
 --- !u!1 &835053902
 GameObject:
   m_ObjectHideFlags: 0
@@ -4207,7 +4318,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
   m_AnchoredPosition: {x: 0.000091552734, y: 281.87}
-  m_SizeDelta: {x: 488.5689, y: 61.303}
+  m_SizeDelta: {x: 766.4317, y: 61.303}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &921067842
 CanvasRenderer:
@@ -5718,7 +5829,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: -1968010362, guid: 83cbcd9e37eb3e84085754036e9ec14e, type: 3}
+  m_Sprite: {fileID: -1136824760, guid: 83cbcd9e37eb3e84085754036e9ec14e, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -6087,6 +6198,54 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!1 &1540750192
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1540750193}
+  - component: {fileID: 1540750194}
+  m_Layer: 0
+  m_Name: playergrade_3
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1540750193
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1540750192}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 333033395}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1540750194
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1540750192}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 668fdb7b6b552034db8299c980b55a72, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gradeImage:
+  - {fileID: 2066068614044894940}
+  - {fileID: 5491386463399504305}
+  - {fileID: 7756434476710661653}
 --- !u!1 &1549080123
 GameObject:
   m_ObjectHideFlags: 0
@@ -9047,7 +9206,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: -1968010362, guid: 83cbcd9e37eb3e84085754036e9ec14e, type: 3}
+  m_Sprite: {fileID: -1136824760, guid: 83cbcd9e37eb3e84085754036e9ec14e, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -9077,7 +9236,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: -1968010362, guid: 83cbcd9e37eb3e84085754036e9ec14e, type: 3}
+  m_Sprite: {fileID: -1136824760, guid: 83cbcd9e37eb3e84085754036e9ec14e, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -9107,7 +9266,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: -1968010362, guid: 83cbcd9e37eb3e84085754036e9ec14e, type: 3}
+  m_Sprite: {fileID: -1136824760, guid: 83cbcd9e37eb3e84085754036e9ec14e, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
