@@ -671,7 +671,7 @@ public class RefactoryGM : MonoBehaviourPunCallbacks
                 
     }
 
-    public bool Isbully()
+   /* public bool Isbully()
     {
         int a = 0;
         for (int i = 1; i < PhotonNetwork.CurrentRoom.MaxPlayers + 1; i++)
@@ -686,11 +686,11 @@ public class RefactoryGM : MonoBehaviourPunCallbacks
         if (a == 0) return true;
         else return false;
 
-    }
+    } */
 
     public void CheckcurrentTurnProcess()
     {
-        int turnCount;
+        int turnCount = 0;
 
         int maxPlayer = PhotonNetwork.CurrentRoom.MaxPlayers;
         for (int i = 1; i < maxPlayer + 1; i++)
@@ -698,7 +698,7 @@ public class RefactoryGM : MonoBehaviourPunCallbacks
             if (BlockPlayerTurn((int)Turn["currentTurn"], i)) turnCount++;
         }
 
-        if (turnCount == maxPlayer - 1) // todo : 턴 넘기기
+        if (turnCount == maxPlayer - 1) ; // todo : 턴 넘기기
     }
 
     public void DeselectAllCards()
