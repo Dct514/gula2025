@@ -21,14 +21,14 @@ public class RefactoryGM : MonoBehaviourPunCallbacks
     public TMP_Text[] goldTexts; // 골드 표시될 곳
     public TMP_Text[] silverTexts; // 실버 표시될 곳
     public TMP_Text myScoreText;
-    public TMP_Text myGoldText;   
+    public TMP_Text myGoldText;
     public TMP_Text mySilverText;
     public TMP_Text myNickNameText;
     ExitGames.Client.Photon.Hashtable player = new ExitGames.Client.Photon.Hashtable();
     public ExitGames.Client.Photon.Hashtable Turn = new ExitGames.Client.Photon.Hashtable();
     public List<FoodCard> Trash = new List<FoodCard>();
     public List<int> others = new List<int>();
-    public List<(int,int)> currentTurnProcess = new List<(int,int)>();
+    public List<(int, int)> currentTurnProcess = new List<(int, int)>();
     public int choice = -1;
     public int choice2 = -1;
     public int checkFoodCard = 0; // 카드 선택 확인용
@@ -58,18 +58,18 @@ public class RefactoryGM : MonoBehaviourPunCallbacks
     {
         choice = -1;
         choice2 = -1;
-        
+
         if (PhotonNetwork.IsMasterClient)
         {
             if ((int)Turn["currentPlayerIndex"] >= PhotonNetwork.CurrentRoom.MaxPlayers) Turn["currentPlayerIndex"] = 1;
             else Turn["currentPlayerIndex"] = (int)Turn["currentPlayerIndex"] + 1;
             photonView.RPC("SetGameStatusText", RpcTarget.All, $"{PhotonNetwork.CurrentRoom.Players[(int)Turn["currentPlayerIndex"]].NickName}님의 차례입니다.");
-            
+
             Turn["currentTurn"] = 0;
             Turn["pickedPlayerIndex"] = 0;
             Turn["foodSubmited"] = 0;
-            
-            
+
+
             PhotonNetwork.CurrentRoom.SetCustomProperties(Turn);
         }
 
@@ -79,26 +79,26 @@ public class RefactoryGM : MonoBehaviourPunCallbacks
         Debug.Log($"현재 내 점수 : {player["score"]}");
         PhotonNetwork.LocalPlayer.SetCustomProperties(player);
 
-        for (int i = 0; i < PhotonNetwork.CurrentRoom.PlayerCount-1; i++)
+        for (int i = 0; i < PhotonNetwork.CurrentRoom.PlayerCount - 1; i++)
         {
-            scoreTexts[i].text = $"{score[others[i]-1]}";
+            scoreTexts[i].text = $"{score[others[i] - 1]}";
         }
-        
+
         for (int i = 0; i < PhotonNetwork.CurrentRoom.PlayerCount + 1; i++)
         {
             SetCardValue(0, i);
         }
 
-        for (int i = 0; i < PhotonNetwork.CurrentRoom.PlayerCount-1; i++)
+        for (int i = 0; i < PhotonNetwork.CurrentRoom.PlayerCount - 1; i++)
         {
-            goldTexts[i].text = $"{gold[others[i]-1]}";
-            silverTexts[i].text = $"{silver[others[i]-1]}";
+            goldTexts[i].text = $"{gold[others[i] - 1]}";
+            silverTexts[i].text = $"{silver[others[i] - 1]}";
         }
 
-        myScoreText.text = $"{score[PhotonNetwork.LocalPlayer.ActorNumber-1]}";
-        myGoldText.text = $"{gold[PhotonNetwork.LocalPlayer.ActorNumber-1]}";
-        mySilverText.text = $"{silver[PhotonNetwork.LocalPlayer.ActorNumber-1]}";
-        
+        myScoreText.text = $"{score[PhotonNetwork.LocalPlayer.ActorNumber - 1]}";
+        myGoldText.text = $"{gold[PhotonNetwork.LocalPlayer.ActorNumber - 1]}";
+        mySilverText.text = $"{silver[PhotonNetwork.LocalPlayer.ActorNumber - 1]}";
+
         Debug.Log($"현재 턴 : {Turn["currentTurn"]}");
         Debug.Log($"현재 플레이어 : {Turn["currentPlayerIndex"]}");
 
@@ -128,7 +128,7 @@ public class RefactoryGM : MonoBehaviourPunCallbacks
         PhotonNetwork.LocalPlayer.SetCustomProperties(player);
         if (PhotonNetwork.IsMasterClient)
         {
-            Turn["currentPlayerIndex"] = UnityEngine.Random.Range(0, PhotonNetwork.CurrentRoom.PlayerCount-1);
+            Turn["currentPlayerIndex"] = UnityEngine.Random.Range(0, PhotonNetwork.CurrentRoom.PlayerCount - 1);
         }
     }
     public void SetCustomProperty(Photon.Realtime.Player player, string key, int value)
@@ -149,8 +149,8 @@ public class RefactoryGM : MonoBehaviourPunCallbacks
     public void MainTurnStart()
     {
 
-Debug.Log($"Local player selectedFoodCard: {player["selectedFoodCard"]}");
-Debug.Log($"Remote player selectedFoodCard: {PhotonNetwork.CurrentRoom.Players[(int)Turn["currentPlayerIndex"]].CustomProperties["selectedFoodCard"]}");
+        Debug.Log($"Local player selectedFoodCard: {player["selectedFoodCard"]}");
+        Debug.Log($"Remote player selectedFoodCard: {PhotonNetwork.CurrentRoom.Players[(int)Turn["currentPlayerIndex"]].CustomProperties["selectedFoodCard"]}");
         switch (Turn["currentTurn"])
         {
             case 0:
@@ -171,15 +171,15 @@ Debug.Log($"Remote player selectedFoodCard: {PhotonNetwork.CurrentRoom.Players[(
                 photonView.RPC("SetGameStatusText", RpcTarget.All, "선 플레이어와 식사할 사람은 카드를 제출하세요.");
 
                 break;
-                
+
             case 1:
                 // 다른 플레이어들이 음식 카드 또는 거절 카드를 내는 턴
                 // 같은 플레이어와 2번 턴을 진행한 플레이어는 턴을 진행할 수 없음
-           
-                if (!BlockPlayerTurn((int)Turn["currentPlayerIndex"], PhotonNetwork.LocalPlayer.ActorNumber) && 
-                playerData.Submited == false && 
+
+                if (!BlockPlayerTurn((int)Turn["currentPlayerIndex"], PhotonNetwork.LocalPlayer.ActorNumber) &&
+                playerData.Submited == false &&
                 (int)player["selectedFoodCard"] != 0 &&
-                (int)Turn["currentPlayerIndex"] != PhotonNetwork.LocalPlayer.ActorNumber && 
+                (int)Turn["currentPlayerIndex"] != PhotonNetwork.LocalPlayer.ActorNumber &&
                 PhotonNetwork.CurrentRoom.Players[(int)Turn["currentPlayerIndex"]].CustomProperties["selectedFoodCard"] != null &&
                 (int)PhotonNetwork.CurrentRoom.Players[(int)Turn["currentPlayerIndex"]].CustomProperties["selectedFoodCard"] != (int)player["selectedFoodCard"])
                 {
@@ -188,8 +188,8 @@ Debug.Log($"Remote player selectedFoodCard: {PhotonNetwork.CurrentRoom.Players[(
                     PhotonNetwork.CurrentRoom.SetCustomProperties(Turn);
                     photonView.RPC("SetCardValue", RpcTarget.All, (int)player["selectedFoodCard"], PhotonNetwork.LocalPlayer.ActorNumber);
                     Debug.Log($"낸 사람 수 : {Turn["foodSubmited"]}");
-                    
-                    if (FoodSubmited()) 
+
+                    if (FoodSubmited())
                     {
                         Turn["currentTurn"] = 2;
                         PhotonNetwork.CurrentRoom.SetCustomProperties(Turn);
@@ -220,7 +220,7 @@ Debug.Log($"Remote player selectedFoodCard: {PhotonNetwork.CurrentRoom.Players[(
 
                 Debug.Log($"현재 턴 : {Turn["currentTurn"]}");
                 break;
- 
+
             case 2:
                 // 선 플레이어만 진행, 다른 플레이어의 카드를 고르는 턴
                 if ((int)Turn["currentPlayerIndex"] == PhotonNetwork.LocalPlayer.ActorNumber && (int)Turn["pickedPlayerIndex"] != 0 && (int)Turn["pickedPlayerIndex"] != PhotonNetwork.LocalPlayer.ActorNumber)
@@ -242,41 +242,41 @@ Debug.Log($"Remote player selectedFoodCard: {PhotonNetwork.CurrentRoom.Players[(
                 // 선택된 플레이어와 선 플레이어가 식사 / 강탈을 고르는 턴
                 Debug.Log($"현재 턴 : {Turn["currentTurn"]}");
                 break;
-            default :
+            default:
                 Debug.Log("Error: Invalid turn number.");
                 break;
         }
     }
 
-        public void Denybutton()
+    public void Denybutton()
+    {
+        if ((int)Turn["currentTurn"] == 1 && (int)Turn["currentPlayerIndex"] != PhotonNetwork.LocalPlayer.ActorNumber && playerData.Submited == false)
         {
-            if ((int)Turn["currentTurn"] == 1 && (int)Turn["currentPlayerIndex"] != PhotonNetwork.LocalPlayer.ActorNumber && playerData.Submited == false)
-            {       
-                playerData.Submited = true;
-                Turn["foodSubmited"] = (int)Turn["foodSubmited"] + 1;
+            playerData.Submited = true;
+            Turn["foodSubmited"] = (int)Turn["foodSubmited"] + 1;
+            PhotonNetwork.CurrentRoom.SetCustomProperties(Turn);
+            player["selectedFoodCard"] = 0;
+            photonView.RPC("SetCardValue", RpcTarget.All, 0, PhotonNetwork.LocalPlayer.ActorNumber);
+            Debug.Log($"낸 사람 수 : {Turn["foodSubmited"]}");
+
+            if (FoodSubmited())
+            {
+                Turn["currentTurn"] = 2;
                 PhotonNetwork.CurrentRoom.SetCustomProperties(Turn);
-                player["selectedFoodCard"] = 0;
-                photonView.RPC("SetCardValue", RpcTarget.All, 0, PhotonNetwork.LocalPlayer.ActorNumber);
-                Debug.Log($"낸 사람 수 : {Turn["foodSubmited"]}");
-
-                if (FoodSubmited()) 
-                {
-                    Turn["currentTurn"] = 2;
-                    PhotonNetwork.CurrentRoom.SetCustomProperties(Turn);
-                    photonView.RPC("SetGameStatusText", RpcTarget.All, "선 플레이어가 같이 식사할 사람을 고르고 있습니다.");
-                }
+                photonView.RPC("SetGameStatusText", RpcTarget.All, "선 플레이어가 같이 식사할 사람을 고르고 있습니다.");
             }
-
         }
+
+    }
 
     [PunRPC]
     public void ReturnUnselectedCard(int selectedCard)
     {
         int a = (int)Turn["currentTurn"];
         int max = PhotonNetwork.CurrentRoom.MaxPlayers;
-        for (int i = 1; i < max+1; i++)
+        for (int i = 1; i < max + 1; i++)
         {
-            if (i!=a && i != selectedCard)
+            if (i != a && i != selectedCard)
             {
                 cardImages[i].sprite = backSprite;
             }
@@ -295,7 +295,7 @@ Debug.Log($"Remote player selectedFoodCard: {PhotonNetwork.CurrentRoom.Players[(
         {
             choice = mychoice;
             photonView.RPC("UpdateVariable", RpcTarget.All, mychoice, 0);
-                    
+
             gamestatustxt.text = "제출 완료! 상대의 선택을 기다립니다.";
         }
         else if ((int)Turn["currentTurn"] == 3 && (int)Turn["pickedPlayerIndex"] == PhotonNetwork.LocalPlayer.ActorNumber)
@@ -311,7 +311,7 @@ Debug.Log($"Remote player selectedFoodCard: {PhotonNetwork.CurrentRoom.Players[(
         }
 
         if (choice != -1 && choice2 != -1) SettleChoice(choice, choice2); // 선택 두개가 모이면 실행
-       
+
     }
 
     void SettleChoice(int choice, int choice2)
@@ -322,7 +322,7 @@ Debug.Log($"Remote player selectedFoodCard: {PhotonNetwork.CurrentRoom.Players[(
         Debug.Log($"pickedPlayerIndex : {(int)Turn["pickedPlayerIndex"]}");
         switch (choice, choice2)
         {
-            case (0,0): // 식사
+            case (0, 0): // 식사
                 // score = (int)PhotonNetwork.CurrentRoom.Players[(int)Turn["currentPlayerIndex"]].CustomProperties["selectedFoodCard"] + (int)PhotonNetwork.CurrentRoom.Players[(int)Turn["pickedPlayerIndex"]].CustomProperties["selectedFoodCard"];
                 photonView.RPC("CalculateScore", RpcTarget.All, pickedPlayerNum, (int)PhotonNetwork.CurrentRoom.Players[pickedPlayerNum].CustomProperties["selectedFoodCard"]);
                 photonView.RPC("CalculateScore", RpcTarget.All, currentPlayerNum, (int)PhotonNetwork.CurrentRoom.Players[currentPlayerNum].CustomProperties["selectedFoodCard"]);
@@ -331,23 +331,23 @@ Debug.Log($"Remote player selectedFoodCard: {PhotonNetwork.CurrentRoom.Players[(
                 photonView.RPC("UpdateMedal", RpcTarget.All, 0, pickedPlayerNum);
 
                 break;
-            case (0,1):
+            case (0, 1):
                 score = Mathf.Abs((int)PhotonNetwork.CurrentRoom.Players[(int)Turn["currentPlayerIndex"]].CustomProperties["selectedFoodCard"] - (int)PhotonNetwork.CurrentRoom.Players[(int)Turn["pickedPlayerIndex"]].CustomProperties["selectedFoodCard"]);
                 photonView.RPC("CalculateScore", RpcTarget.All, pickedPlayerNum, score);
                 photonView.RPC("UpdatePlayerTurn", RpcTarget.All, (int)Turn["pickedPlayerIndex"], (int)Turn["currentPlayerIndex"]);
-                photonView.RPC("UpdateMedal", RpcTarget.All, 1, pickedPlayerNum);              
+                photonView.RPC("UpdateMedal", RpcTarget.All, 1, pickedPlayerNum);
                 break;
-            case (1,0):
+            case (1, 0):
                 score = Mathf.Abs((int)PhotonNetwork.CurrentRoom.Players[(int)Turn["currentPlayerIndex"]].CustomProperties["selectedFoodCard"] - (int)PhotonNetwork.CurrentRoom.Players[(int)Turn["pickedPlayerIndex"]].CustomProperties["selectedFoodCard"]);
                 photonView.RPC("CalculateScore", RpcTarget.All, currentPlayerNum, score);
                 photonView.RPC("UpdatePlayerTurn", RpcTarget.All, (int)Turn["pickedPlayerIndex"], (int)Turn["currentPlayerIndex"]);
                 photonView.RPC("UpdateMedal", RpcTarget.All, 1, currentPlayerNum);
                 break;
-            case (1,1): // 쓰레기통
+            case (1, 1): // 쓰레기통
                 Trash.Add((FoodCard)PhotonNetwork.CurrentRoom.Players[(int)Turn["pickedPlayerIndex"]].CustomProperties["selectedFoodCard"]);
                 Trash.Add((FoodCard)PhotonNetwork.CurrentRoom.Players[(int)Turn["currentPlayerIndex"]].CustomProperties["selectedFoodCard"]);
                 photonView.RPC("UpdatePlayerTurn", RpcTarget.All, (int)Turn["pickedPlayerIndex"], (int)Turn["currentPlayerIndex"]);
-                break; 
+                break;
             default:
                 Debug.Log("Error: Invalid choice.");
                 break;
@@ -357,24 +357,24 @@ Debug.Log($"Remote player selectedFoodCard: {PhotonNetwork.CurrentRoom.Players[(
         // 턴 초기화
 
     }
-[PunRPC]
+    [PunRPC]
     public void UpdateVariable(int value, int playernum)
     {
         if (playernum == 0) choice = value;
         else if (playernum == 1) choice2 = value;
     }
 
-[PunRPC]
+    [PunRPC]
     public void UpdateMedal(int goldorSilver, int playernum)
     {
-        if (goldorSilver == 0) gold[playernum-1] += 1;
-        else if (goldorSilver == 1) silver[playernum-1] += 1;
+        if (goldorSilver == 0) gold[playernum - 1] += 1;
+        else if (goldorSilver == 1) silver[playernum - 1] += 1;
     }
 
-[PunRPC]
+    [PunRPC]
     public void RoundResetCheck()
     {
-        if (score[PhotonNetwork.LocalPlayer.ActorNumber-1] >= 18 && (int)player["grade"] == 0)
+        if (score[PhotonNetwork.LocalPlayer.ActorNumber - 1] >= 18 && (int)player["grade"] == 0)
         {
             photonView.RPC("SyncScore", RpcTarget.All, PhotonNetwork.LocalPlayer.ActorNumber, 0);
             player["grade"] = 1;
@@ -382,48 +382,48 @@ Debug.Log($"Remote player selectedFoodCard: {PhotonNetwork.CurrentRoom.Players[(
             gamestatustxt.text = "용이 자라났다!";
 
         }
-        else if (score[PhotonNetwork.LocalPlayer.ActorNumber-1] >= 24 && (int)player["grade"] == 1)
+        else if (score[PhotonNetwork.LocalPlayer.ActorNumber - 1] >= 24 && (int)player["grade"] == 1)
         {
             photonView.RPC("SyncScore", RpcTarget.All, PhotonNetwork.LocalPlayer.ActorNumber, 0);
             player["grade"] = 2;
             photonView.RPC("SetGrade", RpcTarget.All, PhotonNetwork.LocalPlayer.ActorNumber, 2);
             gamestatustxt.text = "크와아아앙!!";
 
-        }        
-        else if (score[PhotonNetwork.LocalPlayer.ActorNumber-1] >= 45 && (int)player["grade"] == 2)
+        }
+        else if (score[PhotonNetwork.LocalPlayer.ActorNumber - 1] >= 45 && (int)player["grade"] == 2)
         {
             photonView.RPC("SyncScore", RpcTarget.All, PhotonNetwork.LocalPlayer.ActorNumber, 0);
             player["grade"] = 3;
             gamestatustxt.text = "용이 자라났다!";
 
         }
-        else if ((int)player["grade"] == 3 && score[PhotonNetwork.LocalPlayer.ActorNumber-1] >= 45 ) 
+        else if ((int)player["grade"] == 3 && score[PhotonNetwork.LocalPlayer.ActorNumber - 1] >= 45)
         {
             gamestatustxt.text = "우승!";
             return;
         }
 
-        Debug.Log($"현재 내 점수 : {score[PhotonNetwork.LocalPlayer.ActorNumber-1]}, 다른 플레이어 점수 : {score[0]}, {score[1]}, {score[2]}, {score[3]}, {score[4]}, {score[5]}");
+        Debug.Log($"현재 내 점수 : {score[PhotonNetwork.LocalPlayer.ActorNumber - 1]}, 다른 플레이어 점수 : {score[0]}, {score[1]}, {score[2]}, {score[3]}, {score[4]}, {score[5]}");
         PhotonNetwork.LocalPlayer.SetCustomProperties(player);
         CountOtherFoodCard();
         CountMyFoodCard((FoodCard.CardPoint)PhotonNetwork.LocalPlayer.CustomProperties["selectedFoodCard"]);
-       
+
         Start();
     }
 
     [PunRPC]
     public void SetGrade(int playernum, int grade)
     {
-      if (playernum == PhotonNetwork.LocalPlayer.ActorNumber)
+        if (playernum == PhotonNetwork.LocalPlayer.ActorNumber)
         {
             myGradeImage[grade - 1].sprite = gradeSprite[1];
         }
-      else if (grade == 1)
+        else if (grade == 1)
         {
             int currentIndex = others.IndexOf(playernum);
             gradeImages[currentIndex].gradeImage[0].sprite = gradeSprite[1];
         }
-      else if (grade == 2)
+        else if (grade == 2)
         {
             int currentIndex = others.IndexOf(playernum);
             gradeImages[currentIndex].gradeImage[1].sprite = gradeSprite[1];
@@ -433,13 +433,13 @@ Debug.Log($"Remote player selectedFoodCard: {PhotonNetwork.CurrentRoom.Players[(
     [PunRPC]
     public void CalculateScore(int playerNum, int scoreamount)
     {
-        score[playerNum-1] += scoreamount;
-        
+        score[playerNum - 1] += scoreamount;
+
     }
     [PunRPC]
     public void SyncScore(int playerNum, int myscore)
     {
-        score[playerNum-1] = myscore;
+        score[playerNum - 1] = myscore;
     }
 
 
@@ -457,7 +457,7 @@ Debug.Log($"Remote player selectedFoodCard: {PhotonNetwork.CurrentRoom.Players[(
         Debug.Log($"선택된 카드 : {player["selectedFoodCard"]}");
     }
 
-        public void TableCardSelect(int playernum)
+    public void TableCardSelect(int playernum)
     {
 
         if ((int)Turn["currentTurn"] == 2 && (int)Turn["currentPlayerIndex"] == PhotonNetwork.LocalPlayer.ActorNumber)
@@ -465,7 +465,7 @@ Debug.Log($"Remote player selectedFoodCard: {PhotonNetwork.CurrentRoom.Players[(
             Turn["pickedPlayerIndex"] = playernum;
             gamestatustxt.text = $"{playernum}번 플레이어와 식사하려면 제출 버튼을 누르세요.";
         }
-        else 
+        else
         {
             gamestatustxt.text = $"{playernum}번 플레이어의 음식입니다.";
         }
@@ -474,7 +474,7 @@ Debug.Log($"Remote player selectedFoodCard: {PhotonNetwork.CurrentRoom.Players[(
 
     private bool FoodSubmited()
     {
-        if ((int)Turn["foodSubmited"] >= PhotonNetwork.CurrentRoom.MaxPlayers-1) return true;
+        if ((int)Turn["foodSubmited"] >= PhotonNetwork.CurrentRoom.MaxPlayers - 1) return true;
         else return false;
     }
 
@@ -509,22 +509,22 @@ Debug.Log($"Remote player selectedFoodCard: {PhotonNetwork.CurrentRoom.Players[(
             case 5: return 3;
             case 7: return 4;
             case 10: return 5;
-            case 0 : return 6;
+            case 0: return 6;
             default: return 6;
         }
     }
 
     public void ShowPlayerPositions()
     {
-    foreach (var player in PhotonNetwork.CurrentRoom.Players.Values)
-    {
-        if (player.ActorNumber != PhotonNetwork.LocalPlayer.ActorNumber)
+        foreach (var player in PhotonNetwork.CurrentRoom.Players.Values)
         {
-            others.Add(player.ActorNumber);
+            if (player.ActorNumber != PhotonNetwork.LocalPlayer.ActorNumber)
+            {
+                others.Add(player.ActorNumber);
+            }
         }
-    }
-    if (others.Count > 0)
-        Debug.Log($"다른 플레이어들: {string.Join(", ", others)}");
+        if (others.Count > 0)
+            Debug.Log($"다른 플레이어들: {string.Join(", ", others)}");
     }
 
     public void WholeRoundOver()
@@ -604,8 +604,8 @@ Debug.Log($"Remote player selectedFoodCard: {PhotonNetwork.CurrentRoom.Players[(
 
 
     [PunRPC]
-        public void UpdatePlayerTurn(int playerA, int playerB)
-        {
+    public void UpdatePlayerTurn(int playerA, int playerB)
+    {
         // 항상 작은 번호 먼저로 정렬
         var key = (Math.Min(playerA, playerB), Math.Max(playerA, playerB));
 
@@ -622,27 +622,27 @@ Debug.Log($"Remote player selectedFoodCard: {PhotonNetwork.CurrentRoom.Players[(
             Debug.Log($"추가로 {key} 간에 턴이 진행되었습니다.");
         }
         else return;
-        }
+    }
 
-        private bool BlockPlayerTurn(int playerA, int playerB)
+    private bool BlockPlayerTurn(int playerA, int playerB)
+    {
+        var min = Math.Min(playerA, playerB);
+        var max = Math.Max(playerA, playerB);
+        var key = (min, max);
+
+        if (currentTurnProcess.Contains(key) && currentTurnProcess.Count(p => p.Item1 == min && p.Item2 == max) > 2) return true;
+        else return false;
+
+    }
+
+    private void SetCardToBack(Image card)
+    {
+        if (card != null)
         {
-            var min = Math.Min(playerA, playerB);
-            var max = Math.Max(playerA, playerB);
-            var key = (min, max);
-
-            if (currentTurnProcess.Contains(key) && currentTurnProcess.Count(p => p.Item1 == min && p.Item2 == max) > 2) return true;
-            else return false;
-
+            card.sprite = backSprite;
+            card.color = new Color(0.6f, 0.6f, 0.6f, 0.7f);
         }
-
-        private void SetCardToBack(Image card)
-        {
-             if (card != null)
-             {
-                 card.sprite = backSprite;
-                 card.color = new Color(0.6f, 0.6f, 0.6f, 0.7f);
-             }
-        }
+    }
 
     public override void OnRoomPropertiesUpdate(ExitGames.Client.Photon.Hashtable propertiesThatChanged)
     {
@@ -661,33 +661,31 @@ Debug.Log($"Remote player selectedFoodCard: {PhotonNetwork.CurrentRoom.Players[(
         Debug.Log($"[SYNC] Turn 동기화됨: currentTurn = {Turn["currentTurn"]}, currentPlayerIndex = {Turn["currentPlayerIndex"]}, pickedPlayerIndex = {Turn["pickedPlayerIndex"]}, foodSubmited = {Turn["foodSubmited"]}");
     }
 
-  public override void OnPlayerPropertiesUpdate(Player targetPlayer, ExitGames.Client.Photon.Hashtable changedProps)
+    public override void OnPlayerPropertiesUpdate(Player targetPlayer, ExitGames.Client.Photon.Hashtable changedProps)
     {
         if (changedProps.ContainsKey("selectedFoodCard"))
         {
             int selectedFoodCard = (int)changedProps["selectedFoodCard"];
             Debug.Log($"[SYNC] {targetPlayer.NickName}의 selectedFoodCard 동기화됨: {selectedFoodCard}");
         }
-        {
-           
-        }
+                
     }
-    
+
     public bool Isbully()
     {
-        int a= 0;
-       for (int i = 1; i < PhotonNetwork.CurrentRoom.MaxPlayers+1; i++)
+        int a = 0;
+        for (int i = 1; i < PhotonNetwork.CurrentRoom.MaxPlayers + 1; i++)
         {
             for (int j =)
-           if ((int)PhotonNetwork.CurrentRoom.Players[i].CustomProperties["selectedFoodCard"] != 0)
-            {
-               a++;
-            }
+                if ((int)PhotonNetwork.CurrentRoom.Players[i].CustomProperties["selectedFoodCard"] != 0)
+                {
+                    a++;
+                }
         }
 
-        if (a==0) return true;
+        if (a == 0) return true;
         else return false;
-        
+
     }
 
     public void CheckcurrentTurnProcess()
@@ -695,14 +693,14 @@ Debug.Log($"Remote player selectedFoodCard: {PhotonNetwork.CurrentRoom.Players[(
         int turnCount;
 
         int maxPlayer = PhotonNetwork.CurrentRoom.MaxPlayers;
-        for (int i = 1; i < maxPlayer+1; i++)
+        for (int i = 1; i < maxPlayer + 1; i++)
         {
             if (BlockPlayerTurn((int)Turn["currentTurn"], i)) turnCount++;
         }
 
-        if (turnCount == maxPlayer-1) // todo : 턴 넘기기
+        if (turnCount == maxPlayer - 1) // todo : 턴 넘기기
     }
-    
+
     public void DeselectAllCards()
     {
         CardOutlineController[] allCards = FindObjectsOfType<CardOutlineController>();
