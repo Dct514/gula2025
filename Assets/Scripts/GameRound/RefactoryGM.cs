@@ -61,16 +61,7 @@ public class RefactoryGM : MonoBehaviourPunCallbacks
 
         if (PhotonNetwork.IsMasterClient)
         {
-            if ((int)Turn["currentPlayerIndex"] >= PhotonNetwork.CurrentRoom.MaxPlayers) Turn["currentPlayerIndex"] = 1;
-            else Turn["currentPlayerIndex"] = (int)Turn["currentPlayerIndex"] + 1;
-            photonView.RPC("SetGameStatusText", RpcTarget.All, $"{PhotonNetwork.CurrentRoom.Players[(int)Turn["currentPlayerIndex"]].NickName}님의 차례입니다.");
-
-            Turn["currentTurn"] = 0;
-            Turn["pickedPlayerIndex"] = 0;
-            Turn["foodSubmited"] = 0;
-
-
-            PhotonNetwork.CurrentRoom.SetCustomProperties(Turn);
+            SetStartValue();
         }
 
         playerData.Submited = false;
@@ -104,13 +95,31 @@ public class RefactoryGM : MonoBehaviourPunCallbacks
 
         // todo :
 
+        if (IsFinishMyTurn() || ) // 2번씩 식사를 마쳤거나, 더 이상 식사를 할 수 없는 상황 -> 턴 넘어가기
+        {
+            Start();
+        }
+        else if () // 모든 플레이어가 카드 소모 완료한 경우 (카드 리셋) , 이후 점수 로직으로 소프트 리셋
 
-
-        // 만약 모든 플레이어와 2번씩 식사를 마쳤거나, 더 이상 식사를 할 수 없는 상황(식사하지 않은 플레이어가 - 동일 카드만 남은 경우) - 턴 넘어가기
-        // 모든 플레이어가 카드 소모 완료한 경우 - 카드 리셋
-        // 이후 점수 로직으로 소프트 리셋
-
+        
     }
+
+    [PunRPC]
+    public void SetStartValue()
+    {
+        if ((int)Turn["currentPlayerIndex"] >= PhotonNetwork.CurrentRoom.MaxPlayers) Turn["currentPlayerIndex"] = 1;
+        else Turn["currentPlayerIndex"] = (int)Turn["currentPlayerIndex"] + 1;
+        photonView.RPC("SetGameStatusText", RpcTarget.All, $"{PhotonNetwork.CurrentRoom.Players[(int)Turn["currentPlayerIndex"]].NickName}님의 차례입니다.");
+
+        Turn["currentTurn"] = 0;
+        Turn["pickedPlayerIndex"] = 0;
+        Turn["foodSubmited"] = 0;
+
+
+        PhotonNetwork.CurrentRoom.SetCustomProperties(Turn);
+    }
+
+
     private void Awake()
     {
         if (Instance == null)
@@ -671,12 +680,12 @@ public class RefactoryGM : MonoBehaviourPunCallbacks
                 
     }
 
-   /* public bool Isbully()
+   public bool Isbully() // 
     {
         int a = 0;
         for (int i = 1; i < PhotonNetwork.CurrentRoom.MaxPlayers + 1; i++)
         {
-            for (int j =)
+            for (int j = 1; j< PhotonNetwork.CurrentRoom.MaxPlayers +1; j++)
                 if ((int)PhotonNetwork.CurrentRoom.Players[i].CustomProperties["selectedFoodCard"] != 0)
                 {
                     a++;
@@ -686,9 +695,9 @@ public class RefactoryGM : MonoBehaviourPunCallbacks
         if (a == 0) return true;
         else return false;
 
-    } */
+    }
 
-    public void CheckcurrentTurnProcess()
+    public bool IsFinishMyTurn() // 모든 플레이어와 두 번씩 식사 진행한 경우 true
     {
         int turnCount = 0;
 
@@ -698,7 +707,8 @@ public class RefactoryGM : MonoBehaviourPunCallbacks
             if (BlockPlayerTurn((int)Turn["currentTurn"], i)) turnCount++;
         }
 
-        if (turnCount == maxPlayer - 1) ; // todo : 턴 넘기기
+        if (turnCount == maxPlayer - 1) return true;
+        else return false;
     }
 
     public void DeselectAllCards()
