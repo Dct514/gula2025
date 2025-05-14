@@ -58,12 +58,13 @@ public class RefactoryGM : MonoBehaviourPunCallbacks
         
     }
     public PlayerData playerData = new PlayerData();
-    public List <(int, PlayerData)> playerDatas = new List<(int, PlayerData)>(); // 플레이어 덱 비교를 위해서 여기에 넣겠습니다
+    public List <PlayerData> playerDatas = new List<PlayerData>(); // 플레이어 덱 비교를 위해서 여기에 넣겠습니다
 
     [PunRPC]
     public void SendCardInfo(int playernum, PlayerData playerData)
     {
-        playerDatas.Add((playernum, playerData));
+        playerDatas.Add(playerData);
+        Debug.Log($"{playernum}님 체크");
     }
 
 
@@ -72,8 +73,8 @@ public class RefactoryGM : MonoBehaviourPunCallbacks
         int a = 0;
         for (int i = 1; i < PhotonNetwork.CurrentRoom.MaxPlayers + 1; i++)
         {
-            playerDatas[i]
-
+           // if (playerDatas[i].)
+                
 
 
             for (int j = 1; j< PhotonNetwork.CurrentRoom.MaxPlayers +1; j++)
@@ -87,6 +88,18 @@ public class RefactoryGM : MonoBehaviourPunCallbacks
         else return false;
 
     }
+
+    public void CheckOtherPlayerHand()
+    {
+        for (int i = 0; i < PhotonNetwork.CurrentRoom.MaxPlayers; i++)
+        {
+            //playerDatas[i].
+
+        }
+    }
+
+
+
     void Start()
     {
         choice = -1;
@@ -129,13 +142,20 @@ public class RefactoryGM : MonoBehaviourPunCallbacks
 
         // todo :
 
-        if (IsFinishMyTurn() || ) // 2번씩 식사를 마쳤거나, 더 이상 식사를 할 수 없는 상황 -> 턴 넘어가기
+        if (IsFinishMyTurn() || IsCannot) // 2번씩 식사를 마쳤거나, 더 이상 식사를 할 수 없는 상황 -> 턴 넘어가기
         {
             Start();
         }
         else if () // 모든 플레이어가 카드 소모 완료한 경우 (카드 리셋) , 이후 점수 로직으로 소프트 리셋
-
-        
+        {
+            WholeRoundOver();
+            TrashGotcha();
+                for (int i = 1; i < 7; i++)
+                {
+                    SetCardValue(i, PlayerData.playerNumber);
+                }
+            RoundResetCheck();
+        }
     }
 
     [PunRPC]
@@ -534,6 +554,7 @@ public class RefactoryGM : MonoBehaviourPunCallbacks
         }
     }
 
+
     public void ResetAllCardBacks()
     {
         for (int i = 0; i < cardImages.Length; i++)
@@ -572,8 +593,7 @@ public class RefactoryGM : MonoBehaviourPunCallbacks
 
     public void WholeRoundOver()
     {
-
-        Trash.AddRange(handCards);
+        photonView.RPC("AddTrash", RpcTarget.All, playerData.playerHand);
         handCards.Clear();
         playerData.playerHand.Add(FoodCard.CardPoint.Bread);
         playerData.playerHand.Add(FoodCard.CardPoint.Soup);
@@ -581,14 +601,37 @@ public class RefactoryGM : MonoBehaviourPunCallbacks
         playerData.playerHand.Add(FoodCard.CardPoint.Steak);
         playerData.playerHand.Add(FoodCard.CardPoint.Turkey);
         playerData.playerHand.Add(FoodCard.CardPoint.Cake);
-
     }
 
     [PunRPC] // 마스터 플레이어만 실행, 그 이후 Trash 동기화, Trash에서 랜덤으로 카드 뽑기, Trash 비우기
-    public void TrashScoring(int playernum, int cardnum)
+    public void AddTrash(PlayerData handCards)
     {
         Trash.AddRange(handCards);
     }
+
+    public void TrashGotcha()
+    {
+        System.Random random = new Random;
+        int index = random.Next(Trash.Count);
+        int luck = (int)Trash[index];
+
+        int player = 1 + random.Next(PhotonNetwork.LocalPlayer.ActorNumber);
+
+        photonView.RPC("recTrash", RpcTarget.All, player, luck);
+        gamestatustxt.text = $"{player}번 플레이어가 쓰레기통을 차지합니다.";
+    }
+
+    [PunRPC]
+    public void recTrash(int playernum, int scoreamount)
+    {
+        if (PhotonNetwork.LocalPlayer.ActorNumber == playernum)
+        {
+            photonView.RPC("CalculateScore", RpcTarget.All, playernum, scoreamount);
+            // photonView.RPC("SyncScore", RpcTarget.All, PhotonNetwork.LocalPlayer.ActorNumber, score[playernum-1]);
+        }
+        Trash.clear();
+    }
+    
 
     public void CountOtherFoodCard()
     {
@@ -616,7 +659,6 @@ public class RefactoryGM : MonoBehaviourPunCallbacks
             SetCardToBack(handCards[starterIndex].cards[GetSpriteIndex((int)PhotonNetwork.CurrentRoom.Players[currentPlayerNum].CustomProperties["selectedFoodCard"])]);
         }
     }
-
 
     public void CountMyFoodCard(FoodCard.CardPoint cardPoint)
     {
