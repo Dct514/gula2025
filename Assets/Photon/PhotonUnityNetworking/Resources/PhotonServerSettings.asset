@@ -73,6 +73,10 @@ MonoBehaviour:
   - TrashScoring
   - SetGrade
   - ReturnUnselectedCard
+  - AddTrash
+  - recTrash
+  - SendCardInfo
+  - SetStartValue
   DisableAutoOpenWizard: 1
   ShowSettings: 0
   DevRegionSetOnce: 1

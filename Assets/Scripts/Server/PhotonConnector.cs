@@ -24,8 +24,13 @@ public class PhotonConnector : MonoBehaviourPunCallbacks
     private Dictionary<string, GameObject> roomEntries = new Dictionary<string, GameObject>();
     private const int MaxPlayers = 4;
 
+    void Awake()
+    {
+        PhotonCustomTypes.Register();
+    }
     void Start()
     {
+
         PhotonNetwork.AutomaticallySyncScene = true;
         PhotonNetwork.ConnectUsingSettings();
         myName.text = PhotonNetwork.NickName;

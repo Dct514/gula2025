@@ -10,6 +10,9 @@ using System;
 using UnityEngine.SocialPlatforms.Impl;
 using System.Linq;
 using Unity.VisualScripting;
+using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
+
 
 public class RefactoryGM : MonoBehaviourPunCallbacks
 {
@@ -42,61 +45,57 @@ public class RefactoryGM : MonoBehaviourPunCallbacks
     public Sprite[] gradeSprite;
     public Image[] myGradeImage;
 
-    public class PlayerData
-    {
-        public int playerNumber = PhotonNetwork.LocalPlayer.ActorNumber;
-        public bool Submited { get; set; }
-        public List<FoodCard.CardPoint> playerHand = new List<FoodCard.CardPoint>
-        {
-            FoodCard.CardPoint.Bread,
-            FoodCard.CardPoint.Soup,
-            FoodCard.CardPoint.Fish,
-            FoodCard.CardPoint.Steak,
-            FoodCard.CardPoint.Turkey,
-            FoodCard.CardPoint.Cake
-        };
-        
-    }
+    public List<FoodCard.CardPoint> otherFoodCards = new List<FoodCard.CardPoint>();
+
+
+
+
     public PlayerData playerData = new PlayerData();
-    public List <PlayerData> playerDatas = new List<PlayerData>(); // 플레이어 덱 비교를 위해서 여기에 넣겠습니다
-
+    public List<PlayerData> playerDatas = new List<PlayerData>(); // 플레이어 덱 비교를 위해서 여기에 넣겠습니다
+    
     [PunRPC]
-    public void SendCardInfo(int playernum, PlayerData playerData)
+    public void SendCardInfo(int playernum, PlayerData handData)
     {
-        playerDatas.Add(playerData);
-        Debug.Log($"{playernum}님 체크");
+        playerDatas.Add(handData);
+
+        // 카드 종류를 비교하기 위해서
+    /*    int[] handArray = playerData.playerHand.Select(card => (int)card).ToArray();
+    {
+        otherFoodCards = handArray.Select(i => (FoodCard.CardPoint)i).ToList();
+
+        */ Debug.Log($"{playernum}님 체크");
     }
 
 
-    public bool IsCannot() // 식사할 수 있는 플레이어 중, 남은 카드의 종류가 내 카드의 종류와 같은 경우
+    public bool IsCannot() // 식사할 수 있는 플레이어 중, 남은 카드의 종류가 내 카드의 종류와 같은 경우 -> 턴을 넘길 것
     {
-        int a = 0;
-        for (int i = 1; i < PhotonNetwork.CurrentRoom.MaxPlayers + 1; i++)
+
+        foreach (PlayerData pl in playerDatas)
         {
-           // if (playerDatas[i].)
-                
-
-
-            for (int j = 1; j< PhotonNetwork.CurrentRoom.MaxPlayers +1; j++)
-                if ((int)PhotonNetwork.CurrentRoom.Players[i].CustomProperties["selectedFoodCard"] != 0)
-                {
-                    a++;
-                }
+            if (pl.playerHand == playerData.playerHand && pl.playerNumber != playerData.playerNumber && playerData.playerHand.Count == 1 && !BlockPlayerTurn(pl.playerNumber, playerData.playerNumber))
+            {
+                Debug.Log($"플레이어 {pl.playerNumber}와 {playerData.playerNumber}의 카드가 같습니다.");
+                return true;
+            }
         }
-
-        if (a == 0) return true;
-        else return false;
+        return false;
 
     }
 
-    public void CheckOtherPlayerHand()
+    private object each(object var, PlayerData playerData, in List<PlayerData> playerDatas)
     {
-        for (int i = 0; i < PhotonNetwork.CurrentRoom.MaxPlayers; i++)
-        {
-            //playerDatas[i].
-
-        }
+        throw new NotImplementedException();
     }
+
+    public bool CheckOtherPlayerHand() // 모든 플레이어의 카드가 소모되었으면 true
+    {
+        foreach (PlayerData pl in playerDatas)
+        {
+            if (pl.playerHand.Count != 0) return false;
+        }
+        return true;
+    }
+
 
 
 
@@ -106,9 +105,12 @@ public class RefactoryGM : MonoBehaviourPunCallbacks
         choice2 = -1;
 
         photonView.RPC("SendCardInfo", RpcTarget.All, PhotonNetwork.LocalPlayer.ActorNumber, playerData);
+
+
         if (PhotonNetwork.IsMasterClient)
         {
             SetStartValue();
+            playerDatas.Clear();
         }
 
         playerData.Submited = false;
@@ -142,19 +144,20 @@ public class RefactoryGM : MonoBehaviourPunCallbacks
 
         // todo :
 
-        if (IsFinishMyTurn() || IsCannot) // 2번씩 식사를 마쳤거나, 더 이상 식사를 할 수 없는 상황 -> 턴 넘어가기
-        {
-            Start();
-        }
-        else if () // 모든 플레이어가 카드 소모 완료한 경우 (카드 리셋) , 이후 점수 로직으로 소프트 리셋
+        if (CheckOtherPlayerHand()) // 모든 플레이어가 카드 소모 완료한 경우!
         {
             WholeRoundOver();
             TrashGotcha();
-                for (int i = 1; i < 7; i++)
-                {
-                    SetCardValue(i, PlayerData.playerNumber);
-                }
+            for (int i = 1; i < 7; i++)
+            {
+                SetCardValue(i, playerData.playerNumber);
+            }
             RoundResetCheck();
+        }
+        else if (IsFinishMyTurn() || IsCannot()) // 2번씩 식사를 마쳤거나, 더 이상 식사를 할 수 없는 상황 -> 턴 넘어가기
+        {
+            playerData.playerHand.Clear();
+            Start();
         }
     }
 
@@ -184,6 +187,7 @@ public class RefactoryGM : MonoBehaviourPunCallbacks
         {
             Destroy(gameObject);
         }
+
         ShowPlayerPositions();
         myNickNameText.text = PhotonNetwork.LocalPlayer.NickName;
         player["grade"] = 0;
@@ -224,6 +228,7 @@ public class RefactoryGM : MonoBehaviourPunCallbacks
                     Turn["currentTurn"] = 1;
                     PhotonNetwork.CurrentRoom.SetCustomProperties(Turn);
                     photonView.RPC("SetCardValue", RpcTarget.All, (int)player["selectedFoodCard"], 0);
+                    photonView.RPC("SetGameStatusText", RpcTarget.All, "선 플레이어와 식사할 사람은 카드를 제출하세요.");
 
                     Debug.Log($"현재 턴 : {Turn["currentTurn"]}");
                 }
@@ -231,7 +236,7 @@ public class RefactoryGM : MonoBehaviourPunCallbacks
                 {
                     gamestatustxt.text = "차례가 아닙니다.";
                 }
-                photonView.RPC("SetGameStatusText", RpcTarget.All, "선 플레이어와 식사할 사람은 카드를 제출하세요.");
+
 
                 break;
 
@@ -606,14 +611,14 @@ public class RefactoryGM : MonoBehaviourPunCallbacks
     [PunRPC] // 마스터 플레이어만 실행, 그 이후 Trash 동기화, Trash에서 랜덤으로 카드 뽑기, Trash 비우기
     public void AddTrash(PlayerData handCards)
     {
-        Trash.AddRange(handCards);
+        Trash.AddRange(handCards.playerHand);
     }
 
     public void TrashGotcha()
     {
-        System.Random random = new Random;
+        System.Random random = new System.Random();
         int index = random.Next(Trash.Count);
-        int luck = (int)Trash[index];
+        int luck = (int)Trash[index].cardPoint;
 
         int player = 1 + random.Next(PhotonNetwork.LocalPlayer.ActorNumber);
 
@@ -629,9 +634,9 @@ public class RefactoryGM : MonoBehaviourPunCallbacks
             photonView.RPC("CalculateScore", RpcTarget.All, playernum, scoreamount);
             // photonView.RPC("SyncScore", RpcTarget.All, PhotonNetwork.LocalPlayer.ActorNumber, score[playernum-1]);
         }
-        Trash.clear();
+        Trash.Clear();
     }
-    
+
 
     public void CountOtherFoodCard()
     {
@@ -753,7 +758,7 @@ public class RefactoryGM : MonoBehaviourPunCallbacks
             int selectedFoodCard = (int)changedProps["selectedFoodCard"];
             Debug.Log($"[SYNC] {targetPlayer.NickName}의 selectedFoodCard 동기화됨: {selectedFoodCard}");
         }
-                
+
     }
 
 

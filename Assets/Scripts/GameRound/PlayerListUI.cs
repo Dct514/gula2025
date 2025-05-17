@@ -36,7 +36,7 @@ public class PlayerListUI : MonoBehaviourPunCallbacks
 
     void Update()
     {
-        HighlightProfiles();
+        //HighlightProfiles();
     }
 
     public override void OnPlayerEnteredRoom(Player newPlayer)
@@ -173,6 +173,20 @@ public class PlayerListUI : MonoBehaviourPunCallbacks
 
     private bool ShouldHighlightProfile(int actorNumber)
     {
+        if (RefactoryGM.Instance == null || RefactoryGM.Instance.Turn == null)
+        {
+            Debug.LogError("RefactoryGM.Instance 또는 Turn이 null입니다!");
+            return false;
+        }
+
+        if (!RefactoryGM.Instance.Turn.ContainsKey("currentTurn") ||
+            !RefactoryGM.Instance.Turn.ContainsKey("currentPlayerIndex") ||
+            !RefactoryGM.Instance.Turn.ContainsKey("pickedPlayerIndex"))
+        {
+            Debug.LogError("Turn 딕셔너리에 필요한 키가 없습니다!");
+            return false;
+        }
+
         int currentTurn = (int)RefactoryGM.Instance.Turn["currentTurn"];
         int currentPlayer = (int)RefactoryGM.Instance.Turn["currentPlayerIndex"];
         int pickedPlayer = (int)RefactoryGM.Instance.Turn["pickedPlayerIndex"];
