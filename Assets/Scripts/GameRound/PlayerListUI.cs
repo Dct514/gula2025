@@ -36,7 +36,7 @@ public class PlayerListUI : MonoBehaviourPunCallbacks
 
     void Update()
     {
-        //HighlightProfiles();
+        HighlightProfiles();
     }
 
     public override void OnPlayerEnteredRoom(Player newPlayer)
@@ -130,40 +130,55 @@ public class PlayerListUI : MonoBehaviourPunCallbacks
         if (RefactoryGM.Instance == null)
             return;
 
-        float blink = Mathf.PingPong(Time.time * 2f, 1f); // 2배 빠르게 (0.5초 주기)
-        float alpha = Mathf.Lerp(0.5f, 1f, blink); // 알파 0.5~1.0 자연스럽게
-        float colorR = Mathf.Lerp(1f, 1f, blink);  // 빨강은 항상 강하게
-        float colorG = Mathf.Lerp(0.9f, 0.95f, blink); // 초록 살짝 따뜻하게
-        float colorB = Mathf.Lerp(0.8f, 0.9f, blink);  // 파랑 따뜻하게 줄임
+        float cycle = Time.time % 3f; // 3초 주기
+        float alpha = 1f;
+        float colorR = 1f, colorG = 0.9f, colorB = 0.8f;
+
+        // 구간 0~1초: 투명 → 불투명
+        if (cycle < 1f)
+        {
+            float t = cycle / 1f;
+            alpha = Mathf.Lerp(0.3f, 1f, t);
+        }
+        // 구간 1~2초: 불투명 → 밝은색 (명도 올리기)
+        else if (cycle < 2f)
+        {
+            float t = (cycle - 1f) / 1f;
+            alpha = 1f;
+            colorG = Mathf.Lerp(0.9f, 1f, t);
+            colorB = Mathf.Lerp(0.8f, 1f, t);
+
+            if (t > 0.7f)
+            {
+                colorG = 1f;
+                colorB = 1f;
+            }
+        }
+        // 구간 2~3초: 밝은색 → 불투명 → 다시 투명
+        else
+        {
+            float t = (cycle - 2f) / 1f;
+            alpha = Mathf.Lerp(1f, 0.3f, t);
+            colorG = Mathf.Lerp(1f, 0.9f, t);
+            colorB = Mathf.Lerp(1f, 0.8f, t);
+        }
 
         foreach (var player in PhotonNetwork.PlayerList)
         {
             bool shouldHighlight = ShouldHighlightProfile(player.ActorNumber);
 
+            Color highlightColor = new Color(colorR, colorG, colorB, alpha);
+
             if (player == PhotonNetwork.LocalPlayer)
             {
-                if (shouldHighlight)
-                {
-                    myNameTagImage.color = new Color(colorR, colorG, colorB, alpha);
-                }
-                else
-                {
-                    myNameTagImage.color = new Color(1f, 1f, 1f, 1f);
-                }
+                myNameTagImage.color = shouldHighlight ? highlightColor : Color.white;
             }
             else
             {
                 int index = otherPlayers.IndexOf(player);
                 if (index >= 0 && index < otherNameTagImages.Length)
                 {
-                    if (shouldHighlight)
-                    {
-                        otherNameTagImages[index].color = new Color(colorR, colorG, colorB, alpha);
-                    }
-                    else
-                    {
-                        otherNameTagImages[index].color = new Color(1f, 1f, 1f, 1f);
-                    }
+                    otherNameTagImages[index].color = shouldHighlight ? highlightColor : Color.white;
                 }
             }
         }
