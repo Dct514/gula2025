@@ -144,21 +144,31 @@ public class RefactoryGM : MonoBehaviourPunCallbacks
 
         // todo :
 
+
+
         if (CheckOtherPlayerHand()) // 모든 플레이어가 카드 소모 완료한 경우!
         {
             WholeRoundOver();
-            TrashGotcha();
+            if (PhotonNetwork.LocalPlayer.IsMasterClient) 
+            {
+                TrashGotcha();   
+            }
             for (int i = 1; i < 7; i++)
             {
                 SetCardValue(i, playerData.playerNumber);
             }
             RoundResetCheck();
         }
-        else if (IsFinishMyTurn() || IsCannot()) // 2번씩 식사를 마쳤거나, 더 이상 식사를 할 수 없는 상황 -> 턴 넘어가기
+        else if ((IsFinishMyTurn() || IsCannot() ) && (int)Turn["currentPlayerIndex"] == PhotonNetwork.LocalPlayer.ActorNumber) // 2번씩 식사를 마쳤거나, 더 이상 식사를 할 수 없는 상황 -> 턴 넘어가기
         {
             playerData.playerHand.Clear();
-            Start();
+            photonView.RPC("SetStartValue", RpcTarget.MasterClient);
         }
+        else if (playerData.playerHand.Count == 0 && (int)Turn["currentPlayerIndex"] == PhotonNetwork.LocalPlayer.ActorNumber)
+        {
+            photonView.RPC("SetStartValue", RpcTarget.MasterClient);
+        }
+
     }
 
     [PunRPC]
@@ -183,6 +193,7 @@ public class RefactoryGM : MonoBehaviourPunCallbacks
         {
             Instance = this;
         }
+
         else
         {
             Destroy(gameObject);
@@ -616,12 +627,13 @@ public class RefactoryGM : MonoBehaviourPunCallbacks
 
     public void TrashGotcha()
     {
+
         System.Random random = new System.Random();
         int index = random.Next(Trash.Count);
         int luck = (int)Trash[index].cardPoint;
 
         int player = 1 + random.Next(PhotonNetwork.LocalPlayer.ActorNumber);
-
+        
         photonView.RPC("recTrash", RpcTarget.All, player, luck);
         gamestatustxt.text = $"{player}번 플레이어가 쓰레기통을 차지합니다.";
     }
