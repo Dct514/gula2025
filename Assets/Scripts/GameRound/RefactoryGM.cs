@@ -44,68 +44,15 @@ public class RefactoryGM : MonoBehaviourPunCallbacks
     public Sprite backSprite;
     public Sprite[] gradeSprite;
     public Image[] myGradeImage;
-
     public List<FoodCard.CardPoint> otherFoodCards = new List<FoodCard.CardPoint>();
-
-
-
-
     public PlayerData playerData = new PlayerData();
     public List<PlayerData> playerDatas = new List<PlayerData>(); // 플레이어 덱 비교를 위해서 여기에 넣겠습니다
-    
-    [PunRPC]
-    public void SendCardInfo(int playernum, PlayerData handData)
-    {
-        playerDatas.Add(handData);
-
-        // 카드 종류를 비교하기 위해서
-    /*    int[] handArray = playerData.playerHand.Select(card => (int)card).ToArray();
-    {
-        otherFoodCards = handArray.Select(i => (FoodCard.CardPoint)i).ToList();
-
-        */ Debug.Log($"{playernum}님 체크");
-    }
-
-
-    public bool IsCannot() // 식사할 수 있는 플레이어 중, 남은 카드의 종류가 내 카드의 종류와 같은 경우 -> 턴을 넘길 것
-    {
-
-        foreach (PlayerData pl in playerDatas)
-        {
-            if (pl.playerHand == playerData.playerHand && pl.playerNumber != playerData.playerNumber && playerData.playerHand.Count == 1 && !BlockPlayerTurn(pl.playerNumber, playerData.playerNumber))
-            {
-                Debug.Log($"플레이어 {pl.playerNumber}와 {playerData.playerNumber}의 카드가 같습니다.");
-                return true;
-            }
-        }
-        return false;
-
-    }
-
-    private object each(object var, PlayerData playerData, in List<PlayerData> playerDatas)
-    {
-        throw new NotImplementedException();
-    }
-
-    public bool CheckOtherPlayerHand() // 모든 플레이어의 카드가 소모되었으면 true
-    {
-        foreach (PlayerData pl in playerDatas)
-        {
-            if (pl.playerHand.Count != 0) return false;
-        }
-        return true;
-    }
-
-
-
-
     void Start()
     {
         choice = -1;
         choice2 = -1;
 
         photonView.RPC("SendCardInfo", RpcTarget.All, PhotonNetwork.LocalPlayer.ActorNumber, playerData);
-
 
         if (PhotonNetwork.IsMasterClient)
         {
@@ -157,7 +104,7 @@ public class RefactoryGM : MonoBehaviourPunCallbacks
             {
                 SetCardValue(i, playerData.playerNumber);
             }
-            RoundResetCheck();
+           //  RoundResetCheck();
         }
         else if ((IsFinishMyTurn() || IsCannot() ) && (int)Turn["currentPlayerIndex"] == PhotonNetwork.LocalPlayer.ActorNumber) // 2번씩 식사를 마쳤거나, 더 이상 식사를 할 수 없는 상황 -> 턴 넘어가기
         {
@@ -487,7 +434,7 @@ public class RefactoryGM : MonoBehaviourPunCallbacks
         CountOtherFoodCard();
         CountMyFoodCard((FoodCard.CardPoint)PhotonNetwork.LocalPlayer.CustomProperties["selectedFoodCard"]);
 
-        Start();
+        if (PhotonNetwork.LocalPlayer.IsMasterClient) SetStartValue();
     }
 
     [PunRPC]
@@ -774,6 +721,49 @@ public class RefactoryGM : MonoBehaviourPunCallbacks
     }
 
 
+    [PunRPC]
+    public void SendCardInfo(int playernum, PlayerData handData)
+    {
+        playerDatas.Add(handData);
+
+        // 카드 종류를 비교하기 위해서
+        /*    int[] handArray = playerData.playerHand.Select(card => (int)card).ToArray();
+        {
+            otherFoodCards = handArray.Select(i => (FoodCard.CardPoint)i).ToList();
+
+            */
+        Debug.Log($"{playernum}님 체크");
+    }
+
+
+    public bool IsCannot() // 식사할 수 있는 플레이어 중, 남은 카드의 종류가 내 카드의 종류와 같은 경우 -> 턴을 넘길 것
+    {
+
+        foreach (PlayerData pl in playerDatas)
+        {
+            if (pl.playerHand == playerData.playerHand && pl.playerNumber != playerData.playerNumber && playerData.playerHand.Count == 1 && !BlockPlayerTurn(pl.playerNumber, playerData.playerNumber))
+            {
+                Debug.Log($"플레이어 {pl.playerNumber}와 {playerData.playerNumber}의 카드가 같습니다.");
+                return true;
+            }
+        }
+        return false;
+
+    }
+
+    private object each(object var, PlayerData playerData, in List<PlayerData> playerDatas)
+    {
+        throw new NotImplementedException();
+    }
+
+    public bool CheckOtherPlayerHand() // 모든 플레이어의 카드가 소모되었으면 true
+    {
+        foreach (PlayerData pl in playerDatas)
+        {
+            if (pl.playerHand.Count != 0) return false;
+        }
+        return true;
+    }
 
     public bool IsFinishMyTurn() // 모든 플레이어와 두 번씩 식사 진행한 경우 true
     {
