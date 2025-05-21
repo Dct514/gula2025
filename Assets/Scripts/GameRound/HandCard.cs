@@ -6,4 +6,5 @@ using UnityEngine.UI;
 public class HandCard : MonoBehaviour
 {
     public Image[] cards = new Image[6];
+
 }

@@ -49,17 +49,48 @@ public class RefactoryGM : MonoBehaviourPunCallbacks
     public List<PlayerData> playerDatas = new List<PlayerData>(); // 플레이어 덱 비교를 위해서 여기에 넣겠습니다
     void Start()
     {
-        choice = -1;
-        choice2 = -1;
-
-        photonView.RPC("SendCardInfo", RpcTarget.All, PhotonNetwork.LocalPlayer.ActorNumber, playerData);
-
         if (PhotonNetwork.IsMasterClient)
         {
             SetStartValue();
             playerDatas.Clear();
         }
 
+        SetDefaultValue();
+
+        Debug.Log($"현재 턴 : {Turn["currentTurn"]}");
+        Debug.Log($"현재 플레이어 : {Turn["currentPlayerIndex"]}");
+
+        // todo :
+        if (CheckOtherPlayerHand()) // 모든 플레이어가 카드 소모 완료한 경우!
+        {
+            WholeRoundOver();
+            if (PhotonNetwork.LocalPlayer.IsMasterClient) 
+            {
+                TrashGotcha();   
+            }
+            for (int i = 1; i < 7; i++)
+            {
+                SetCardValue(i, playerData.playerNumber);
+            }
+           //  RoundResetCheck();
+        }
+        else if ((IsFinishMyTurn() || IsCannot() ) && (int)Turn["currentPlayerIndex"] == PhotonNetwork.LocalPlayer.ActorNumber) // 2번씩 식사를 마쳤거나, 더 이상 식사를 할 수 없는 상황 -> 턴 넘어가기
+        {
+            playerData.playerHand.Clear();
+            photonView.RPC("SetStartValue", RpcTarget.MasterClient);
+        }
+        else if (playerData.playerHand.Count == 0 && (int)Turn["currentPlayerIndex"] == PhotonNetwork.LocalPlayer.ActorNumber)
+        {
+            photonView.RPC("SetStartValue", RpcTarget.MasterClient);
+        }
+
+    }
+
+    public void SetDefaultValue()
+    {
+        choice = -1;
+        choice2 = -1;
+        photonView.RPC("SendCardInfo", RpcTarget.All, PhotonNetwork.LocalPlayer.ActorNumber, playerData);
         playerData.Submited = false;
         player["selectedFoodCard"] = 0;
         player["choice"] = -1;
@@ -85,38 +116,8 @@ public class RefactoryGM : MonoBehaviourPunCallbacks
         myScoreText.text = $"{score[PhotonNetwork.LocalPlayer.ActorNumber - 1]}";
         myGoldText.text = $"{gold[PhotonNetwork.LocalPlayer.ActorNumber - 1]}";
         mySilverText.text = $"{silver[PhotonNetwork.LocalPlayer.ActorNumber - 1]}";
-
-        Debug.Log($"현재 턴 : {Turn["currentTurn"]}");
-        Debug.Log($"현재 플레이어 : {Turn["currentPlayerIndex"]}");
-
-        // todo :
-
-
-
-        if (CheckOtherPlayerHand()) // 모든 플레이어가 카드 소모 완료한 경우!
-        {
-            WholeRoundOver();
-            if (PhotonNetwork.LocalPlayer.IsMasterClient) 
-            {
-                TrashGotcha();   
-            }
-            for (int i = 1; i < 7; i++)
-            {
-                SetCardValue(i, playerData.playerNumber);
-            }
-           //  RoundResetCheck();
-        }
-        else if ((IsFinishMyTurn() || IsCannot() ) && (int)Turn["currentPlayerIndex"] == PhotonNetwork.LocalPlayer.ActorNumber) // 2번씩 식사를 마쳤거나, 더 이상 식사를 할 수 없는 상황 -> 턴 넘어가기
-        {
-            playerData.playerHand.Clear();
-            photonView.RPC("SetStartValue", RpcTarget.MasterClient);
-        }
-        else if (playerData.playerHand.Count == 0 && (int)Turn["currentPlayerIndex"] == PhotonNetwork.LocalPlayer.ActorNumber)
-        {
-            photonView.RPC("SetStartValue", RpcTarget.MasterClient);
-        }
-
     }
+
 
     [PunRPC]
     public void SetStartValue()
@@ -253,7 +254,7 @@ public class RefactoryGM : MonoBehaviourPunCallbacks
                 {
                     Turn["currentTurn"] = 3;
                     PhotonNetwork.CurrentRoom.SetCustomProperties(Turn);
-                    photonView.RPC(" ReturnUnselectedCard", RpcTarget.All, (int)Turn["pickedPlayerIndex"]);
+                    photonView.RPC("ReturnUnselectedCard", RpcTarget.All, (int)Turn["pickedPlayerIndex"]);
                     photonView.RPC("SetGameStatusText", RpcTarget.All, $"{PhotonNetwork.CurrentRoom.Players[(int)Turn["currentPlayerIndex"]].NickName}님과 {PhotonNetwork.CurrentRoom.Players[(int)Turn["pickedPlayerIndex"]].NickName}님이 식사합니다.");
                 }
                 else
@@ -380,6 +381,7 @@ public class RefactoryGM : MonoBehaviourPunCallbacks
         }
         photonView.RPC("RoundResetCheck", RpcTarget.All);
         photonView.RPC("ResetAllCardBacks", RpcTarget.All);
+        Start();
         // 턴 초기화
 
     }
@@ -517,7 +519,7 @@ public class RefactoryGM : MonoBehaviourPunCallbacks
         }
     }
 
-
+    [PunRPC]
     public void ResetAllCardBacks()
     {
         for (int i = 0; i < cardImages.Length; i++)

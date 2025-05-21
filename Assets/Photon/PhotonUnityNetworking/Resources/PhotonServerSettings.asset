@@ -77,6 +77,7 @@ MonoBehaviour:
   - recTrash
   - SendCardInfo
   - SetStartValue
+  - ResetAllCardBacks
   DisableAutoOpenWizard: 1
   ShowSettings: 0
   DevRegionSetOnce: 1
