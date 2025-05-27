@@ -63,7 +63,7 @@ public class RefactoryGM : MonoBehaviourPunCallbacks
             WholeRoundOver();
             if (PhotonNetwork.LocalPlayer.IsMasterClient) 
             {
-                TrashGotcha();   
+                TrashGotcha();
             }
             for (int i = 1; i < 7; i++)
             {
@@ -74,7 +74,7 @@ public class RefactoryGM : MonoBehaviourPunCallbacks
         else if ((IsFinishMyTurn() || IsCannot() ) && (int)Turn["currentPlayerIndex"] == PhotonNetwork.LocalPlayer.ActorNumber) // 2번씩 식사를 마쳤거나, 더 이상 식사를 할 수 없는 상황 -> 턴 넘어가기
         {
             playerData.playerHand.Clear();
-            Debug.Log("모두와 2번씩 식사를 했네요 아니면 카드가 같은것만 남아있던가 ");
+            Debug.Log("모두와 2번씩 식사를 했네요 아니면 카드가 같은것만 남아있던가");
             photonView.RPC("Start", RpcTarget.All);
         }
         else if (playerData.playerHand.Count == 0 && (int)Turn["currentPlayerIndex"] == PhotonNetwork.LocalPlayer.ActorNumber)
@@ -82,7 +82,6 @@ public class RefactoryGM : MonoBehaviourPunCallbacks
             Debug.Log("카드를 다 쓰셨군요");
             photonView.RPC("Start", RpcTarget.All);
         }
-
     }
 
     public void SetDefaultValue()
@@ -385,7 +384,7 @@ public class RefactoryGM : MonoBehaviourPunCallbacks
     }
 
     [PunRPC]
-    public void RoundResetCheck() // todo : 카드 소모 다 된 다음 등급 적용
+    public void RoundResetCheck() // todo : 카드 소모 다 된 다음 등급 적용 if()
     {
         if (score[PhotonNetwork.LocalPlayer.ActorNumber - 1] >= 18 && (int)player["grade"] == 0)
         {
