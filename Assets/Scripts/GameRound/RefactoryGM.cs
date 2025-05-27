@@ -47,18 +47,15 @@ public class RefactoryGM : MonoBehaviourPunCallbacks
     public List<FoodCard.CardPoint> otherFoodCards = new List<FoodCard.CardPoint>();
     public PlayerData playerData = new PlayerData();
     public List<PlayerData> playerDatas = new List<PlayerData>(); // 플레이어 덱 비교를 위해서 여기에 넣겠습니다
+    [PunRPC]
     void Start()
     {
         if (PhotonNetwork.IsMasterClient)
         {
             SetStartValue();
-            playerDatas.Clear();
         }
 
         SetDefaultValue();
-
-        Debug.Log($"현재 턴 : {Turn["currentTurn"]}");
-        Debug.Log($"현재 플레이어 : {Turn["currentPlayerIndex"]}");
 
         // todo :
         if (CheckOtherPlayerHand()) // 모든 플레이어가 카드 소모 완료한 경우!
@@ -77,11 +74,13 @@ public class RefactoryGM : MonoBehaviourPunCallbacks
         else if ((IsFinishMyTurn() || IsCannot() ) && (int)Turn["currentPlayerIndex"] == PhotonNetwork.LocalPlayer.ActorNumber) // 2번씩 식사를 마쳤거나, 더 이상 식사를 할 수 없는 상황 -> 턴 넘어가기
         {
             playerData.playerHand.Clear();
-            photonView.RPC("SetStartValue", RpcTarget.MasterClient);
+            Debug.Log("모두와 2번씩 식사를 했네요 아니면 카드가 같은것만 남아있던가 ");
+            photonView.RPC("Start", RpcTarget.All);
         }
         else if (playerData.playerHand.Count == 0 && (int)Turn["currentPlayerIndex"] == PhotonNetwork.LocalPlayer.ActorNumber)
         {
-            photonView.RPC("SetStartValue", RpcTarget.MasterClient);
+            Debug.Log("카드를 다 쓰셨군요");
+            photonView.RPC("Start", RpcTarget.All);
         }
 
     }
@@ -90,6 +89,7 @@ public class RefactoryGM : MonoBehaviourPunCallbacks
     {
         choice = -1;
         choice2 = -1;
+        playerDatas.Clear();
         photonView.RPC("SendCardInfo", RpcTarget.All, PhotonNetwork.LocalPlayer.ActorNumber, playerData);
         playerData.Submited = false;
         player["selectedFoodCard"] = 0;
@@ -180,29 +180,21 @@ public class RefactoryGM : MonoBehaviourPunCallbacks
         switch (Turn["currentTurn"])
         {
             case 0:
-                // 선 플레이어만 진행하는, 첫 카드를 내는 턴
                 if ((int)Turn["currentPlayerIndex"] == PhotonNetwork.LocalPlayer.ActorNumber && (int)player["selectedFoodCard"] != 0)
                 {
                     playerData.Submited = true;
-                    Turn["currentTurn"] = 1;
-                    PhotonNetwork.CurrentRoom.SetCustomProperties(Turn);
                     photonView.RPC("SetCardValue", RpcTarget.All, (int)player["selectedFoodCard"], 0);
                     photonView.RPC("SetGameStatusText", RpcTarget.All, "선 플레이어와 식사할 사람은 카드를 제출하세요.");
-
-                    Debug.Log($"현재 턴 : {Turn["currentTurn"]}");
+                    Turn["currentTurn"] = 1;
+                    PhotonNetwork.CurrentRoom.SetCustomProperties(Turn);
                 }
                 else
                 {
                     gamestatustxt.text = "차례가 아닙니다.";
                 }
-
-
                 break;
 
             case 1:
-                // 다른 플레이어들이 음식 카드 또는 거절 카드를 내는 턴
-                // 같은 플레이어와 2번 턴을 진행한 플레이어는 턴을 진행할 수 없음
-
                 if (!BlockPlayerTurn((int)Turn["currentPlayerIndex"], PhotonNetwork.LocalPlayer.ActorNumber) &&
                 playerData.Submited == false &&
                 (int)player["selectedFoodCard"] != 0 &&
@@ -218,9 +210,9 @@ public class RefactoryGM : MonoBehaviourPunCallbacks
 
                     if (FoodSubmited())
                     {
+                        photonView.RPC("SetGameStatusText", RpcTarget.All, "선 플레이어님, 같이 식사할 플레이어를 고르세요.");
                         Turn["currentTurn"] = 2;
                         PhotonNetwork.CurrentRoom.SetCustomProperties(Turn);
-                        photonView.RPC("SetGameStatusText", RpcTarget.All, "선 플레이어가 같이 식사할 사람을 고르고 있습니다.");
                     }
                 }
                 else if ((int)Turn["currentPlayerIndex"] == PhotonNetwork.LocalPlayer.ActorNumber)
@@ -243,9 +235,6 @@ public class RefactoryGM : MonoBehaviourPunCallbacks
                 {
                     gamestatustxt.text = "이 플레이어와 2번 식사를 완료했습니다.";
                 }
-
-
-                Debug.Log($"현재 턴 : {Turn["currentTurn"]}");
                 break;
 
             case 2:
@@ -261,13 +250,10 @@ public class RefactoryGM : MonoBehaviourPunCallbacks
                 {
                     gamestatustxt.text = "선 플레이어가 카드를 고르고 있습니다.";
                 }
-
-                Debug.Log($"현재 턴 : {Turn["currentTurn"]}");
-
                 break;
+
             case 3:
-                // 선택된 플레이어와 선 플레이어가 식사 / 강탈을 고르는 턴
-                Debug.Log($"현재 턴 : {Turn["currentTurn"]}");
+                // 식사 강탈 고르는 턴
                 break;
             default:
                 Debug.Log("Error: Invalid turn number.");
@@ -299,11 +285,10 @@ public class RefactoryGM : MonoBehaviourPunCallbacks
     [PunRPC]
     public void ReturnUnselectedCard(int selectedCard)
     {
-        int a = (int)Turn["currentTurn"];
         int max = PhotonNetwork.CurrentRoom.MaxPlayers;
         for (int i = 1; i < max + 1; i++)
         {
-            if (i != a && i != selectedCard)
+            if (i != selectedCard)
             {
                 cardImages[i].sprite = backSprite;
             }
@@ -381,7 +366,7 @@ public class RefactoryGM : MonoBehaviourPunCallbacks
         }
         photonView.RPC("RoundResetCheck", RpcTarget.All);
         photonView.RPC("ResetAllCardBacks", RpcTarget.All);
-        Start();
+        photonView.RPC("Start", RpcTarget.All);
         // 턴 초기화
 
     }
@@ -400,7 +385,7 @@ public class RefactoryGM : MonoBehaviourPunCallbacks
     }
 
     [PunRPC]
-    public void RoundResetCheck()
+    public void RoundResetCheck() // todo : 카드 소모 다 된 다음 등급 적용
     {
         if (score[PhotonNetwork.LocalPlayer.ActorNumber - 1] >= 18 && (int)player["grade"] == 0)
         {
@@ -444,17 +429,17 @@ public class RefactoryGM : MonoBehaviourPunCallbacks
     {
         if (playernum == PhotonNetwork.LocalPlayer.ActorNumber)
         {
-            myGradeImage[grade - 1].sprite = gradeSprite[1];
+            myGradeImage[grade - 1].sprite = gradeSprite[0];
         }
         else if (grade == 1)
         {
             int currentIndex = others.IndexOf(playernum);
-            gradeImages[currentIndex].gradeImage[0].sprite = gradeSprite[1];
+            gradeImages[currentIndex].gradeImage[0].sprite = gradeSprite[0];
         }
         else if (grade == 2)
         {
             int currentIndex = others.IndexOf(playernum);
-            gradeImages[currentIndex].gradeImage[1].sprite = gradeSprite[1];
+            gradeImages[currentIndex].gradeImage[1].sprite = gradeSprite[0];
         }
     }
 

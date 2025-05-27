@@ -162,6 +162,7 @@ public class PhotonConnector : MonoBehaviourPunCallbacks
     public override void OnPlayerEnteredRoom(Player newPlayer)
     {
         Debug.Log($"새로운 플레이어가 방에 들어왔습니다: {newPlayer.NickName}");
+        statusText2.text = $"[{PhotonNetwork.CurrentRoom.Name}]번 방 입장\n {PhotonNetwork.CurrentRoom.PlayerCount}/4";
 
         if (PhotonNetwork.CurrentRoom.PlayerCount == MaxPlayers)
         {
