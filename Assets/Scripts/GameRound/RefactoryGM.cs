@@ -18,6 +18,8 @@ public class RefactoryGM : MonoBehaviourPunCallbacks
 {
     public static RefactoryGM Instance;
     public TMP_Text gamestatustxt;
+    public TMP_Text gameovertxt;    
+    public GameObject resultPannel;
     public TMP_Text[] scoreTexts; // 점수 표시될 곳
     public Sprite[] cardSprites; // 카드 스프라이트
     public Image[] cardImages; // 카드 스프라이트 표시될 곳
@@ -61,7 +63,7 @@ public class RefactoryGM : MonoBehaviourPunCallbacks
         if (CheckOtherPlayerHand()) // 모든 플레이어가 카드 소모 완료한 경우!
         {
             WholeRoundOver();
-            if (PhotonNetwork.LocalPlayer.IsMasterClient) 
+            if (PhotonNetwork.LocalPlayer.IsMasterClient)
             {
                 TrashGotcha();
             }
@@ -69,19 +71,23 @@ public class RefactoryGM : MonoBehaviourPunCallbacks
             {
                 SetCardValue(i, playerData.playerNumber);
             }
-           //  RoundResetCheck();
+            //  RoundResetCheck();
         }
-        else if ((IsFinishMyTurn() || IsCannot() ) && (int)Turn["currentPlayerIndex"] == PhotonNetwork.LocalPlayer.ActorNumber) // 2번씩 식사를 마쳤거나, 더 이상 식사를 할 수 없는 상황 -> 턴 넘어가기
-        {
-            playerData.playerHand.Clear();
-            Debug.Log("모두와 2번씩 식사를 했네요 아니면 카드가 같은것만 남아있던가");
-            photonView.RPC("Start", RpcTarget.All);
-        }
+
         else if (playerData.playerHand.Count == 0 && (int)Turn["currentPlayerIndex"] == PhotonNetwork.LocalPlayer.ActorNumber)
         {
             Debug.Log("카드를 다 쓰셨군요");
             photonView.RPC("Start", RpcTarget.All);
         }
+
+        else if ((IsFinishMyTurn() || IsCannot()) && (int)Turn["currentPlayerIndex"] == PhotonNetwork.LocalPlayer.ActorNumber) // 2번씩 식사를 마쳤거나, 더 이상 식사를 할 수 없는 상황 -> 턴 넘어가기
+        {
+            playerData.playerHand.Clear();
+            Debug.Log("모두와 2번씩 식사를 했네요 아니면 카드가 같은것만 남아있던가");
+            photonView.RPC("Start", RpcTarget.All);
+        }
+
+        Debug.Log($"[START] 현재 턴 : {Turn["currentTurn"]}, 현재 플레이어 : {Turn["currentPlayerIndex"]}");
     }
 
     public void SetDefaultValue()
@@ -115,6 +121,8 @@ public class RefactoryGM : MonoBehaviourPunCallbacks
         myScoreText.text = $"{score[PhotonNetwork.LocalPlayer.ActorNumber - 1]}";
         myGoldText.text = $"{gold[PhotonNetwork.LocalPlayer.ActorNumber - 1]}";
         mySilverText.text = $"{silver[PhotonNetwork.LocalPlayer.ActorNumber - 1]}";
+
+        CountMyFoodCard();
     }
 
 
@@ -363,8 +371,10 @@ public class RefactoryGM : MonoBehaviourPunCallbacks
                 Debug.Log("Error: Invalid choice.");
                 break;
         }
+        CountOtherFoodCard();
         photonView.RPC("RoundResetCheck", RpcTarget.All);
         photonView.RPC("ResetAllCardBacks", RpcTarget.All);
+        playerData.playerHand.Remove((FoodCard.CardPoint)PhotonNetwork.LocalPlayer.CustomProperties["selectedFoodCard"]);
         photonView.RPC("Start", RpcTarget.All);
         // 턴 초기화
 
@@ -417,10 +427,8 @@ public class RefactoryGM : MonoBehaviourPunCallbacks
 
         Debug.Log($"현재 내 점수 : {score[PhotonNetwork.LocalPlayer.ActorNumber - 1]}, 다른 플레이어 점수 : {score[0]}, {score[1]}, {score[2]}, {score[3]}, {score[4]}, {score[5]}");
         PhotonNetwork.LocalPlayer.SetCustomProperties(player);
-        CountOtherFoodCard();
-        CountMyFoodCard((FoodCard.CardPoint)PhotonNetwork.LocalPlayer.CustomProperties["selectedFoodCard"]);
-
-        if (PhotonNetwork.LocalPlayer.IsMasterClient) SetStartValue();
+        
+        //CountMyFoodCard((FoodCard.CardPoint)PhotonNetwork.LocalPlayer.CustomProperties["selectedFoodCard"]);
     }
 
     [PunRPC]
@@ -566,7 +574,7 @@ public class RefactoryGM : MonoBehaviourPunCallbacks
         int luck = (int)Trash[index].cardPoint;
 
         int player = 1 + random.Next(PhotonNetwork.LocalPlayer.ActorNumber);
-        
+
         photonView.RPC("recTrash", RpcTarget.All, player, luck);
         gamestatustxt.text = $"{player}번 플레이어가 쓰레기통을 차지합니다.";
     }
@@ -610,31 +618,53 @@ public class RefactoryGM : MonoBehaviourPunCallbacks
         }
     }
 
-    public void CountMyFoodCard(FoodCard.CardPoint cardPoint)
+    public void CountMyFoodCard(/*FoodCard.CardPoint cardPoint*/)
     {
-        if (PhotonNetwork.LocalPlayer.ActorNumber == (int)Turn["currentPlayerIndex"] || PhotonNetwork.LocalPlayer.ActorNumber == (int)Turn["pickedPlayerIndex"])
-        {
-            if (cardPoint != FoodCard.CardPoint.deny && playerData.playerHand.Contains(cardPoint))
-            {
-                playerData.playerHand.Remove(cardPoint);
-            }
-        }
+        // if (PhotonNetwork.LocalPlayer.ActorNumber == (int)Turn["currentPlayerIndex"] || PhotonNetwork.LocalPlayer.ActorNumber == (int)Turn["pickedPlayerIndex"])
+        // {
+        //     if (cardPoint != FoodCard.CardPoint.deny && playerData.playerHand.Contains(cardPoint))
+        //     {
+        //         playerData.playerHand.Remove(cardPoint);
+        //     }
+        // }
+
+        // foreach (Image card in myImages)
+        // {
+        //     foreach (var cardPoint2 in playerData.playerHand)
+        //     {
+        //         if (cardPoint2 == card.GetComponent<FoodCard>().cardPoint)
+        //         {
+        //             if (playerData.playerHand.Contains(cardPoint2))
+        //             {
+        //                 card.sprite = cardSprites[GetSpriteIndex((int)cardPoint2)];
+        //                 card.color = new Color(1f, 1f, 1f, 1f);
+        //             }
+        //             else
+        //             {
+        //                 SetCardToBack(card);
+
+        //             }
+        //         }
+        //     }
+        // }
 
         foreach (Image card in myImages)
-        {
-            FoodCard.CardPoint cardType = card.GetComponent<FoodCard>().cardPoint;
+        {    
 
-            if (!playerData.playerHand.Contains(cardType))
-            {
-                SetCardToBack(card);
-            }
-            else
-            {
-                card.sprite = cardSprites[GetSpriteIndex((int)cardType)];
-                card.color = new Color(1f, 1f, 1f, 1f); // 원래 밝게 복구
-            }
+        var cardPoint = card.GetComponent<FoodCard>().cardPoint;
+
+        // 해당 카드포인트가 playerHand에 있으면 앞면, 없으면 뒷면
+        if (playerData.playerHand.Contains(cardPoint))
+        {
+            card.sprite = cardSprites[GetSpriteIndex((int)cardPoint)];
+            card.color = new Color(1f, 1f, 1f, 1f);
         }
-        Debug.Log($"CountMyFoodCard : {cardPoint}");
+        else
+        {
+            SetCardToBack(card);
+            Debug.Log($"카드 {cardPoint}가 플레이어의 손에 없습니다.");
+        }
+    }
     }
 
 
@@ -693,7 +723,7 @@ public class RefactoryGM : MonoBehaviourPunCallbacks
             }
         }
 
-        Debug.Log($"[SYNC] Turn 동기화됨: currentTurn = {Turn["currentTurn"]}, currentPlayerIndex = {Turn["currentPlayerIndex"]}, pickedPlayerIndex = {Turn["pickedPlayerIndex"]}, foodSubmited = {Turn["foodSubmited"]}");
+        // Debug.Log($"[SYNC] Turn 동기화됨: currentTurn = {Turn["currentTurn"]}, currentPlayerIndex = {Turn["currentPlayerIndex"]}, pickedPlayerIndex = {Turn["pickedPlayerIndex"]}, foodSubmited = {Turn["foodSubmited"]}");
     }
 
     public override void OnPlayerPropertiesUpdate(Player targetPlayer, ExitGames.Client.Photon.Hashtable changedProps)
@@ -701,7 +731,7 @@ public class RefactoryGM : MonoBehaviourPunCallbacks
         if (changedProps.ContainsKey("selectedFoodCard"))
         {
             int selectedFoodCard = (int)changedProps["selectedFoodCard"];
-            Debug.Log($"[SYNC] {targetPlayer.NickName}의 selectedFoodCard 동기화됨: {selectedFoodCard}");
+            // Debug.Log($"[SYNC] {targetPlayer.NickName}의 selectedFoodCard 동기화됨: {selectedFoodCard}");
         }
 
     }
@@ -737,10 +767,10 @@ public class RefactoryGM : MonoBehaviourPunCallbacks
 
     }
 
-    private object each(object var, PlayerData playerData, in List<PlayerData> playerDatas)
-    {
-        throw new NotImplementedException();
-    }
+    // private object each(object var, PlayerData playerData, in List<PlayerData> playerDatas)
+    // {
+    //     throw new NotImplementedException();
+    // }
 
     public bool CheckOtherPlayerHand() // 모든 플레이어의 카드가 소모되었으면 true
     {
@@ -772,5 +802,11 @@ public class RefactoryGM : MonoBehaviourPunCallbacks
         {
             card.DeselectCard();
         }
+    }
+    [PunRPC]
+    public void GameOver()
+    {
+        resultPannel.SetActive(true);
+        gameovertxt.text = $"{PhotonNetwork.CurrentRoom.GetPlayer(1).NickName} : {score[0]}\n{PhotonNetwork.CurrentRoom.GetPlayer(2).NickName} : {score[1]}\n{PhotonNetwork.CurrentRoom.GetPlayer(3).NickName} : {score[2]}\n{PhotonNetwork.CurrentRoom.GetPlayer(4).NickName} : {score[3]}\n";
     }
 }

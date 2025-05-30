@@ -23,7 +23,6 @@ public class GameManager : MonoBehaviourPunCallbacks
     public TMP_Text[] scoretxt;
     public TMP_Text[] goldtxt;
     public TMP_Text[] silvertxt;
-
     public GameObject resultPannel;
     public TextMeshProUGUI[] playerListText;
     int pickedPlayerIndex = -1; // 선 플레이어가 고른카드의 플레이어 번호
