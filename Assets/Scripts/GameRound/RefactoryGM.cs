@@ -31,7 +31,7 @@ public class RefactoryGM : MonoBehaviourPunCallbacks
     public TMP_Text myNickNameText;
     ExitGames.Client.Photon.Hashtable player = new ExitGames.Client.Photon.Hashtable();
     public ExitGames.Client.Photon.Hashtable Turn = new ExitGames.Client.Photon.Hashtable();
-    public List<FoodCard> Trash = new List<FoodCard>();
+    public List<int> Trash = new List<int>();
     public List<int> others = new List<int>();
     public List<(int, int)> currentTurnProcess = new List<(int, int)>();
     public int choice = -1;
@@ -224,11 +224,11 @@ public class RefactoryGM : MonoBehaviourPunCallbacks
                 }
                 else if ((int)Turn["currentPlayerIndex"] == PhotonNetwork.LocalPlayer.ActorNumber)
                 {
-                    gamestatustxt.text = "다른 플레이어가 카드를 제출할 때까지 기다려주세요.";
+                    gamestatustxt.text = "당신은 선 플레이어입니다. 차례를 기다리세요.";
                 }
                 else if ((int)player["selectedFoodCard"] == 0)
                 {
-                    gamestatustxt.text = "카드를 선택해주세요.";
+                    gamestatustxt.text = "카드가 선택되지 않았습니다.";
                 }
                 else if ((int)PhotonNetwork.CurrentRoom.Players[(int)Turn["currentPlayerIndex"]].CustomProperties["selectedFoodCard"] == (int)player["selectedFoodCard"])
                 {
@@ -363,18 +363,31 @@ public class RefactoryGM : MonoBehaviourPunCallbacks
                 photonView.RPC("UpdateMedal", RpcTarget.All, 1, currentPlayerNum);
                 break;
             case (1, 1): // 쓰레기통
-                Trash.Add((FoodCard)PhotonNetwork.CurrentRoom.Players[(int)Turn["pickedPlayerIndex"]].CustomProperties["selectedFoodCard"]);
-                Trash.Add((FoodCard)PhotonNetwork.CurrentRoom.Players[(int)Turn["currentPlayerIndex"]].CustomProperties["selectedFoodCard"]);
+
+                // int rawCard = PhotonNetwork.CurrentRoom.Players[(int)Turn["pickedPlayerIndex"]].CustomProperties["selectedFoodCard"];
+                // int rawCard2 = PhotonNetwork.CurrentRoom.Players[(int)Turn["currentPlayerIndex"]].CustomProperties["selectedFoodCard"];
+                // if (rawCard is int intVal && Enum.IsDefined(typeof(FoodCard), intVal)) {
+                //     Trash.Add((FoodCard)intVal);
+                // } else {
+                //     Debug.LogError("selectedFoodCard is invalid or not an int.");
+                // }
+                // if (rawCard2 is int intVal2 && Enum.IsDefined(typeof(FoodCard), intVal2)) {
+                //     Trash.Add((FoodCard)intVal2);
+                // } else {
+                //     Debug.LogError("selectedFoodCard is invalid or not an int.");
+                // }
+                Trash.Add((int)PhotonNetwork.CurrentRoom.Players[(int)Turn["pickedPlayerIndex"]].CustomProperties["selectedFoodCard"]);
+                Trash.Add((int)PhotonNetwork.CurrentRoom.Players[(int)Turn["currentPlayerIndex"]].CustomProperties["selectedFoodCard"]);
                 photonView.RPC("UpdatePlayerTurn", RpcTarget.All, (int)Turn["pickedPlayerIndex"], (int)Turn["currentPlayerIndex"]);
                 break;
             default:
                 Debug.Log("Error: Invalid choice.");
                 break;
         }
-        CountOtherFoodCard();
+        photonView.RPC("CountOtherFoodCard", RpcTarget.All);
         photonView.RPC("RoundResetCheck", RpcTarget.All);
+        photonView.RPC("ReturnCardToHand", RpcTarget.All);
         photonView.RPC("ResetAllCardBacks", RpcTarget.All);
-        playerData.playerHand.Remove((FoodCard.CardPoint)PhotonNetwork.LocalPlayer.CustomProperties["selectedFoodCard"]);
         photonView.RPC("Start", RpcTarget.All);
         // 턴 초기화
 
@@ -385,6 +398,15 @@ public class RefactoryGM : MonoBehaviourPunCallbacks
         if (playernum == 0) choice = value;
         else if (playernum == 1) choice2 = value;
     }
+
+    [PunRPC]
+    public void ReturnCardToHand()
+    {
+        if ((int)Turn["pickedPlayerIndex"] == PhotonNetwork.LocalPlayer.ActorNumber || (int)Turn["currentPlayerIndex"] == PhotonNetwork.LocalPlayer.ActorNumber)
+        {
+            playerData.playerHand.Remove((FoodCard.CardPoint)PhotonNetwork.LocalPlayer.CustomProperties["selectedFoodCard"]);
+        }
+    }   
 
     [PunRPC]
     public void UpdateMedal(int goldorSilver, int playernum)
@@ -550,20 +572,22 @@ public class RefactoryGM : MonoBehaviourPunCallbacks
 
     public void WholeRoundOver()
     {
-        photonView.RPC("AddTrash", RpcTarget.All, playerData.playerHand);
-        handCards.Clear();
+
+        photonView.RPC("AddTrash", RpcTarget.All, playerData);
+        playerData.playerHand.Clear();
         playerData.playerHand.Add(FoodCard.CardPoint.Bread);
         playerData.playerHand.Add(FoodCard.CardPoint.Soup);
         playerData.playerHand.Add(FoodCard.CardPoint.Fish);
         playerData.playerHand.Add(FoodCard.CardPoint.Steak);
         playerData.playerHand.Add(FoodCard.CardPoint.Turkey);
         playerData.playerHand.Add(FoodCard.CardPoint.Cake);
+        Trash.Clear();
     }
 
-    [PunRPC] // 마스터 플레이어만 실행, 그 이후 Trash 동기화, Trash에서 랜덤으로 카드 뽑기, Trash 비우기
-    public void AddTrash(PlayerData handCards)
+    [PunRPC] 
+    public void AddTrash(PlayerData playerdata)
     {
-        Trash.AddRange(handCards.playerHand);
+        Trash.AddRange(playerdata.playerHand);
     }
 
     public void TrashGotcha()
@@ -571,12 +595,13 @@ public class RefactoryGM : MonoBehaviourPunCallbacks
 
         System.Random random = new System.Random();
         int index = random.Next(Trash.Count);
-        int luck = (int)Trash[index].cardPoint;
+        int luck = (int)Trash[index];
 
         int player = 1 + random.Next(PhotonNetwork.LocalPlayer.ActorNumber);
 
         photonView.RPC("recTrash", RpcTarget.All, player, luck);
         gamestatustxt.text = $"{player}번 플레이어가 쓰레기통을 차지합니다.";
+        Debug.Log($"쓰레기통에서 뽑힌 카드 : {luck}, 플레이어 : {player}");
     }
 
     [PunRPC]
@@ -587,10 +612,9 @@ public class RefactoryGM : MonoBehaviourPunCallbacks
             photonView.RPC("CalculateScore", RpcTarget.All, playernum, scoreamount);
             // photonView.RPC("SyncScore", RpcTarget.All, PhotonNetwork.LocalPlayer.ActorNumber, score[playernum-1]);
         }
-        Trash.Clear();
     }
 
-
+  [PunRPC]
     public void CountOtherFoodCard()
     {
         int currentPlayerNum = (int)Turn["currentPlayerIndex"];
@@ -695,7 +719,7 @@ public class RefactoryGM : MonoBehaviourPunCallbacks
         var max = Math.Max(playerA, playerB);
         var key = (min, max);
 
-        if (currentTurnProcess.Contains(key) && currentTurnProcess.Count(p => p.Item1 == min && p.Item2 == max) > 2) return true;
+        if (currentTurnProcess.Contains(key) && currentTurnProcess.Count(p => p.Item1 == min && p.Item2 == max) >= 2) return true;
         else return false;
 
     }
@@ -788,10 +812,10 @@ public class RefactoryGM : MonoBehaviourPunCallbacks
 
         for (int i = 1; i < maxPlayer + 1; i++)
         {
-            if (BlockPlayerTurn((int)Turn["currentTurn"], i)) turnCount++;
+            if (BlockPlayerTurn((int)Turn["currentPlayerIndex"], i)) turnCount++;
         }
 
-        if (turnCount == maxPlayer - 1) return true;
+        if (turnCount >= maxPlayer - 1) return true;
         else return false;
     }
 

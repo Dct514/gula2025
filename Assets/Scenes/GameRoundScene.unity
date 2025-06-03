@@ -2589,7 +2589,7 @@ MonoBehaviour:
   myGoldText: {fileID: 754822274}
   mySilverText: {fileID: 345752550}
   myNickNameText: {fileID: 1954429344}
-  Trash: []
+  Trash: 
   others: 
   choice: -1
   choice2: -1
