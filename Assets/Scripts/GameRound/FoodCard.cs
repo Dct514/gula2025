@@ -12,9 +12,9 @@ public class FoodCard : MonoBehaviour, IPointerClickHandler
         Bread = 1,
         Soup = 2,
         Fish = 3,
-        Steak = 5,
-        Turkey = 7,
-        Cake = 10,
+        Steak = 4,
+        Turkey = 5,
+        Cake = 7,
         deny = 0,
         tablecard = -1,
     }

@@ -29,6 +29,10 @@ public class RefactoryGM : MonoBehaviourPunCallbacks
     public TMP_Text myGoldText;
     public TMP_Text mySilverText;
     public TMP_Text myNickNameText;
+
+    public TMP_Text[] resultNameTexts;
+    public TMP_Text[] resultScoreTexts;
+
     ExitGames.Client.Photon.Hashtable player = new ExitGames.Client.Photon.Hashtable();
     public ExitGames.Client.Photon.Hashtable Turn = new ExitGames.Client.Photon.Hashtable();
     public List<int> Trash = new List<int>();
@@ -831,6 +835,18 @@ public class RefactoryGM : MonoBehaviourPunCallbacks
     public void GameOver()
     {
         resultPannel.SetActive(true);
-        gameovertxt.text = $"{PhotonNetwork.CurrentRoom.GetPlayer(1).NickName} : {score[0]}\n{PhotonNetwork.CurrentRoom.GetPlayer(2).NickName} : {score[1]}\n{PhotonNetwork.CurrentRoom.GetPlayer(3).NickName} : {score[2]}\n{PhotonNetwork.CurrentRoom.GetPlayer(4).NickName} : {score[3]}\n";
+
+        int playerCount = PhotonNetwork.CurrentRoom.PlayerCount;
+        for (int i = 0; i < playerCount; i++)
+        {
+            Player p = PhotonNetwork.CurrentRoom.GetPlayer(i + 1);
+            resultNameTexts[i].text = p.NickName;
+            resultScoreTexts[i].text = score[i].ToString();
+        }
+    }
+
+    public void CloseResultPanel()
+    {
+        resultPannel.SetActive(false);
     }
 }
