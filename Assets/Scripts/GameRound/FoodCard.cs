@@ -30,16 +30,16 @@ public class FoodCard : MonoBehaviour, IPointerClickHandler
             return;
         }
 
-        if (RefactoryGM.Instance != null && myImage.sprite.name == RefactoryGM.Instance.backSprite.name)
+        if (GameManager.Instance != null && myImage.sprite.name == GameManager.Instance.backSprite.name)
         {
             Debug.Log("사용한(뒷면) 카드는 클릭할 수 없습니다.");
             return;
         }
 
-        if (RefactoryGM.Instance != null)
+        if (GameManager.Instance != null)
         {
-            RefactoryGM.Instance.DeselectAllCards();
-            RefactoryGM.Instance.FoodCardSelect(cardPoint);
+            GameManager.Instance.DeselectAllCards();
+            GameManager.Instance.FoodCardSelect(cardPoint);
         }
         else
         {

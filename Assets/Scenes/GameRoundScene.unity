@@ -1413,7 +1413,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dfeb09f5215a1f549a9c6261dd7098b2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cardPoint: 7
+  cardPoint: 5
 --- !u!114 &282442849
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3022,7 +3022,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dfeb09f5215a1f549a9c6261dd7098b2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cardPoint: 5
+  cardPoint: 4
 --- !u!114 &606822206
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3051,7 +3051,7 @@ GameObject:
   - component: {fileID: 608318222}
   - component: {fileID: 608318223}
   m_Layer: 0
-  m_Name: NewGameManager
+  m_Name: GameManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3140,6 +3140,7 @@ MonoBehaviour:
   choice: -1
   choice2: -1
   checkFoodCard: 0
+  checkFalse: 0
   gold: 000000000000000000000000000000000000000000000000
   silver: 000000000000000000000000000000000000000000000000
   score: 000000000000000000000000000000000000000000000000
@@ -3170,7 +3171,7 @@ MonoBehaviour:
   otherFoodCards: 
   playerData:
     playerNumber: -1
-    playerHand: 01000000020000000300000005000000070000000a000000
+    playerHand: 010000000200000003000000040000000500000007000000
   playerDatas: []
 --- !u!4 &608318221
 Transform:
@@ -4401,7 +4402,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dfeb09f5215a1f549a9c6261dd7098b2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cardPoint: 10
+  cardPoint: 7
 --- !u!114 &861015546
 MonoBehaviour:
   m_ObjectHideFlags: 0

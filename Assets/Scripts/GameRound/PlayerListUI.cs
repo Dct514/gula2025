@@ -127,7 +127,7 @@ public class PlayerListUI : MonoBehaviourPunCallbacks
 
     private void HighlightProfiles()
     {
-        if (RefactoryGM.Instance == null)
+        if (GameManager.Instance == null)
             return;
 
         float cycle = Time.time % 3f; // 3초 주기
@@ -188,23 +188,23 @@ public class PlayerListUI : MonoBehaviourPunCallbacks
 
     private bool ShouldHighlightProfile(int actorNumber)
     {
-        if (RefactoryGM.Instance == null || RefactoryGM.Instance.Turn == null)
+        if (GameManager.Instance == null || GameManager.Instance.Turn == null)
         {
             Debug.LogError("RefactoryGM.Instance 또는 Turn이 null입니다!");
             return false;
         }
 
-        if (!RefactoryGM.Instance.Turn.ContainsKey("currentTurn") ||
-            !RefactoryGM.Instance.Turn.ContainsKey("currentPlayerIndex") ||
-            !RefactoryGM.Instance.Turn.ContainsKey("pickedPlayerIndex"))
+        if (!GameManager.Instance.Turn.ContainsKey("currentTurn") ||
+            !GameManager.Instance.Turn.ContainsKey("currentPlayerIndex") ||
+            !GameManager.Instance.Turn.ContainsKey("pickedPlayerIndex"))
         {
             Debug.LogError("Turn 딕셔너리에 필요한 키가 없습니다!");
             return false;
         }
 
-        int currentTurn = (int)RefactoryGM.Instance.Turn["currentTurn"];
-        int currentPlayer = (int)RefactoryGM.Instance.Turn["currentPlayerIndex"];
-        int pickedPlayer = (int)RefactoryGM.Instance.Turn["pickedPlayerIndex"];
+        int currentTurn = (int)GameManager.Instance.Turn["currentTurn"];
+        int currentPlayer = (int)GameManager.Instance.Turn["currentPlayerIndex"];
+        int pickedPlayer = (int)GameManager.Instance.Turn["pickedPlayerIndex"];
 
         switch (currentTurn)
         {
