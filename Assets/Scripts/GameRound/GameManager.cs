@@ -19,10 +19,11 @@ public class GameManager : MonoBehaviourPunCallbacks
     public static GameManager Instance;
     public TMP_Text gamestatustxt;
     public TMP_Text gameovertxt;    
+    public TMP_Text timerText;    
     public GameObject resultPannel;
     public TMP_Text[] scoreTexts; // 점수 표시될 곳
     public Sprite[] cardSprites; // 카드 스프라이트
-    public Image[] cardImages; // 카드 스프라이트 표시될 곳
+    public Image[] cardImages; // 카드 스프라이트 표시될 곳 (테이블.)
     public TMP_Text[] goldTexts; // 골드 표시될 곳
     public TMP_Text[] silverTexts; // 실버 표시될 곳
     public TMP_Text myScoreText;
@@ -56,6 +57,8 @@ public class GameManager : MonoBehaviourPunCallbacks
     public List<FoodCard.CardPoint> otherFoodCards = new List<FoodCard.CardPoint>();
     public PlayerData playerData = new PlayerData();
     public List<PlayerData> playerDatas = new List<PlayerData>(); // 플레이어 덱 비교를 위해서 여기에 넣겠습니다
+    private Coroutine turnTimerCoroutine;
+
 
     [PunRPC]
     void Start()
@@ -67,7 +70,6 @@ public class GameManager : MonoBehaviourPunCallbacks
         }
 
         SetDefaultValue(); // 기본값을 초기화합니다.
-
         StartCoroutine(WaitForAllPlayerDatas());
     }
 
@@ -83,6 +85,79 @@ public class GameManager : MonoBehaviourPunCallbacks
         CheckCard();
     }
 
+    [PunRPC]
+    public void GameTimer()
+    {
+        if (turnTimerCoroutine != null)
+            StopCoroutine(turnTimerCoroutine);
+
+        turnTimerCoroutine = StartCoroutine(TurnTimerCoroutine());
+    }
+
+    private IEnumerator TurnTimerCoroutine()
+    {
+        float timer = 8f;
+        timerText.text = $"{timer:F0}";
+
+        while (timer > 0)
+        {
+            yield return new WaitForSeconds(1f);
+            timer -= 1f;
+            timerText.text = $"{timer:F0}";
+        }
+
+        // 8초가 지나면 턴을 자동으로 넘김
+        if (PhotonNetwork.LocalPlayer.ActorNumber == (int)Turn["currentPlayerIndex"])
+        {
+            photonView.RPC("ForceEndTurn", RpcTarget.All);
+        }
+        turnTimerCoroutine = null;
+    }
+    
+    [PunRPC]
+    public void ForceEndTurn()
+    {
+        // 여기서 턴을 넘기는 로직을 호출
+        // 예시: 자동으로 카드 제출, 턴 넘기기 등
+        CheckCard();
+    }
+
+        // if ((int)Turn["currentTurn"] == 0 && (int)Turn["currentPlayerIndex"] == PhotonNetwork.LocalPlayer.ActorNumber && (int)player["selectedFoodCard"] != 0 && playerData.Submited == false)
+    // {
+    //     if (playerData.playerHand.Count > 0)
+    //     {
+    //         FoodCard.CardPoint firstCard = playerData.playerHand[0];
+
+    //         // 첫 번째 카드 사용
+    //         playerData.Submited = true;
+    //         player["selectedFoodCard"] = firstCard;
+
+    //         photonView.RPC("SetCardValue", RpcTarget.All, firstCard, 0);
+    //         photonView.RPC("SetGameStatusText", RpcTarget.All, "선 플레이어와 식사할 사람은 카드를 제출하세요.");
+    //         Turn["currentTurn"] = 1;
+    //         photonView.RPC("GameTimer", RpcTarget.All);
+    //         PhotonNetwork.CurrentRoom.SetCustomProperties(Turn);
+
+
+    //         // firstCard를 사용해서 원하는 작업 수행
+    //     }
+    // }
+    // else if ((int)Turn["currentTurn"] == 1)
+    // {
+    //     gamestatustxt.text = "선 플레이어가 카드를 제출하는 중입니다.";
+    // }
+    // else if ((int)Turn["currentTurn"] == 2)
+    // {
+    //     gamestatustxt.text = "선 플레이어가 식사할 플레이어를 고르는 중입니다.";
+    // }
+    // else if ((int)Turn["currentTurn"] == 3)
+    // {
+    //     gamestatustxt.text = "게임이 진행 중입니다. 차례를 기다리세요.";
+    // }
+
+
+    // playerDatas가 모두 모일 때까지 대기
+
     public void CheckCard()
     {
         if ((int)Turn["currentPlayerIndex"] != PhotonNetwork.LocalPlayer.ActorNumber)
@@ -92,41 +167,34 @@ public class GameManager : MonoBehaviourPunCallbacks
         }
 
         if (CheckOtherPlayerHand() == true) // 모든 플레이어가 카드 소모 완료한 경우 
-            {
-                GetNewMycard();
+        {
+            GetNewMycard();
+            photonView.RPC("TrashGotcha", RpcTarget.MasterClient);
+            photonView.RPC("RoundResetCheck", RpcTarget.All); // 등급 리셋, 스코어 리셋
+            Debug.Log("모든 플레이어가 카드를 소모했습니다. 새로운 카드를 받습니다.");
+        }
+        else if (playerData.playerHand.Count == 0)
+        {
+            Debug.Log("카드를 다 쓰셨군요");
+            gamestatustxt.text = "카드를 다 소모해서 차례가 자동으로 넘어갑니다.";
+            photonView.RPC("Start", RpcTarget.All);
+        }
+        else if (IsFinishMyTurn() || IsCannot()) // 2번씩 식사를 마쳤거나, 더 이상 식사를 할 수 없는 상황 -> 턴 넘어가기
+        {
+            playerData.playerHand.Clear();
+            Debug.Log("모두와 2번씩 식사를 했네요 아니면 카드가 같은것만 남아있던가");
+            gamestatustxt.text = "식사할 플레이어가 없어 차례가 자동으로 넘어갑니다.";
+            photonView.RPC("Start", RpcTarget.All);
+        }
+        else
+        {
+            Debug.Log("카드가 남아있습니다. 식사를 진행합니다. 남은 카드 : " + playerData.playerHand.Count);
+            photonView.RPC("GameTimer", RpcTarget.All);
 
-                if (PhotonNetwork.LocalPlayer.IsMasterClient)
-                {
-                    TrashGotcha();
-                }
-                for (int i = 1; i < 7; i++)
-                {
-                    SetCardValue(i, playerData.playerNumber);
-                }
+        }
 
-                photonView.RPC("RoundResetCheck", RpcTarget.All); // 등급 리셋, 스코어 리셋
-            }
-            else if (playerData.playerHand.Count == 0)
-            {
-                Debug.Log("카드를 다 쓰셨군요");
-                gamestatustxt.text = "카드를 다 소모해서 차례가 자동으로 넘어갑니다.";
-                photonView.RPC("Start", RpcTarget.All);
-            }
-            else if (IsFinishMyTurn() || IsCannot()) // 2번씩 식사를 마쳤거나, 더 이상 식사를 할 수 없는 상황 -> 턴 넘어가기
-            {
-                playerData.playerHand.Clear();
-                Debug.Log("모두와 2번씩 식사를 했네요 아니면 카드가 같은것만 남아있던가");
-                gamestatustxt.text = "식사할 플레이어가 없어 차례가 자동으로 넘어갑니다.";
-                photonView.RPC("Start", RpcTarget.All);
-            }
-            else
-            {
-                Debug.Log("카드가 남아있습니다. 식사를 진행합니다. 남은 카드 : " + playerData.playerHand.Count);
+        Debug.Log($"[CheckCard] 현재 턴 : {Turn["currentTurn"]}, 현재 플레이어 : {Turn["currentPlayerIndex"]}");
 
-            }
-
-        Debug.Log($"[START] 현재 턴 : {Turn["currentTurn"]}, 현재 플레이어 : {Turn["currentPlayerIndex"]}");
-        
     }
 
     public void SetDefaultValue()
@@ -234,7 +302,7 @@ public class GameManager : MonoBehaviourPunCallbacks
         switch (Turn["currentTurn"])
         {
             case 0:
-                if ((int)Turn["currentPlayerIndex"] == PhotonNetwork.LocalPlayer.ActorNumber && (int)player["selectedFoodCard"] != 0)
+                if ((int)Turn["currentPlayerIndex"] == PhotonNetwork.LocalPlayer.ActorNumber && (int)player["selectedFoodCard"] != 0 && playerData.Submited == false)
                 {
                     playerData.Submited = true;
                     photonView.RPC("SetCardValue", RpcTarget.All, (int)player["selectedFoodCard"], 0);
@@ -483,6 +551,7 @@ public class GameManager : MonoBehaviourPunCallbacks
         Debug.Log($"현재 내 점수 : {score[PhotonNetwork.LocalPlayer.ActorNumber - 1]}, 다른 플레이어 점수 : {score[0]}, {score[1]}, {score[2]}, {score[3]}, {score[4]}, {score[5]}");
         PhotonNetwork.LocalPlayer.SetCustomProperties(player);
         
+        photonView.RPC("Start", RpcTarget.All);
         //CountMyFoodCard((FoodCard.CardPoint)PhotonNetwork.LocalPlayer.CustomProperties["selectedFoodCard"]);
     }
 
@@ -628,8 +697,10 @@ public class GameManager : MonoBehaviourPunCallbacks
         Trash.AddRange(playerdata.playerHand);
     }
 
+    [PunRPC] 
     public void TrashGotcha()
     {
+        Debug.Log("쓰레기통에서 뽑기를 시작합니다.");
         if (Trash.Count == 0)
         {
             Debug.LogWarning("Trash 리스트가 비어있어서 뽑기를 할 수 없습니다.");
@@ -807,8 +878,13 @@ public class GameManager : MonoBehaviourPunCallbacks
     {
         foreach (PlayerData pl in playerDatas)
         {
-            if (pl.playerHand.Count != 0) return false;
+            if (pl.playerHand.Count != 0)
+            {
+                Debug.Log($"플레이어 {pl.playerNumber}의 카드가 남아있습니다. 남은 카드 수: {pl.playerHand.Count}");
+                return false;
+            }     
         }
+        Debug.Log("모든 플레이어의 카드가 소모되었습니다.");
         return true;
     }
 
