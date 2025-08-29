@@ -82,6 +82,19 @@ MonoBehaviour:
   - CountOtherFoodCard
   - ReturnCardToHand
   - TrashGotcha
+  - ForceEndTurn
+  - GameTimer
+  - Choiced
+  - SyncVar
+  - TryIncreaseFoodSubmited
+  - TryIncreaseFoodSubmitedRPC
+  - updateCheckFoodSubmit
+  - SynTurn
+  - SyncCanFreeChoice
+  - SynCanFreeChoice
+  - SubmitChoiceToMaster
+  - SendCardInfo2
+  - ReceivePlayerData
   DisableAutoOpenWizard: 1
   ShowSettings: 0
   DevRegionSetOnce: 1

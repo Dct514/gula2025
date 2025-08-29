@@ -7,6 +7,7 @@ public class PlayerData
 {
     public int playerNumber;
     public bool Submited { get; set; }
+    public int selectedFoodCard;
 
     public List<FoodCard.CardPoint> playerHand = new List<FoodCard.CardPoint>
     {
