@@ -38,6 +38,9 @@ public class GameManager : MonoBehaviourPunCallbacks
     public TMP_Text[] resultNameTexts;
     public TMP_Text[] resultScoreTexts;
 
+
+
+
     ExitGames.Client.Photon.Hashtable player = new ExitGames.Client.Photon.Hashtable();
     public ExitGames.Client.Photon.Hashtable Turn = new ExitGames.Client.Photon.Hashtable();
     public List<int> Trash = new List<int>();
@@ -51,17 +54,23 @@ public class GameManager : MonoBehaviourPunCallbacks
     public int[] gold = new int[6] { 0, 0, 0, 0, 0, 0 };
     public int[] silver = new int[6] { 0, 0, 0, 0, 0, 0 };
     public int[] score = new int[6] { 0, 0, 0, 0, 0, 0 };
+    public int[] grade = new int[6] { 0, 0, 0, 0, 0, 0 }; // 0: 새내기, 1: 용, 2: 대용, 3: 신룡
     public Image[] myImages;
     public List<HandCard> handCards = new List<HandCard>(); // 각 플레이어의 카드들 (이미지)
     public List<Grade> gradeImages = new List<Grade>();
     public Sprite backSprite;
     public Sprite[] gradeSprite;
+    public Sprite[] WelskiSprite;
+    public Image[] PlayerProfileWelski;
     public Image[] myGradeImage;
+    public Sprite[] MiniFoodImages;
+    public Image[] ohterMiniFoodImages;
+
+    public SoundManager sm;
     public List<FoodCard.CardPoint> otherFoodCards = new List<FoodCard.CardPoint>();
     public PlayerData playerData = new PlayerData();
     public List<PlayerData> playerDatas = new List<PlayerData>(); // 플레이어 덱 비교를 위해서 여기에 넣겠습니다
     private Coroutine turnTimerCoroutine;
-    private Dictionary<int, int> receivedChoices = new Dictionary<int, int>();
     private int foodSubmittedCount;
 
     private void Awake()
@@ -105,20 +114,31 @@ public class GameManager : MonoBehaviourPunCallbacks
 
         SetDefaultValue(); // 기본값을 초기화합니다.
         photonView.RPC("SynTurn", RpcTarget.MasterClient, 0);
-        CheckCard();
+        StartCoroutine(WaitForAllPlayerDatas2());
 
         Debug.Log($"[Start] 현재 턴 : {Turn["currentTurn"]}, 현재 플레이어 : {Turn["currentPlayerIndex"]}");
     }
 
 
+    private IEnumerator WaitForAllPlayerDatas2()
+    {
+        // playerDatas가 모두 모일 때까지 대기
+        while (playerDatas.Count < PlayerCount)
+        {
+            yield return new WaitForSeconds(0.1f); // 한 프레임 대기
+        }
+
+        Debug.Log("모든 플레이어 데이터가 수신되었습니다. (playerDatas.Count: " + playerDatas.Count + "/" + PlayerCount + ") (2)");
+        CheckCard();
+
+    }
 
     private IEnumerator WaitFor1Sec()
     {
         yield return new WaitForSeconds(1f);
+        photonView.RPC("Start", RpcTarget.All);
     }
 
-
-    // 선플일때만 정상적으로 타이머가 작동하는 오류
     public void CheckCard()
     {
         if ((int)Turn["currentPlayerIndex"] != PhotonNetwork.LocalPlayer.ActorNumber)
@@ -129,19 +149,17 @@ public class GameManager : MonoBehaviourPunCallbacks
 
         if (CheckOtherPlayerHand() == true) // 모든 플레이어가 카드 소모 완료한 경우 
         {
-            GetNewMycard();
+            photonView.RPC("GetNewMycard", RpcTarget.All); // todo : trash가 전부 전달되지 않았는데 trash에서 뽑기할 수 있을 듯
             photonView.RPC("TrashGotcha", RpcTarget.MasterClient);
             photonView.RPC("RoundResetCheck", RpcTarget.All); // 등급 리셋, 스코어 리셋
-            Debug.Log("모든 플레이어가 카드를 소모했습니다. 새로운 카드를 받습니다.");
         }
         else if (playerData.playerHand.Count == 0)
         {
             Debug.Log("카드를 다 쓰셨군요");
             gamestatustxt.text = "카드를 다 소모해서 차례가 자동으로 넘어갑니다.";
-            StopTurnTimer();
             photonView.RPC("Start", RpcTarget.All);
         }
-        else if (IsFinishMyTurn() || IsCannot()) // 2번씩 식사를 마쳤거나, 더 이상 식사를 할 수 없는 상황 -> 턴 넘어가기
+        else if (IsFinishMyTurn() == true) // 2번씩 식사를 마쳤거나, 더 이상 식사를 할 수 없는 상황 -> 턴 넘어가기
         {
             playerData.playerHand.Clear();
             Debug.Log("모두와 2번씩 식사를 했네요 아니면 카드가 같은것만 남아있던가");
@@ -206,7 +224,9 @@ public class GameManager : MonoBehaviourPunCallbacks
                 {
                     if (playerData.playerHand.Count > 0)
                     {
+                        Debug.Log("자동 제출 실행 (Turn 0)");
                         playerData.selectedFoodCard = (int)playerData.playerHand[0];
+                        Turn["selectedFoodCard"] = playerData.selectedFoodCard;
                         MainTurnStart();
                     }
                     else Debug.LogWarning("카드가 없어서 자동 제출을 할 수 없습니다.");
@@ -216,16 +236,19 @@ public class GameManager : MonoBehaviourPunCallbacks
                 if (playerData.Submited == false &&
                 (int)Turn["currentPlayerIndex"] != PhotonNetwork.LocalPlayer.ActorNumber)
                 {
+                    Debug.Log("자동 제출 실행 (Turn 1)");
                     Denybutton();
                 }
                 break;
             case 2:
+                Debug.Log("자동 제출 실행 (Turn 2)");
                 gamestatustxt.text = "조금만 기다려 주세요.";
                 break;
             case 3:
                 if ((int)Turn["currentPlayerIndex"] == playerData.playerNumber ||
                     (int)Turn["pickedPlayerIndex"] == playerData.playerNumber)
                 {
+                    Debug.Log("자동 제출 실행 (Turn 3)");
                     photonView.RPC("SubmitChoiceToMaster", RpcTarget.MasterClient, playerData.playerNumber, 0);
                 }
                 break;
@@ -268,6 +291,7 @@ public class GameManager : MonoBehaviourPunCallbacks
                 if ((int)Turn["currentPlayerIndex"] == playerData.playerNumber && playerData.selectedFoodCard != 0 && playerData.Submited == false)
                 {
                     playerData.Submited = true;
+                    sm.SoundPlay(3);
                     photonView.RPC("SetCardValue", RpcTarget.All, playerData.selectedFoodCard, 0);
                     photonView.RPC("SetGameStatusText", RpcTarget.All, "선 플레이어와 식사할 사람은 카드를 제출하세요.");
                     photonView.RPC("SynTurn", RpcTarget.MasterClient, 1);
@@ -286,10 +310,11 @@ public class GameManager : MonoBehaviourPunCallbacks
                 if (!BlockPlayerTurn((int)Turn["currentPlayerIndex"], playerData.playerNumber) &&
                 playerData.Submited == false &&
                 playerData.selectedFoodCard != 0 &&
-                (int)Turn["currentPlayerIndex"] != PhotonNetwork.LocalPlayer.ActorNumber &&
+                (int)Turn["currentPlayerIndex"] != playerData.playerNumber &&
                 (int)PhotonNetwork.CurrentRoom.Players[(int)Turn["currentPlayerIndex"]].CustomProperties["selectedFoodCard"] != playerData.selectedFoodCard)
                 {
                     playerData.Submited = true;
+                    sm.SoundPlay(3);
                     photonView.RPC("TryIncreaseFoodSubmitedRPC", RpcTarget.MasterClient, 0);
                     photonView.RPC("SetCardValue", RpcTarget.All, playerData.selectedFoodCard, PhotonNetwork.LocalPlayer.ActorNumber);
                 }
@@ -297,7 +322,7 @@ public class GameManager : MonoBehaviourPunCallbacks
                 {
                     gamestatustxt.text = "이 플레이어와 2번 식사를 완료했습니다. 제출 포기 버튼을 누르세요.";
                 }
-                else if ((int)Turn["currentPlayerIndex"] == PhotonNetwork.LocalPlayer.ActorNumber)
+                else if ((int)Turn["currentPlayerIndex"] == playerData.playerNumber)
                 {
                     gamestatustxt.text = "당신은 선 플레이어입니다. 차례를 기다리세요.";
                 }
@@ -342,23 +367,23 @@ public class GameManager : MonoBehaviourPunCallbacks
     public void ChoiceFree(int pickedPlayernum, FoodCard.CardPoint cardPoint)
     {
         Debug.Log($"choicefree");
-        Debug.Log($"pickedPlayernum: {pickedPlayernum}, cardPoint: {cardPoint}, currentTurn: {Turn["currentTurn"]}, currentPlayerIndex: {Turn["currentPlayerIndex"]}");
+        int pickedPlayerIndex = others[pickedPlayernum - 1];
+        Debug.Log($"pickedPlayerIndex: {pickedPlayerIndex}, playerData.playerNumber: {playerData.playerNumber}");
 
         if (canFreeChoice == true && (int)Turn["currentTurn"] == 2 &&
         (int)Turn["currentPlayerIndex"] == PhotonNetwork.LocalPlayer.ActorNumber &&
-        BlockPlayerTurn(pickedPlayernum, PhotonNetwork.LocalPlayer.ActorNumber) == false &&
-        (int)cardPoint != (int)player["selectedFoodCard"])
+        BlockPlayerTurn(pickedPlayerIndex, PhotonNetwork.LocalPlayer.ActorNumber) == false &&
+        (int)cardPoint != playerData.selectedFoodCard)
         {
-            player["selectedFoodCard"] = cardPoint;
-            playerData.selectedFoodCard = (int)cardPoint;
-            photonView.RPC("SetCardValue", RpcTarget.All, (int)cardPoint, pickedPlayernum);
-            Turn["pickedPlayerIndex"] = others[pickedPlayernum - 1];
+            photonView.RPC("Picked", RpcTarget.All, pickedPlayernum, cardPoint);
+            photonView.RPC("SetCardValue", RpcTarget.All, (int)cardPoint, pickedPlayerIndex);
+            Turn["pickedPlayerIndex"] = pickedPlayerIndex;
             PhotonNetwork.CurrentRoom.SetCustomProperties(Turn);
             photonView.RPC("ReceivePlayerData", RpcTarget.Others, Turn["pickedPlayerIndex"], (int)cardPoint);
 
             Debug.Log($"(ChoiceFree) pickedPlayernum : {(int)Turn["pickedPlayerIndex"]}");
             Debug.Log($"{others[pickedPlayernum - 1]}번 플레이어와 식사하기로 선택했습니다. (choiceFree)");
-            
+
             photonView.RPC("SynTurn", RpcTarget.MasterClient, 3);
             Debug.Log($"choiced : {pickedPlayernum}번 플레이어와 식사하기로 선택했습니다. 카드 포인트: {cardPoint}");
 
@@ -381,6 +406,19 @@ public class GameManager : MonoBehaviourPunCallbacks
             Debug.Log($"현재 턴 : {Turn["currentTurn"]}, 현재 플레이어 : {Turn["currentPlayerIndex"]}, 선택한 플레이어 : {Turn["pickedPlayerIndex"]}, 카드 포인트 : {cardPoint}, canFreeChoice : {canFreeChoice}");
         }
     }
+
+    [PunRPC]
+    public void Picked(int pickedPlayernum, FoodCard.CardPoint cardPoint)
+    {
+        if (pickedPlayernum == playerData.playerNumber)
+        {
+            player["selectedFoodCard"] = cardPoint;
+            playerData.selectedFoodCard = (int)cardPoint;
+            sm.SoundPlay(3);
+        }
+
+    }
+
 
     [PunRPC]
     public void ReceivePlayerData(int playernum, int FoodCardScore)
@@ -406,24 +444,18 @@ public class GameManager : MonoBehaviourPunCallbacks
     [PunRPC]
     public void TryIncreaseFoodSubmitedRPC(int choice = 0)
     {
-        if (!PhotonNetwork.IsMasterClient)
-        {
-            Debug.LogWarning("MasterClient가 아니므로 무시됨");
-            return;
-        }
-
-        // Master 전용 변수 증가
         foodSubmittedCount++;
         
         if (choice == 1) {checkDeny++;}
 
-        FoodSubmitted();
+        if (foodSubmittedCount >= PlayerCount - 1)
+        {
+            if (checkDeny >= PlayerCount - 1)
+            photonView.RPC("SynCanFreeChoice", RpcTarget.All, true);
 
+            photonView.RPC("SynTurn", RpcTarget.MasterClient, 2);
+        }
     }
-
-
-
-
 
     [PunRPC]
     public void ReturnUnselectedCard(int selectedPlayer)
@@ -473,7 +505,7 @@ public class GameManager : MonoBehaviourPunCallbacks
     void SettleChoice(int choice, int choice2)
     {
         Debug.Log($"SettleChoice called with choice: {choice}, choice2: {choice2}");
-        int score = 0;
+        int tempscore = 0;
         int currentPlayerNum = (int)Turn["currentPlayerIndex"];
         int pickedPlayerNum = (int)Turn["pickedPlayerIndex"];
         Debug.Log($"pickedPlayerIndex : {(int)Turn["pickedPlayerIndex"]}");
@@ -505,25 +537,35 @@ public class GameManager : MonoBehaviourPunCallbacks
         switch (choice, choice2)
         {
             case (0, 0): // 식사
-                photonView.RPC("CalculateScore", RpcTarget.All, pickedPlayerNum, PickedPlayer.selectedFoodCard);
-                photonView.RPC("CalculateScore", RpcTarget.All, currentPlayerNum, a);
+                // photonView.RPC("CalculateScore", RpcTarget.All, pickedPlayerNum, b);
+                // photonView.RPC("CalculateScore", RpcTarget.All, currentPlayerNum, a);
                 photonView.RPC("UpdatePlayerTurn", RpcTarget.All, pickedPlayerNum, currentPlayerNum);
                 photonView.RPC("UpdateMedal", RpcTarget.All, 0, currentPlayerNum);
                 photonView.RPC("UpdateMedal", RpcTarget.All, 0, pickedPlayerNum);
+
+                sm.SoundPlay(0);
+                score[currentPlayerNum - 1] += a;
+                score[pickedPlayerNum - 1] += b;
+                
                 break;
             case (0, 1):
-                score = Mathf.Abs(a - b);
-                photonView.RPC("CalculateScore", RpcTarget.All, pickedPlayerNum, score);
+                tempscore = Mathf.Abs(a - b);
+                // photonView.RPC("CalculateScore", RpcTarget.All, pickedPlayerNum, tempscore);
                 photonView.RPC("UpdatePlayerTurn", RpcTarget.All, pickedPlayerNum, currentPlayerNum);
                 photonView.RPC("UpdateMedal", RpcTarget.All, 1, pickedPlayerNum);
+                sm.SoundPlay(1);
+                score[pickedPlayerNum - 1] += tempscore;
                 break;
             case (1, 0):
-                score = Mathf.Abs(b - a);
-                photonView.RPC("CalculateScore", RpcTarget.All, currentPlayerNum, score);
+                tempscore = Mathf.Abs(b - a);
+                // photonView.RPC("CalculateScore", RpcTarget.All, currentPlayerNum, tempscore);
                 photonView.RPC("UpdatePlayerTurn", RpcTarget.All, pickedPlayerNum, currentPlayerNum);
                 photonView.RPC("UpdateMedal", RpcTarget.All, 1, currentPlayerNum);
+                sm.SoundPlay(1);
+                score[currentPlayerNum - 1] += tempscore;
                 break;
             case (1, 1): // 쓰레기통
+                sm.SoundPlay(2);
                 Trash.Add(a);
                 Trash.Add(b);
                 photonView.RPC("UpdatePlayerTurn", RpcTarget.All, pickedPlayerNum, currentPlayerNum);
@@ -533,19 +575,27 @@ public class GameManager : MonoBehaviourPunCallbacks
                 break;
         }
 
-        photonView.RPC("CountOtherFoodCard", RpcTarget.All, currentPlayerNum, pickedPlayerNum, a, b);
-
-        if (currentPlayerNum == playerData.playerNumber)
-        {
-            playerData.playerHand.Remove((FoodCard.CardPoint)a);
-        }
-        else if (pickedPlayerNum == playerData.playerNumber)
-        {
-            playerData.playerHand.Remove((FoodCard.CardPoint)b);
-        }
-
+        photonView.RPC("SyncPlayerScore", RpcTarget.All, score);
+        photonView.RPC("UpdatePlayerHandCard", RpcTarget.All, currentPlayerNum, pickedPlayerNum, a, b);
         photonView.RPC("Start", RpcTarget.All);
     }
+
+    [PunRPC]
+    public void SyncPlayerScore(int[] scores)
+    {
+        score = scores;
+
+        for (int i = 0; i < PlayerCount - 1; i++)
+        {
+            scoreTexts[i].text = $"{score[others[i] - 1]}";
+        }
+        
+        Debug.Log($"현재 내 점수 : {score[playerData.playerNumber - 1]}, 다른 플레이어 점수 : {score[0]}, {score[1]}, {score[2]}, {score[3]}, {score[4]}, {score[5]}");
+
+    }
+
+
+
 
     public void SetChoice(int mychoice) // 0: 식사, 1: 강탈
     {
@@ -567,10 +617,38 @@ public class GameManager : MonoBehaviourPunCallbacks
             Debug.Log($"현재 턴 : {Turn["currentTurn"]}, 현재 플레이어 : {Turn["currentPlayerIndex"]}, 선택한 플레이어 : {Turn["pickedPlayerIndex"]}");
             return;
         }
-
-
-
     }
+
+    [PunRPC]
+    public void UpdatePlayerHandCard(int currentPlayerNum, int pickedPlayerNum, int a, int b)
+    {
+        if (currentPlayerNum == playerData.playerNumber)
+        {
+            playerData.playerHand.Remove((FoodCard.CardPoint)a);
+        }
+        else if (pickedPlayerNum == playerData.playerNumber)
+        {
+            playerData.playerHand.Remove((FoodCard.CardPoint)b);
+        }
+
+        int pickedPlIndex = others.IndexOf(pickedPlayerNum);
+        int starterIndex = others.IndexOf(currentPlayerNum);
+
+        if (PhotonNetwork.LocalPlayer.ActorNumber == currentPlayerNum)
+        {
+            SetCardToBack(handCards[pickedPlIndex].cards[GetSpriteIndex(b)]);
+        }
+        else if (PhotonNetwork.LocalPlayer.ActorNumber == pickedPlayerNum)
+        {
+            SetCardToBack(handCards[starterIndex].cards[GetSpriteIndex(a)]);
+        }
+        else
+        {
+            SetCardToBack(handCards[starterIndex].cards[GetSpriteIndex(a)]);
+            SetCardToBack(handCards[pickedPlIndex].cards[GetSpriteIndex(b)]);
+        }
+    }
+
     [PunRPC]
     public void UpdateVariable(int value, int playernum)
     {
@@ -586,59 +664,101 @@ public class GameManager : MonoBehaviourPunCallbacks
     }
 
     [PunRPC]
-    public void RoundResetCheck() // todo : 카드 소모 다 된 다음 등급 적용 if()
+    public void RoundResetCheck()
     {
-        if (score[PhotonNetwork.LocalPlayer.ActorNumber - 1] >= 16 && (int)player["grade"] == 0)
+        for (int i = 0; i < PlayerCount; i++)
         {
-            photonView.RPC("SyncScore", RpcTarget.All, PhotonNetwork.LocalPlayer.ActorNumber, 0);
-            player["grade"] = 1;
-            photonView.RPC("SetGrade", RpcTarget.All, PhotonNetwork.LocalPlayer.ActorNumber, 1);
-            gamestatustxt.text = "용이 자라났다!";
-
-        }
-        else if (score[PhotonNetwork.LocalPlayer.ActorNumber - 1] >= 21 && (int)player["grade"] == 1)
-        {
-            photonView.RPC("SyncScore", RpcTarget.All, PhotonNetwork.LocalPlayer.ActorNumber, 0);
-            player["grade"] = 2;
-            photonView.RPC("SetGrade", RpcTarget.All, PhotonNetwork.LocalPlayer.ActorNumber, 2);
-            gamestatustxt.text = "크와아아앙!!";
-
-        }
-        else if (score[PhotonNetwork.LocalPlayer.ActorNumber - 1] >= 50 && (int)player["grade"] == 2)
-        {
-            photonView.RPC("SyncScore", RpcTarget.All, PhotonNetwork.LocalPlayer.ActorNumber, 0);
-            player["grade"] = 3;
-            gamestatustxt.text = "용이 자라났다!";
-
-        }
-        else if ((int)player["grade"] == 3 && score[PhotonNetwork.LocalPlayer.ActorNumber - 1] >= 50)
-        {
-            gamestatustxt.text = "우승!";
-            return;
+            switch (score[i])
+            {
+                case int n when (n >= 0 && n <= 16):
+                    grade[i] = 1;
+                    photonView.RPC("SetGrade", RpcTarget.All, i+1, 1);
+                    break;
+                case int n when (n > 16 && n <= 21):
+                    grade[i] = 2;
+                    photonView.RPC("SetGrade", RpcTarget.All, i+1, 2);
+                    break;
+                case int n when (n > 21 && n <= 50):
+                    grade[i] = 3;
+                    photonView.RPC("SetGrade", RpcTarget.All, i+1, 3);
+                    break;
+                case int n when (n > 50):
+                    // 우승
+                    photonView.RPC("GameOver", RpcTarget.All, i+1, 2);
+                    break;
+                default:
+                    Debug.LogWarning($"Invalid score value for player {i + 1}: {score[i]}");
+                    break;
+            }
         }
 
-        Debug.Log($"현재 내 점수 : {score[PhotonNetwork.LocalPlayer.ActorNumber - 1]}, 다른 플레이어 점수 : {score[0]}, {score[1]}, {score[2]}, {score[3]}, {score[4]}, {score[5]}");
+
+        // if (score[myNum - 1] >= 16 && (int)player["grade"] == 0)
+        // {
+        //     photonView.RPC("SyncScore", RpcTarget.All, myNum, 0);
+        //     player["grade"] = 1;
+        //     photonView.RPC("SetGrade", RpcTarget.All, myNum, 1);
+        //     gamestatustxt.text = "용이 자라났다!";
+
+        // }
+        // else if (score[myNum - 1] >= 21 && (int)player["grade"] == 1)
+        // {
+        //     photonView.RPC("SyncScore", RpcTarget.All, myNum, 0);
+        //     player["grade"] = 2;
+        //     photonView.RPC("SetGrade", RpcTarget.All, myNum, 2);
+        //     gamestatustxt.text = "크와아아앙!!";
+
+        // }
+        // else if (score[playerData.playerNumber - 1] >= 50 && (int)player["grade"] == 2)
+        // {
+        //     photonView.RPC("SyncScore", RpcTarget.All, myNum, 0);
+        //     player["grade"] = 3;
+        //     gamestatustxt.text = "용이 자라났다!";
+
+        // }
+        // else if ((int)player["grade"] == 3 && score[myNum - 1] > 50)
+        // {
+        //     gamestatustxt.text = "우승!";
+        //     return; // 게임 종료부분 이어붙이기
+        // }
+
+        for (int i = 0; i < PlayerCount-1; i++) // other카드 앞판으로
+        {
+            for (int j = 0; j < 6; j++)
+            {
+                handCards[i].cards[j].sprite = MiniFoodImages[j];
+                handCards[i].cards[j].color = new Color(1f, 1f, 1f, 1f);
+            }
+        }  
+
+        Debug.Log($"현재 내 점수 : {score[playerData.playerNumber - 1]}, 다른 플레이어 점수 : {score[0]}, {score[1]}, {score[2]}, {score[3]}, {score[4]}, {score[5]}");
         PhotonNetwork.LocalPlayer.SetCustomProperties(player);
 
-        photonView.RPC("Start", RpcTarget.All);
+        if (PhotonNetwork.IsMasterClient)
+        {
+            StartCoroutine(WaitFor1Sec());
+        }
     }
 
     [PunRPC]
     public void SetGrade(int playernum, int grade)
     {
-        if (playernum == PhotonNetwork.LocalPlayer.ActorNumber)
+        if (playernum == playerData.playerNumber)
         {
             myGradeImage[grade - 1].sprite = gradeSprite[0];
+            PlayerProfileWelski[0].sprite = WelskiSprite[grade];
         }
         else if (grade == 1)
         {
             int currentIndex = others.IndexOf(playernum);
             gradeImages[currentIndex].gradeImage[0].sprite = gradeSprite[0];
+            PlayerProfileWelski[currentIndex].sprite = WelskiSprite[1];
         }
         else if (grade == 2)
         {
             int currentIndex = others.IndexOf(playernum);
             gradeImages[currentIndex].gradeImage[1].sprite = gradeSprite[0];
+            PlayerProfileWelski[currentIndex].sprite = WelskiSprite[2];
         }
     }
 
@@ -646,18 +766,12 @@ public class GameManager : MonoBehaviourPunCallbacks
     public void CalculateScore(int playerNum, int scoreamount)
     {
         score[playerNum - 1] += scoreamount;
-
     }
+
     [PunRPC]
     public void SyncScore(int playerNum, int myscore)
     {
         score[playerNum - 1] = myscore;
-    }
-
-    [PunRPC]
-    public void SyncVar(int variable, int myamount)
-    {
-        variable = myamount;
     }
 
     public void FoodCardSelect(FoodCard.CardPoint cardPoint)
@@ -705,25 +819,6 @@ public class GameManager : MonoBehaviourPunCallbacks
         }
 
         Debug.Log($"TableCardSelect 호출됨: {playernum}번 플레이어 선택됨, 카드 포인트: {selectPlayerData.selectedFoodCard}");
-    }
-
-
-    public void FoodSubmitted()
-    {
-        if (!PhotonNetwork.IsMasterClient)
-        {
-            return;
-        }
-
-        if (foodSubmittedCount >= PlayerCount - 1)
-        {
-            if (checkDeny >= PlayerCount - 1)
-            {
-                photonView.RPC("SynCanFreeChoice", RpcTarget.All, true);
-            }
-            
-            photonView.RPC("SynTurn", RpcTarget.MasterClient, 2);
-        }
     }
 
     [PunRPC]
@@ -784,9 +879,10 @@ public class GameManager : MonoBehaviourPunCallbacks
             Debug.Log($"다른 플레이어들: {string.Join(", ", others)}");
     }
 
+    [PunRPC]
     public void GetNewMycard()
     {
-        photonView.RPC("AddTrash", RpcTarget.All, playerData);
+        photonView.RPC("AddTrash", RpcTarget.MasterClient, playerData.playerNumber);
         playerData.playerHand.Clear();
         playerData.playerHand.Add(FoodCard.CardPoint.Bread);
         playerData.playerHand.Add(FoodCard.CardPoint.Soup);
@@ -794,17 +890,24 @@ public class GameManager : MonoBehaviourPunCallbacks
         playerData.playerHand.Add(FoodCard.CardPoint.Steak);
         playerData.playerHand.Add(FoodCard.CardPoint.Turkey);
         playerData.playerHand.Add(FoodCard.CardPoint.Cake);
+        Debug.Log("새로운 카드를 받았습니다.");
+
+        currentTurnProcess.Clear();
+        Debug.Log($"currentTurnProcess 초기화됨: {currentTurnProcess.Count} items");
     }
 
     [PunRPC]
-    public void AddTrash(PlayerData playerdata)
+    public void AddTrash(int playernum)
     {
-        Trash.AddRange(playerdata.playerHand);
+        PlayerData selectPlayerData = playerDatas.Find(p => p.playerNumber == playernum);
+        Trash.AddRange(selectPlayerData.playerHand);
     }
 
     [PunRPC]
     public void TrashGotcha()
     {
+        if (!PhotonNetwork.IsMasterClient) return;
+
         Debug.Log("쓰레기통에서 뽑기를 시작합니다.");
         if (Trash.Count == 0)
         {
@@ -829,42 +932,16 @@ public class GameManager : MonoBehaviourPunCallbacks
         if (playerData.playerNumber == playernum)
         {
             photonView.RPC("CalculateScore", RpcTarget.All, playernum, scoreamount);
-        }
+            photonView.RPC("SetGameStatusText", RpcTarget.All, $"{playernum}번 플레이어가 쓰레기통에서 {scoreamount}점 획득!");
 
-        gamestatustxt.text = $"{player}번 플레이어가 쓰레기통을 차지합니다.";
+        }
         Trash.Clear(); // 쓰레기통 비우기
     }
 
-    [PunRPC]
-    public void CountOtherFoodCard(int currentPlayerNum, int pickedPlayerNum, int a, int b)
+    public void SetMyCard()
     {
-        int pickedPlIndex = others.IndexOf(pickedPlayerNum);
-        int starterIndex = others.IndexOf(currentPlayerNum);
-
-        if (PhotonNetwork.LocalPlayer.ActorNumber == currentPlayerNum)
-        {
-            SetCardToBack(handCards[pickedPlIndex].cards[GetSpriteIndex(b)]);
-        }
-        else if (PhotonNetwork.LocalPlayer.ActorNumber == pickedPlayerNum)
-        {
-            SetCardToBack(handCards[starterIndex].cards[GetSpriteIndex(a)]);
-            // pickedPlayer는 currentPlayerNum의 카드가 비활성화되도록.
-        }
-        else
-        {
-            // SetCardToBack(handCards[starterIndex2].cards[GetSpriteIndex((int)PhotonNetwork.CurrentRoom.Players[pickedPlayerNum].CustomProperties["selectedFoodCard"])]);
-            // SetCardToBack(handCards[starterIndex].cards[GetSpriteIndex((int)PhotonNetwork.CurrentRoom.Players[currentPlayerNum].CustomProperties["selectedFoodCard"])]);
-            SetCardToBack(handCards[starterIndex].cards[GetSpriteIndex(a)]);
-            SetCardToBack(handCards[pickedPlIndex].cards[GetSpriteIndex(b)]);
-         }
-    }
-
-    public void SetMyCard(/*FoodCard.CardPoint cardPoint*/)
-    {
-
         foreach (Image card in myImages)
         {
-
             var cardPoint = card.GetComponent<FoodCard>().cardPoint;
 
             // 해당 카드포인트가 playerHand에 있으면 앞면, 없으면 뒷면
@@ -911,7 +988,6 @@ public class GameManager : MonoBehaviourPunCallbacks
 
         if (currentTurnProcess.Contains(key) && currentTurnProcess.Count(p => p.Item1 == min && p.Item2 == max) >= 2) return true;
         else return false;
-
     }
 
     private void SetCardToBack(Image card)
@@ -983,23 +1059,10 @@ public class GameManager : MonoBehaviourPunCallbacks
         Debug.Log($"현재 playerDatas 수: {playerDatas.Count} SendCardInfo2 종료부" );
 }
 
-    public bool IsCannot() // 식사할 수 있는 플레이어 중, 남은 카드의 종류가 내 카드의 종류와 같은 경우 -> 턴을 넘길 것
-    {
-
-        foreach (PlayerData pl in playerDatas)
-        {
-            if (pl.playerHand == playerData.playerHand && pl.playerNumber != playerData.playerNumber && playerData.playerHand.Count == 1 && !BlockPlayerTurn(pl.playerNumber, playerData.playerNumber))
-            {
-                Debug.Log($"플레이어 {pl.playerNumber}와 {playerData.playerNumber}의 카드가 같습니다.");
-                return true;
-            }
-        }
-        return false;
-
-    }
 
     public bool CheckOtherPlayerHand() // 모든 플레이어의 카드가 소모되었으면 true
     {
+        int count = 0;
 
         foreach (PlayerData pl in playerDatas)
         {
@@ -1011,25 +1074,47 @@ public class GameManager : MonoBehaviourPunCallbacks
             else
             {
                 Debug.Log($"플레이어 {pl.playerNumber}의 카드가 모두 소모되었습니다. (checkOtherPlayerHand)");
-                return true;
+                count++;
             }
         }
-        Debug.Log("오류 : playerDatas가 비어있습니다. (checkOtherPlayerHand)");
+
+        if (count == PlayerCount) return true;
         return false;
     }
 
-    public bool IsFinishMyTurn() // 모든 플레이어와 두 번씩 식사 진행한 경우 true
+    public bool IsFinishMyTurn() // 모든 플레이어와 두 번씩 식사 진행한 경우 true 또는 진행할 수 없으면 true
     {
         int turnCount = 0;
-        int maxPlayer = PhotonNetwork.CurrentRoom.MaxPlayers;
+        int currentPlayerIndex = (int)Turn["currentPlayerIndex"];
+        //int maxPlayer = PhotonNetwork.CurrentRoom.MaxPlayers;
 
-        for (int i = 1; i < maxPlayer + 1; i++)
+        for (int i = 1; i < PlayerCount + 1; i++)
         {
-            if (BlockPlayerTurn((int)Turn["currentPlayerIndex"], i)) turnCount++;
+            if (i == currentPlayerIndex) continue;
+            if (BlockPlayerTurn(currentPlayerIndex, i)) turnCount++;
         }
 
-        if (turnCount >= maxPlayer - 1) return true;
-        else return false;
+        if (turnCount >= PlayerCount - 1)
+        {
+            Debug.Log($"플레이어 {currentPlayerIndex}는 모든 플레이어와 2번씩 식사를 완료했습니다. (IsFinishMyTurn)");
+            return true;
+        }
+        else
+        {
+            foreach (PlayerData pl in playerDatas)
+            {
+                if (pl.playerNumber == currentPlayerIndex) continue;
+                if (pl.playerHand.SequenceEqual(playerData.playerHand) &&
+                pl.playerHand.Count == 1 &&
+                !BlockPlayerTurn(pl.playerNumber, playerData.playerNumber))
+                {
+                    Debug.Log($"플레이어 {pl.playerNumber}와 {playerData.playerNumber}의 카드가 같습니다.");
+                    return true;
+                }
+            }
+        }
+        Debug.Log($"진행 가능");
+        return false;
     }
 
     public void DeselectAllCards()
@@ -1045,27 +1130,27 @@ public class GameManager : MonoBehaviourPunCallbacks
         choice = -1;
         choice2 = -1;
         playerDatas.Clear();
-        checkDeny = 0;
+
         canFreeChoice = false;
-        receivedChoices.Clear();
+
+        foodSubmittedCount = 0;
+        checkDeny = 0;
         
         playerData.Submited = false;
+        playerData.selectedFoodCard = -1;
+        
         player["selectedFoodCard"] = 0;
         player["choice"] = -1;
-        Debug.Log($"현재 내 점수 : {player["score"]}");
+
         PhotonNetwork.LocalPlayer.SetCustomProperties(player);
 
-        for (int i = 0; i < PhotonNetwork.CurrentRoom.PlayerCount - 1; i++)
-        {
-            scoreTexts[i].text = $"{score[others[i] - 1]}";
-        }
 
-        for (int i = 0; i < PhotonNetwork.CurrentRoom.PlayerCount + 1; i++)
+        for (int i = 0; i < PlayerCount; i++)
         {
             SetCardValue(0, i);
         }
 
-        for (int i = 0; i < PhotonNetwork.CurrentRoom.PlayerCount - 1; i++)
+        for (int i = 0; i < PlayerCount-1; i++)
         {
             goldTexts[i].text = $"{gold[others[i] - 1]}";
             silverTexts[i].text = $"{silver[others[i] - 1]}";
@@ -1100,18 +1185,12 @@ public class GameManager : MonoBehaviourPunCallbacks
         player.SetCustomProperties(properties);
     }
 
-    public void UpdateScore(int playerNumber, int score)
-    {
-        player["score" + playerNumber] = score;
-        PhotonNetwork.CurrentRoom.SetCustomProperties(player);
-    }
     [PunRPC]
     public void GameOver()
     {
         resultPannel.SetActive(true);
 
-        int playerCount = PhotonNetwork.CurrentRoom.PlayerCount;
-        for (int i = 0; i < playerCount; i++)
+        for (int i = 0; i < PlayerCount; i++)
         {
             Player p = PhotonNetwork.CurrentRoom.GetPlayer(i + 1);
             resultNameTexts[i].text = p.NickName;
