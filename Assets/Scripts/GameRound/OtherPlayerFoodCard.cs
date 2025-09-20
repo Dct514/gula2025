@@ -11,7 +11,7 @@ public class OtherPlayerFoodCard : MonoBehaviour
     public void OnCardClicked()
     {
         Image a = GetComponent<Image>();
-        if (a != GameManager.Instance.backSprite)
+        if (a.sprite != GameManager.Instance.backSprite)
             GameManager.Instance.ChoiceFree(playerNum, cardPoint);
     }
 

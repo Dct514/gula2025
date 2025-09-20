@@ -64,10 +64,8 @@ public class GameManager : MonoBehaviourPunCallbacks
     public Image[] PlayerProfileWelski;
     public Image[] myGradeImage;
     public Sprite[] MiniFoodImages;
-    public Image[] ohterMiniFoodImages;
 
     public SoundManager sm;
-    public List<FoodCard.CardPoint> otherFoodCards = new List<FoodCard.CardPoint>();
     public PlayerData playerData = new PlayerData();
     public List<PlayerData> playerDatas = new List<PlayerData>(); // 플레이어 덱 비교를 위해서 여기에 넣겠습니다
     private Coroutine turnTimerCoroutine;
@@ -224,9 +222,10 @@ public class GameManager : MonoBehaviourPunCallbacks
                 {
                     if (playerData.playerHand.Count > 0)
                     {
-                        Debug.Log("자동 제출 실행 (Turn 0)");
+                        
                         playerData.selectedFoodCard = (int)playerData.playerHand[0];
                         Turn["selectedFoodCard"] = playerData.selectedFoodCard;
+                        Debug.Log($"자동 제출 실행 (Turn 0) {playerData.selectedFoodCard}");
                         MainTurnStart();
                     }
                     else Debug.LogWarning("카드가 없어서 자동 제출을 할 수 없습니다.");
@@ -310,13 +309,14 @@ public class GameManager : MonoBehaviourPunCallbacks
                 if (!BlockPlayerTurn((int)Turn["currentPlayerIndex"], playerData.playerNumber) &&
                 playerData.Submited == false &&
                 playerData.selectedFoodCard != 0 &&
+                playerData.selectedFoodCard != -1 &&
                 (int)Turn["currentPlayerIndex"] != playerData.playerNumber &&
-                (int)PhotonNetwork.CurrentRoom.Players[(int)Turn["currentPlayerIndex"]].CustomProperties["selectedFoodCard"] != playerData.selectedFoodCard)
+                IsSameFoodCard2() == false)
                 {
                     playerData.Submited = true;
                     sm.SoundPlay(3);
                     photonView.RPC("TryIncreaseFoodSubmitedRPC", RpcTarget.MasterClient, 0);
-                    photonView.RPC("SetCardValue", RpcTarget.All, playerData.selectedFoodCard, PhotonNetwork.LocalPlayer.ActorNumber);
+                    photonView.RPC("SetCardValue", RpcTarget.All, playerData.selectedFoodCard, playerData.playerNumber);
                 }
                 else if (BlockPlayerTurn((int)Turn["currentPlayerIndex"], PhotonNetwork.LocalPlayer.ActorNumber))
                 {
@@ -330,13 +330,17 @@ public class GameManager : MonoBehaviourPunCallbacks
                 {
                     gamestatustxt.text = "카드가 선택되지 않았습니다.";
                 }
-                else if ((int)PhotonNetwork.CurrentRoom.Players[(int)Turn["currentPlayerIndex"]].CustomProperties["selectedFoodCard"] == playerData.selectedFoodCard)
+                else if (IsSameFoodCard2() == true)
                 {
                     gamestatustxt.text = "같은 카드를 선택할 수 없습니다.";
                 }
                 else if (playerData.Submited == true)
                 {
                     gamestatustxt.text = "이미 카드를 제출했습니다.";
+                }
+                else if (playerData.selectedFoodCard == -1)
+                {
+                    gamestatustxt.text = "제출 포기 카드는 제출할 수 없습니다.";
                 }
                 break;
 
@@ -364,9 +368,41 @@ public class GameManager : MonoBehaviourPunCallbacks
                 break;
         }
     }
+
+    public bool IsSameFoodCard()
+    {
+        foreach (var other in playerDatas)
+        {
+            if (other.playerNumber != playerData.playerNumber)
+            {
+                if (other.selectedFoodCard == playerData.selectedFoodCard)
+                {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    
+        public bool IsSameFoodCard2()
+    {
+        foreach (var other in playerDatas)
+        {
+            if (other.playerNumber == (int)Turn["currentPlayerIndex"])
+            {
+                if (other.selectedFoodCard == playerData.selectedFoodCard)
+                {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+
+
     public void ChoiceFree(int pickedPlayernum, FoodCard.CardPoint cardPoint)
     {
-        Debug.Log($"choicefree");
         int pickedPlayerIndex = others[pickedPlayernum - 1];
         Debug.Log($"pickedPlayerIndex: {pickedPlayerIndex}, playerData.playerNumber: {playerData.playerNumber}");
 
@@ -375,17 +411,13 @@ public class GameManager : MonoBehaviourPunCallbacks
         BlockPlayerTurn(pickedPlayerIndex, PhotonNetwork.LocalPlayer.ActorNumber) == false &&
         (int)cardPoint != playerData.selectedFoodCard)
         {
-            photonView.RPC("Picked", RpcTarget.All, pickedPlayernum, cardPoint);
+            photonView.RPC("Picked", RpcTarget.All, pickedPlayerIndex, cardPoint);
             photonView.RPC("SetCardValue", RpcTarget.All, (int)cardPoint, pickedPlayerIndex);
             Turn["pickedPlayerIndex"] = pickedPlayerIndex;
             PhotonNetwork.CurrentRoom.SetCustomProperties(Turn);
-            photonView.RPC("ReceivePlayerData", RpcTarget.Others, Turn["pickedPlayerIndex"], (int)cardPoint);
-
-            Debug.Log($"(ChoiceFree) pickedPlayernum : {(int)Turn["pickedPlayerIndex"]}");
-            Debug.Log($"{others[pickedPlayernum - 1]}번 플레이어와 식사하기로 선택했습니다. (choiceFree)");
-
             photonView.RPC("SynTurn", RpcTarget.MasterClient, 3);
-            Debug.Log($"choiced : {pickedPlayernum}번 플레이어와 식사하기로 선택했습니다. 카드 포인트: {cardPoint}");
+
+            Debug.Log($"choiced : {Turn["pickedPlayerIndex"]}번 플레이어와 식사하기로 선택했습니다. 카드 포인트: {cardPoint}, 내 선택 카드: {playerData.selectedFoodCard}");
 
         }
         else if (BlockPlayerTurn(pickedPlayernum, PhotonNetwork.LocalPlayer.ActorNumber))
@@ -412,9 +444,14 @@ public class GameManager : MonoBehaviourPunCallbacks
     {
         if (pickedPlayernum == playerData.playerNumber)
         {
-            player["selectedFoodCard"] = cardPoint;
+            player["selectedFoodCard"] = (int)cardPoint;
             playerData.selectedFoodCard = (int)cardPoint;
             sm.SoundPlay(3);
+            Debug.Log($"Picked RPC: {pickedPlayernum}번 플레이어의 카드를 선택했습니다. 카드 포인트: {cardPoint}");
+        }
+        else if (pickedPlayernum != playerData.playerNumber)
+        {
+            Debug.Log($"Picked RPC: {pickedPlayernum}번 플레이어의 카드를 선택했습니다. 카드 포인트: {cardPoint}(2)");
         }
 
     }
@@ -434,8 +471,8 @@ public class GameManager : MonoBehaviourPunCallbacks
         if ((int)Turn["currentTurn"] == 1 && (int)Turn["currentPlayerIndex"] != PhotonNetwork.LocalPlayer.ActorNumber && playerData.Submited == false)
         {
             playerData.Submited = true;
-            photonView.RPC("TryIncreaseFoodSubmitedRPC", RpcTarget.MasterClient, 1);
             playerData.selectedFoodCard = 0;
+            photonView.RPC("TryIncreaseFoodSubmitedRPC", RpcTarget.MasterClient, 1);
             photonView.RPC("SetCardValue", RpcTarget.All, 0, PhotonNetwork.LocalPlayer.ActorNumber);
         }
     }
@@ -670,21 +707,21 @@ public class GameManager : MonoBehaviourPunCallbacks
         {
             switch (score[i])
             {
-                case int n when (n >= 0 && n <= 16):
+                case int n when (n >= 16 && grade[i] == 0): // todo : 점수 0점으로 초기화
                     grade[i] = 1;
                     photonView.RPC("SetGrade", RpcTarget.All, i+1, 1);
                     break;
-                case int n when (n > 16 && n <= 21):
+                case int n when (n >= 21 && grade[i] == 1):
                     grade[i] = 2;
                     photonView.RPC("SetGrade", RpcTarget.All, i+1, 2);
                     break;
-                case int n when (n > 21 && n <= 50):
+                case int n when (n >= 50 && grade[i] == 2):
                     grade[i] = 3;
                     photonView.RPC("SetGrade", RpcTarget.All, i+1, 3);
                     break;
-                case int n when (n > 50):
+                case int n when (n >= 50):
                     // 우승
-                    photonView.RPC("GameOver", RpcTarget.All, i+1, 2);
+                    photonView.RPC("GameOver", RpcTarget.All);
                     break;
                 default:
                     Debug.LogWarning($"Invalid score value for player {i + 1}: {score[i]}");
@@ -692,35 +729,6 @@ public class GameManager : MonoBehaviourPunCallbacks
             }
         }
 
-
-        // if (score[myNum - 1] >= 16 && (int)player["grade"] == 0)
-        // {
-        //     photonView.RPC("SyncScore", RpcTarget.All, myNum, 0);
-        //     player["grade"] = 1;
-        //     photonView.RPC("SetGrade", RpcTarget.All, myNum, 1);
-        //     gamestatustxt.text = "용이 자라났다!";
-
-        // }
-        // else if (score[myNum - 1] >= 21 && (int)player["grade"] == 1)
-        // {
-        //     photonView.RPC("SyncScore", RpcTarget.All, myNum, 0);
-        //     player["grade"] = 2;
-        //     photonView.RPC("SetGrade", RpcTarget.All, myNum, 2);
-        //     gamestatustxt.text = "크와아아앙!!";
-
-        // }
-        // else if (score[playerData.playerNumber - 1] >= 50 && (int)player["grade"] == 2)
-        // {
-        //     photonView.RPC("SyncScore", RpcTarget.All, myNum, 0);
-        //     player["grade"] = 3;
-        //     gamestatustxt.text = "용이 자라났다!";
-
-        // }
-        // else if ((int)player["grade"] == 3 && score[myNum - 1] > 50)
-        // {
-        //     gamestatustxt.text = "우승!";
-        //     return; // 게임 종료부분 이어붙이기
-        // }
 
         for (int i = 0; i < PlayerCount-1; i++) // other카드 앞판으로
         {
@@ -743,6 +751,9 @@ public class GameManager : MonoBehaviourPunCallbacks
     [PunRPC]
     public void SetGrade(int playernum, int grade)
     {
+
+    Debug.Log($"SetGrade 호출됨: playernum={playernum}, grade={grade}");
+
         if (playernum == playerData.playerNumber)
         {
             myGradeImage[grade - 1].sprite = gradeSprite[0];
@@ -752,13 +763,15 @@ public class GameManager : MonoBehaviourPunCallbacks
         {
             int currentIndex = others.IndexOf(playernum);
             gradeImages[currentIndex].gradeImage[0].sprite = gradeSprite[0];
-            PlayerProfileWelski[currentIndex].sprite = WelskiSprite[1];
+            PlayerProfileWelski[currentIndex +1].sprite = WelskiSprite[1];
+
+            Debug.Log($"플레이어 {playernum}의 등급이 {grade}로 설정되었습니다. (Index: {currentIndex})");
         }
         else if (grade == 2)
         {
             int currentIndex = others.IndexOf(playernum);
             gradeImages[currentIndex].gradeImage[1].sprite = gradeSprite[0];
-            PlayerProfileWelski[currentIndex].sprite = WelskiSprite[2];
+            PlayerProfileWelski[currentIndex+1].sprite = WelskiSprite[2];
         }
     }
 
@@ -776,12 +789,12 @@ public class GameManager : MonoBehaviourPunCallbacks
 
     public void FoodCardSelect(FoodCard.CardPoint cardPoint)
     {
-        if (cardPoint != FoodCard.CardPoint.tablecard)
+        if (cardPoint != FoodCard.CardPoint.tablecard && cardPoint != FoodCard.CardPoint.deny)
         {
             if (playerData.Submited == false)
             {
-                player["selectedFoodCard"] = cardPoint;
                 playerData.selectedFoodCard = (int)cardPoint;
+                player["selectedFoodCard"] = cardPoint;
             }
             else
             {
@@ -1110,7 +1123,18 @@ public class GameManager : MonoBehaviourPunCallbacks
                 {
                     Debug.Log($"플레이어 {pl.playerNumber}와 {playerData.playerNumber}의 카드가 같습니다.");
                     return true;
+                
+                    // 카드를 냈을 때, 
                 }
+                else if (
+                pl.playerHand.Count == 1 && playerData.playerHand.Count == 2 &&
+                !BlockPlayerTurn(pl.playerNumber, playerData.playerNumber) &&
+                pl.playerHand.Contains((FoodCard.CardPoint)playerData.selectedFoodCard))
+                {
+                    Debug.Log($"플레이어 {pl.playerNumber}와 {playerData.playerNumber}의 카드가 같습니다.");
+                    return true;
+                }
+           
             }
         }
         Debug.Log($"진행 가능");
@@ -1196,6 +1220,9 @@ public class GameManager : MonoBehaviourPunCallbacks
             resultNameTexts[i].text = p.NickName;
             resultScoreTexts[i].text = score[i].ToString();
         }
+
+        Debug.Log("게임 종료 패널 표시");
+        PhotonNetwork.LeaveRoom();
     }
 
     public void CloseResultPanel()
