@@ -701,7 +701,7 @@ public class GameManager : MonoBehaviourPunCallbacks
     }
 
     [PunRPC]
-    public void RoundResetCheck()
+    public void RoundResetCheck() //scoreSync 이후
     {
         for (int i = 0; i < PlayerCount; i++)
         {
@@ -709,15 +709,18 @@ public class GameManager : MonoBehaviourPunCallbacks
             {
                 case int n when (n >= 16 && grade[i] == 0): // todo : 점수 0점으로 초기화
                     grade[i] = 1;
-                    photonView.RPC("SetGrade", RpcTarget.All, i+1, 1);
+                    SetGrade(i + 1, 1);
+                    //photonView.RPC("SetGrade", RpcTarget.All, i+1, 1);
                     break;
                 case int n when (n >= 21 && grade[i] == 1):
                     grade[i] = 2;
-                    photonView.RPC("SetGrade", RpcTarget.All, i+1, 2);
+                    SetGrade(i + 1, 2);
+                    //photonView.RPC("SetGrade", RpcTarget.All, i+1, 2);
                     break;
                 case int n when (n >= 50 && grade[i] == 2):
                     grade[i] = 3;
-                    photonView.RPC("SetGrade", RpcTarget.All, i+1, 3);
+                    SetGrade(i + 1, 3);
+                    //photonView.RPC("SetGrade", RpcTarget.All, i+1, 3);
                     break;
                 case int n when (n >= 50):
                     // 우승
