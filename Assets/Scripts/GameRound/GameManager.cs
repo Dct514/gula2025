@@ -67,7 +67,7 @@ public class GameManager : MonoBehaviourPunCallbacks
 
     public SoundManager sm;
     public PlayerData playerData = new PlayerData();
-    public List<PlayerData> playerDatas = new List<PlayerData>(); // 플레이어 덱 비교를 위해서 여기에 넣겠습니다
+    public List<PlayerData> playerDatas = new List<PlayerData>(); // 플레이어 덱 비교
     private Coroutine turnTimerCoroutine;
     private int foodSubmittedCount;
 
@@ -114,7 +114,6 @@ public class GameManager : MonoBehaviourPunCallbacks
         photonView.RPC("SynTurn", RpcTarget.MasterClient, 0);
         StartCoroutine(WaitForAllPlayerDatas2());
 
-        Debug.Log($"[Start] 현재 턴 : {Turn["currentTurn"]}, 현재 플레이어 : {Turn["currentPlayerIndex"]}");
     }
 
 
@@ -266,6 +265,26 @@ public class GameManager : MonoBehaviourPunCallbacks
             Turn["currentTurn"] = turn;
             PhotonNetwork.CurrentRoom.SetCustomProperties(Turn);
             photonView.RPC("SendCardInfo", RpcTarget.All);
+
+            switch (turn)
+            {
+                case 0:
+                    photonView.RPC("SetGameStatusText", RpcTarget.All, "선 플레이어는 카드를 제출하세요.");
+                    break;
+                case 1:
+                    photonView.RPC("SetGameStatusText", RpcTarget.All, "식사할 플레이어들은 카드를 제출하세요.");
+                    break;
+                case 2:
+                    photonView.RPC("SetGameStatusText", RpcTarget.All, "선 플레이어가 식사할 사람을 고릅니다.");
+                    break;
+                case 3:
+                    photonView.RPC("SetGameStatusText", RpcTarget.All, "식사/강탈을 선택합니다.");
+                    break;
+                default:
+                    Debug.Log("Error: Invalid turn number.");
+                    break;
+            }
+
         }
     }
 
@@ -701,7 +720,7 @@ public class GameManager : MonoBehaviourPunCallbacks
     }
 
     [PunRPC]
-    public void RoundResetCheck() //scoreSync 이후
+    public void RoundResetCheck()
     {
         for (int i = 0; i < PlayerCount; i++)
         {
@@ -710,17 +729,14 @@ public class GameManager : MonoBehaviourPunCallbacks
                 case int n when (n >= 16 && grade[i] == 0): // todo : 점수 0점으로 초기화
                     grade[i] = 1;
                     SetGrade(i + 1, 1);
-                    //photonView.RPC("SetGrade", RpcTarget.All, i+1, 1);
                     break;
                 case int n when (n >= 21 && grade[i] == 1):
                     grade[i] = 2;
                     SetGrade(i + 1, 2);
-                    //photonView.RPC("SetGrade", RpcTarget.All, i+1, 2);
                     break;
                 case int n when (n >= 50 && grade[i] == 2):
                     grade[i] = 3;
                     SetGrade(i + 1, 3);
-                    //photonView.RPC("SetGrade", RpcTarget.All, i+1, 3);
                     break;
                 case int n when (n >= 50):
                     // 우승
