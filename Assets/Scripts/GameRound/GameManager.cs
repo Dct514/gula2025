@@ -191,7 +191,7 @@ public class GameManager : MonoBehaviourPunCallbacks
     }
     private IEnumerator TurnTimerCoroutine()
     {
-        float timer = 8f;
+        float timer = 20f;
         timerText.text = $"{timer:F0}";
 
         while (timer > 0)
