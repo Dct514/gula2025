@@ -4,6 +4,9 @@ using Photon.Pun;
 using Photon.Realtime;
 using TMPro;
 using System.Collections.Generic;
+using System.Diagnostics.Tracing;
+using UnityEngine.UIElements;
+using static UnityEngine.EventSystems.EventTrigger;
 
 public class PhotonConnector : MonoBehaviourPunCallbacks
 {
@@ -88,7 +91,7 @@ public class PhotonConnector : MonoBehaviourPunCallbacks
             return;
         }
         noRoomsText.gameObject.SetActive(false);
-
+        
         float spacing = 10f;
         float itemHeight = 50f;
 
@@ -102,7 +105,7 @@ public class PhotonConnector : MonoBehaviourPunCallbacks
             entryTransform.anchoredPosition = new Vector2(0, -i * (itemHeight + spacing));
 
             entry.transform.Find("RoomNameText").GetComponent<TMP_Text>().text = $"{room.Name} ({room.PlayerCount}/{room.MaxPlayers})";
-            entry.transform.Find("JoinButton").GetComponent<Button>().onClick.AddListener(() => JoinRoom(room.Name));
+            entry.transform.Find("JoinButton").GetComponent<UnityEngine.UI.Button>().onClick.AddListener(() => JoinRoom(room.Name));
 
             roomEntries[room.Name] = entry;
         }
@@ -134,7 +137,6 @@ public class PhotonConnector : MonoBehaviourPunCallbacks
 
     public void JoinRoom(string roomName)
     {
-        roomName = roomNameInput.text;
         if (!PhotonNetwork.IsConnected)
         {
             Debug.LogWarning("Photon에 연결되지 않았습니다!");
@@ -144,11 +146,25 @@ public class PhotonConnector : MonoBehaviourPunCallbacks
         PhotonNetwork.JoinRoom(roomName);
     }
 
+    public void CodeJoin()
+    {
+        if (!PhotonNetwork.IsConnected)
+        {
+            Debug.LogWarning("Photon에 연결되지 않았습니다!");
+            return;
+        }
+        string roomName = roomNameInput.text;
+        PhotonNetwork.JoinRoom(roomName);
+    }
+
+
     public override void OnJoinedRoom()
     {
         Debug.Log($"방 참가 성공: {PhotonNetwork.CurrentRoom.Name}");
         statusText.text = $"[{PhotonNetwork.CurrentRoom.Name}]번 방 입장\n {PhotonNetwork.CurrentRoom.PlayerCount}/4";
         statusText2.text = $"[{PhotonNetwork.CurrentRoom.Name}]번 방 입장\n {PhotonNetwork.CurrentRoom.PlayerCount}/4";
+        GameObject entry = Instantiate(roomEntryPrefab, roomListContainer);
+        entry.transform.Find("RoomNameText").GetComponent<TMP_Text>().text = $"{PhotonNetwork.CurrentRoom.Name} ({PhotonNetwork.CurrentRoom.PlayerCount}/{PhotonNetwork.CurrentRoom.MaxPlayers})";
     }
 
     public override void OnLeftRoom()
