@@ -9,7 +9,7 @@ using Photon.Realtime;
 using System;
 using UnityEngine.SocialPlatforms.Impl;
 using System.Linq;
-using Unity.VisualScripting;
+using Unity.VisualScripting;    
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using PhotonHashtable = ExitGames.Client.Photon.Hashtable;
@@ -37,6 +37,7 @@ public class GameManager : MonoBehaviourPunCallbacks
 
     public TMP_Text[] resultNameTexts;
     public TMP_Text[] resultScoreTexts;
+    public TMP_Text[] nicknameText;
 
 
 
@@ -51,6 +52,8 @@ public class GameManager : MonoBehaviourPunCallbacks
     public int checkDeny = 0; // 선플 전용
     public bool canFreeChoice = false; // 자유롭게 카드 고를 수 있는지 여부
     public int PlayerCount = 4;
+    private float timer = 20f;
+    private float fulltimer;
     public int[] gold = new int[6] { 0, 0, 0, 0, 0, 0 };
     public int[] silver = new int[6] { 0, 0, 0, 0, 0, 0 };
     public int[] score = new int[6] { 0, 0, 0, 0, 0, 0 };
@@ -64,6 +67,7 @@ public class GameManager : MonoBehaviourPunCallbacks
     public Image[] PlayerProfileWelski;
     public Image[] myGradeImage;
     public Sprite[] MiniFoodImages;
+    public Image TimerLeftImage;
 
     public SoundManager sm;
     public PlayerData playerData = new PlayerData();
@@ -90,6 +94,13 @@ public class GameManager : MonoBehaviourPunCallbacks
         player["grade"] = 0;
         player["score"] = 0;
         PhotonNetwork.LocalPlayer.SetCustomProperties(player);
+        fulltimer = timer;
+        
+        for (int i = 0; i < PlayerCount; i++)
+        {
+            Player p = PhotonNetwork.CurrentRoom.GetPlayer(i + 1);
+            nicknameText[i+1].text = p.NickName;
+        }
 
         if (PhotonNetwork.IsMasterClient)
         {
@@ -186,24 +197,32 @@ public class GameManager : MonoBehaviourPunCallbacks
         {
             StopCoroutine(turnTimerCoroutine);
         }
-
+        
+        timer = fulltimer;
         turnTimerCoroutine = StartCoroutine(TurnTimerCoroutine());
     }
     private IEnumerator TurnTimerCoroutine()
     {
-        float timer = 20f;
         timerText.text = $"{timer:F0}";
 
         while (timer > 0)
         {
-            yield return new WaitForSeconds(1f);
-            timer -= 1f;
+            yield return null;
+            timer -= Time.deltaTime;
             timerText.text = $"{timer:F0}";
         }
         // 8초가 지나면 턴을 자동으로 넘김
         ForceEndTurn();
     }
 
+    void Update()
+    {
+        if (timer > 0)
+        {
+            float fill = timer / fulltimer;
+            TimerLeftImage.fillAmount = fill;
+        }
+    }
     public void StopTurnTimer()
     {
         if (turnTimerCoroutine != null)
@@ -265,6 +284,7 @@ public class GameManager : MonoBehaviourPunCallbacks
             Turn["currentTurn"] = turn;
             PhotonNetwork.CurrentRoom.SetCustomProperties(Turn);
             photonView.RPC("SendCardInfo", RpcTarget.All);
+            photonView.RPC("UpdateNicknames", RpcTarget.All, (int)Turn["currentPlayerIndex"]);
 
             switch (turn)
             {
@@ -288,6 +308,12 @@ public class GameManager : MonoBehaviourPunCallbacks
         }
     }
 
+    [PunRPC]
+    public void UpdateNicknames(int currentPlayerIndex)
+    {
+        Player p = PhotonNetwork.CurrentRoom.GetPlayer(currentPlayerIndex);
+        nicknameText[0].text = p.NickName;
+    }
     private IEnumerator WaitForAllPlayerDatas()
     {
         // playerDatas가 모두 모일 때까지 대기
@@ -306,7 +332,7 @@ public class GameManager : MonoBehaviourPunCallbacks
         switch (Turn["currentTurn"])
         {
             case 0:
-                if ((int)Turn["currentPlayerIndex"] == playerData.playerNumber && playerData.selectedFoodCard != 0 && playerData.Submited == false)
+                if ((int)Turn["currentPlayerIndex"] == playerData.playerNumber && playerData.selectedFoodCard != 0 && playerData.Submited == false && playerData.selectedFoodCard != -1)
                 {
                     playerData.Submited = true;
                     sm.SoundPlay(3);
