@@ -197,7 +197,7 @@ public class GameManager : MonoBehaviourPunCallbacks
         {
             StopCoroutine(turnTimerCoroutine);
         }
-        
+         
         timer = fulltimer;
         turnTimerCoroutine = StartCoroutine(TurnTimerCoroutine());
     }
@@ -626,8 +626,8 @@ public class GameManager : MonoBehaviourPunCallbacks
                 photonView.RPC("UpdateMedal", RpcTarget.All, 0, pickedPlayerNum);
 
                 sm.SoundPlay(0);
-                score[currentPlayerNum - 1] += a;
-                score[pickedPlayerNum - 1] += b;
+                score[currentPlayerNum - 1] += a+1;
+                score[pickedPlayerNum - 1] += b+1;
                 
                 break;
             case (0, 1):
@@ -636,7 +636,7 @@ public class GameManager : MonoBehaviourPunCallbacks
                 photonView.RPC("UpdatePlayerTurn", RpcTarget.All, pickedPlayerNum, currentPlayerNum);
                 photonView.RPC("UpdateMedal", RpcTarget.All, 1, pickedPlayerNum);
                 sm.SoundPlay(1);
-                score[pickedPlayerNum - 1] += tempscore;
+                score[pickedPlayerNum - 1] += tempscore+2;
                 break;
             case (1, 0):
                 tempscore = Mathf.Abs(b - a);
@@ -644,7 +644,7 @@ public class GameManager : MonoBehaviourPunCallbacks
                 photonView.RPC("UpdatePlayerTurn", RpcTarget.All, pickedPlayerNum, currentPlayerNum);
                 photonView.RPC("UpdateMedal", RpcTarget.All, 1, currentPlayerNum);
                 sm.SoundPlay(1);
-                score[currentPlayerNum - 1] += tempscore;
+                score[currentPlayerNum - 1] += tempscore+2;
                 break;
             case (1, 1): // 쓰레기통
                 sm.SoundPlay(2);
